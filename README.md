@@ -1,4 +1,4 @@
-# WeatherLion
+# WeatherLion (Beta)
 <i>Java Desktop Weather Widget</i>
 
 Weather Lion can consume data from webservices such as:<br />
