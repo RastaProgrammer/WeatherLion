@@ -48,10 +48,11 @@ import com.bushbungalo.utils.XMLHelper;
  * 			01/28/19 - Added fields {@code iconPackList}, {@code iconSetComponents}, and
  *                     {@code iconPacksLoaded} to for dynamic icon loading support.
  *       </li>
- *       <li>02/05/2019 - Moved assets out of the jar file to eliminate path headaches.</li>
- *       <li>02/06/2019 - Added method {@code healthCheck} to ensure that required files are
+ *       <li>02/05/19 - Moved assets out of the jar file to eliminate path headaches.</li>
+ *       <li>02/06/19 - Added method {@code healthCheck} to ensure that required files are
  *                        found before program launch.</li>
- *       <li>03/02/2019 - Added method {@code locationCheck()}.</li>
+ *       <li>03/02/19 - Added method {@code locationCheck()}.</li>
+ *       <li>05/04/19 - Added field {@code connectedToInternet} for monitoring Internet connectivity.</li>
  * </ul>
  */
 
@@ -140,6 +141,7 @@ public class WeatherLionMain
 	public static ArrayList< String > iconPackList = new ArrayList<>();
 	public static HashMap< String, ArrayList< Component > > iconSetComponents;
 	public static boolean iconPacksLoaded;
+	public static boolean connectedToInternet = UtilityMethod.hasInternetConnection();
 	
 	// The name of this class
 	private static Class< ? > thisClass = new Object(){}.getClass();
@@ -191,7 +193,7 @@ public class WeatherLionMain
 			+ WeatherLionMain.WEATHER_DATA_XML );
 		
 		// check for an Internet connection or previous weather data stored local
-		if( !UtilityMethod.hasInternetConnection() && !previousWeatherData.exists() )
+		if( !connectedToInternet && !previousWeatherData.exists() )
 		{
 			JOptionPane.showMessageDialog( null, "The program will not run without a working internet connection or"
 					+ "data that was previously stored locally\nResolve your Internet connection and relaunch the program.",
@@ -199,7 +201,7 @@ public class WeatherLionMain
 			
 			System.exit( 0 );	// terminate the program
 		}// end of if block
-		else if( UtilityMethod.hasInternetConnection() )
+		else if( connectedToInternet )
 		{
 			// obtain the current city of the connected Internet service
 			currentCity = UtilityMethod.getSystemLocation();
