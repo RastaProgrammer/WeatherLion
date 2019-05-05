@@ -121,6 +121,7 @@ import com.google.gson.Gson;
  * 				</ol>
  * 		</li>
  * 		<li>02/05/19 - Moved assets out of the jar file to eliminate path headaches.</li>
+ * 		<li>05/04/19 - Method {@code checkAstronomy} no longer calls the widget service.</li>
  * </ul>
  */
 
@@ -146,8 +147,8 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	
 	// labels that will display images
 	private static JLabel lblCurrentConditionImage;
-	private static JLabel lblOffline;
 	private static JLabel lblRefresh;
+	public static JLabel lblOffline;
 
 	// labels that display text	
 	private static JLabel lblCurrentTemperature;
@@ -230,7 +231,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
  	private static boolean sunsetIconsInUse;
  	private static boolean sunsetUpdatedPerformed;
  	
- 	private static boolean usingPreviousData = false; // flag for old weather data
+ 	public static boolean usingPreviousData = false; // flag for old weather data
  	
  	private HashMap< String, Component > componentMap;
  	
@@ -280,15 +281,6 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	{
 		lblSunrise.setText( WidgetUpdateService.sunriseTime );
         lblSunset.setText( WidgetUpdateService.sunsetTime );
-        
-        // if there was no previous Internet connection, check for a return in connectivity
-		// and refresh the widget
-		if( usingPreviousData && UtilityMethod.hasInternetConnection() )
-		{    			
-			// run the weather service
-			ws = new WidgetUpdateService( false );
-			ws.execute();
-		}// end of if block
         
 		// update icons based on the time of day in relation to sunrise and sunset times
         if( WidgetUpdateService.sunriseTime != null && WidgetUpdateService.sunsetTime != null )
@@ -494,11 +486,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			// update the current time label
 			updateClock( Calendar.getInstance() );
 		}// end of if block
-		else
-		{
-			// run the weather service
-			ws.execute();		
-		}// end of else block
+			
+		// run the weather service
+		ws.execute();		
 	}// end of method InitializeComponent	
 	
 	/***
