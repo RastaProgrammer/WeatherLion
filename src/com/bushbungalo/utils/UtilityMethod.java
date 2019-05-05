@@ -333,11 +333,11 @@ public abstract class UtilityMethod
         worldCountries.put("CC", "Cocos (Keeling) Islands");
         worldCountries.put("CO", "Colombia");
         worldCountries.put("KM", "Comoros");
-        worldCountries.put("CG", "Congo�(Brazzaville)");
+        worldCountries.put("CG", "Congo (Brazzaville)");
         worldCountries.put("CD", "Congo, (Kinshasa)");
         worldCountries.put("CK", "Cook Islands");
         worldCountries.put("CR", "Costa Rica");
-        worldCountries.put("CI", "C�te d'Ivoire");
+        worldCountries.put("CI", "Côte d'Ivoire");
         worldCountries.put("HR", "Croatia");
         worldCountries.put("CU", "Cuba");
         worldCountries.put("CY", "Cyprus");
@@ -379,7 +379,7 @@ public abstract class UtilityMethod
         worldCountries.put("GY", "Guyana");
         worldCountries.put("HT", "Haiti");
         worldCountries.put("HM", "Heard and Mcdonald Islands");
-        worldCountries.put("VA", "Holy See (Vatican City State)");
+        worldCountries.put("VA", "Holy SeeÂ (Vatican City State)");
         worldCountries.put("HN", "Honduras");
         worldCountries.put("HU", "Hungary");
         worldCountries.put("IS", "Iceland");
@@ -398,8 +398,8 @@ public abstract class UtilityMethod
         worldCountries.put("KZ", "Kazakhstan");
         worldCountries.put("KE", "Kenya");
         worldCountries.put("KI", "Kiribati");
-        worldCountries.put("KP", "Korea (North)");
-        worldCountries.put("KR", "Korea (South)");
+        worldCountries.put("KP", "KoreaÂ (North)");
+        worldCountries.put("KR", "KoreaÂ (South)");
         worldCountries.put("KW", "Kuwait");
         worldCountries.put("KG", "Kyrgyzstan");
         worldCountries.put("LA", "Lao PDR");
@@ -465,7 +465,7 @@ public abstract class UtilityMethod
         worldCountries.put("RO", "Romania");
         worldCountries.put("RU", "Russian Federation");
         worldCountries.put("RW", "Rwanda");
-        worldCountries.put("BL", "Saint-Barthélemy");
+        worldCountries.put("BL", "Saint-BarthÃ©lemy");
         worldCountries.put("SH", "Saint Helena");
         worldCountries.put("KN", "Saint Kitts and Nevis");
         worldCountries.put("LC", "Saint Lucia");
@@ -496,7 +496,7 @@ public abstract class UtilityMethod
         worldCountries.put("SZ", "Swaziland");
         worldCountries.put("SE", "Sweden");
         worldCountries.put("CH", "Switzerland");
-        worldCountries.put("SY", "Syrian Arab Republic (Syria)");
+        worldCountries.put("SY", "Syrian Arab RepublicÂ (Syria)");
         worldCountries.put("TW", "Taiwan, Republic of China");
         worldCountries.put("TJ", "Tajikistan");
         worldCountries.put("TZ", "Tanzania, United Republic of");
@@ -520,7 +520,7 @@ public abstract class UtilityMethod
         worldCountries.put("UY", "Uruguay");
         worldCountries.put("UZ", "Uzbekistan");
         worldCountries.put("VU", "Vanuatu");
-        worldCountries.put("VE", "Venezuela (Bolidouble ian Republic)");
+        worldCountries.put("VE", "VenezuelaÂ (Bolidouble ian Republic)");
         worldCountries.put("VN", "Viet Nam");
         worldCountries.put("VI", "Virgin Islands, US");
         worldCountries.put("WF", "Wallis and Futuna Islands");
@@ -593,11 +593,11 @@ public abstract class UtilityMethod
         worldCountryCodes.put( "Cocos Islands", "CC" );
         worldCountryCodes.put( "Colombia", "CO" );
         worldCountryCodes.put( "Comoros", "KM" );
-        worldCountryCodes.put( "Congo�(Brazzaville)", "CG" );
+        worldCountryCodes.put( "Congo (Brazzaville)", "CG" );
         worldCountryCodes.put( "Congo (Kinshasa)", "CD" );
         worldCountryCodes.put( "Cook Islands", "CK" );
         worldCountryCodes.put( "Costa Rica", "CR" );
-        worldCountryCodes.put( "C�te d'Ivoire", "CI" );
+        worldCountryCodes.put( "Côte d'Ivoire", "CI" );
         worldCountryCodes.put( "Croatia", "HR" );
         worldCountryCodes.put( "Cuba", "CU" );
         worldCountryCodes.put( "Cyprus", "CY" );
@@ -661,9 +661,9 @@ public abstract class UtilityMethod
         worldCountryCodes.put( "Kazakhstan", "KZ" );
         worldCountryCodes.put( "Kenya", "KE" );
         worldCountryCodes.put( "Kiribati", "KI" );
-        worldCountryCodes.put( "Korea�(North)", "KP" );
+        worldCountryCodes.put( "Korea (North)", "KP" );
         worldCountryCodes.put( "North Korea", "KP" );
-        worldCountryCodes.put( "Korea�(South)", "KR" );
+        worldCountryCodes.put( "Korea (South)", "KR" );
         worldCountryCodes.put( "South Korea", "KR" );
         worldCountryCodes.put( "Kuwait", "KW" );
         worldCountryCodes.put( "Kyrgyzstan", "KG" );
@@ -733,7 +733,7 @@ public abstract class UtilityMethod
         worldCountryCodes.put( "Romania", "RO" );
         worldCountryCodes.put( "Russian Federation", "RU" );
         worldCountryCodes.put( "Rwanda", "RW" );
-        worldCountryCodes.put( "Saint Barth�lemy", "BL" );
+        worldCountryCodes.put( "Saint Barthélemy", "BL" );
         worldCountryCodes.put( "Saint Helena", "SH" );
         worldCountryCodes.put( "Saint Kitts and Nevis", "KN" );
         worldCountryCodes.put( "Saint Kitts & Nevis", "KN" );
@@ -771,7 +771,7 @@ public abstract class UtilityMethod
         worldCountryCodes.put( "Swaziland", "SZ" );
         worldCountryCodes.put( "Sweden", "SE" );
         worldCountryCodes.put( "Switzerland", "CH" );
-        worldCountryCodes.put( "Syrian Arab Republic�(Syria)", "SY" );
+        worldCountryCodes.put( "Syrian Arab Republic (Syria)", "SY" );
         worldCountryCodes.put( "Syria", "SY" );
         worldCountryCodes.put( "Taiwan, Republic of China", "TW" );
         worldCountryCodes.put( "Taiwan", "TW" );
@@ -800,7 +800,7 @@ public abstract class UtilityMethod
         worldCountryCodes.put( "Uruguay", "UY" );
         worldCountryCodes.put( "Uzbekistan", "UZ" );
         worldCountryCodes.put( "Vanuatu", "VU" );
-        worldCountryCodes.put( "Venezuela�(Bolidouble ian Republic)", "VE" );
+        worldCountryCodes.put( "Venezuela (Bolidouble ian Republic)", "VE" );
         worldCountryCodes.put( "Venezuela", "VE" );
         worldCountryCodes.put( "Viet Nam", "VN" );
         worldCountryCodes.put( "Virgin Islands, US", "VI" );
@@ -907,6 +907,7 @@ public abstract class UtilityMethod
         weatherImages.put("scattered t-storms (night)", "18.png");
         weatherImages.put("thundershowers (night)", "18.png");
         weatherImages.put("t-showers (night)", "18.png");
+	weatherImages.put("drizzle (night)", "19.png");
         weatherImages.put("isolated showers (night)", "19.png");
         weatherImages.put("light rain (night)", "19.png");
         weatherImages.put("scattered showers (night)", "19.png");
@@ -936,7 +937,7 @@ public abstract class UtilityMethod
 	/** Weather Calculations **/
 	
     /***
-     * Calculate the wind chill for temperatures at or below 50� F and wind speeds above 3 mph
+     * Calculate the wind chill for temperatures at or below 50° F and wind speeds above 3 mph
      * 
      * @param fTemp A temperature measured in Fahrenheit
      * @param mphWind A wind speed measure in miles per hour (mph)
@@ -944,7 +945,7 @@ public abstract class UtilityMethod
      */
     public static int calculateWindChill( int fTemp, int mphWind ) 
     {
-    	// The wind chill calculator only works for temperatures at or below 50 � F
+    	// The wind chill calculator only works for temperatures at or below 50 ° F
     	// and wind speeds above 3 mph.
     	if( fTemp > 50 || mphWind < 3 )
     	{
