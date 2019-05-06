@@ -927,7 +927,6 @@ public abstract class UtilityMethod
         weatherImages.put("not available", "na.png");
     };
 
-    // Get the SQLite connection
     public static Date lastUpdated;
     public static boolean refreshRequested;
     public static boolean weatherWidgetEnabled = true;   
