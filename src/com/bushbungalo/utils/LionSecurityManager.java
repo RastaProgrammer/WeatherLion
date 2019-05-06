@@ -57,7 +57,7 @@ import com.bushbungalo.WeatherLionWidget.WidgetUpdateService;
 
 /**
  * @author Paul O. Patterson
- * @version     1.1
+ * @version     1.0
  * @since       1.1
  * 
  * <p>
@@ -898,7 +898,7 @@ public class LionSecurityManager
  	 * Retrieves an encrypted access key from a local SQLite 3 database
  	 * 
  	 * @param keyProvider  The name of the web service that supplies the key
- 	 * @return				An {@code Object} of the {@code CityData} custom class
+ 	 * @return				An {@code ArrayList} containing the keys assigned to the specified provider
  	 */
 	public static ArrayList< String > getSiteKeyFromDatabase( String keyProvider )
 	{
@@ -947,7 +947,7 @@ public class LionSecurityManager
 		{
 			return null;
 		}// end of catch block
-	}// end of method getCityData
+	}// end of method getSiteKeyFromDatabase
 	
 	/**
 	 * Load all access providers stored in the database
