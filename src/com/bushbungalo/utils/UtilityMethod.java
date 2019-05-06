@@ -32,6 +32,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -116,6 +117,7 @@ import com.google.gson.reflect.TypeToken;
  *      </li>
  *      <li>04/11/19 - Added methods {@code replaceLast}, {@code numberOfCharacterOccurences}, {@code msgBox}, and {@code messagePrompt}</li>
  *      <li>05/02/19 - Added methods {@code confirmBox} and {@code size}</li>
+ *      <li>05/06/19 - Added method {@code timeForConnectivityCheck}</li>
  * </ul>
  */
 
@@ -907,7 +909,7 @@ public abstract class UtilityMethod
         weatherImages.put("scattered t-storms (night)", "18.png");
         weatherImages.put("thundershowers (night)", "18.png");
         weatherImages.put("t-showers (night)", "18.png");
-	weatherImages.put("drizzle (night)", "19.png");
+        weatherImages.put("drizzle (night)", "19.png");
         weatherImages.put("isolated showers (night)", "19.png");
         weatherImages.put("light rain (night)", "19.png");
         weatherImages.put("scattered showers (night)", "19.png");
@@ -2453,6 +2455,35 @@ public abstract class UtilityMethod
     	       
     	return c;
     }// end of method temperatureColor
+    
+    /***
+     * Determines whether or not a connectivity check needs to be performed
+     * 
+     * @return	A {@code boolean} value of true/false dependent on the outcome of the test.
+     */
+    public static boolean timeForConnectivityCheck() 
+	{
+    	int interval = WeatherLionMain.storedPreferences.getInterval();
+    	long minutesToGo = millisecondsToMinutes( interval );
+    	
+    	if( lastUpdated != null )
+    	{
+    		Calendar cal = Calendar.getInstance();
+    		cal.setTime( lastUpdated );
+    		cal.add( Calendar.MINUTE, millisecondsToMinutes( interval ) );
+    		Date nextUpdateDue = cal.getTime();
+    		
+    		 //milliseconds
+            long difference = nextUpdateDue.getTime() - new Date().getTime();
+
+            long secondsInMilli = 1000;
+            long minutesInMilli = secondsInMilli * 60;
+            minutesToGo = difference / minutesInMilli;
+         }// end of if block
+    	
+    	return minutesToGo <= 1;
+		
+	}// end of method timeForConnectivityCheck
     
     /**
      * Determine if the widget needs to be refreshed based on the specified refresh period.
