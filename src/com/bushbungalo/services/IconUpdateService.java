@@ -19,6 +19,7 @@ import com.bushbungalo.utils.UtilityMethod;
  * <b style="margin-left:-40px">Updates:</b><br />
  * <ul>
  * 		<li>05/04/19 - Service now monitors Internet connectivity and updates widget accordingly.</li>
+ * 		<li>05/05/19 - Service now only performs the check 1 minute before an update is due.</li>
  * </ul>
  */
 public class IconUpdateService implements Runnable
@@ -36,7 +37,10 @@ public class IconUpdateService implements Runnable
 				Thread.sleep( sleepTime );
 				
 				// keep track of Internet connectivity
-				WeatherLionMain.connectedToInternet = UtilityMethod.hasInternetConnection();
+				if( UtilityMethod.timeForConnectivityCheck() ) 
+				{
+					WeatherLionMain.connectedToInternet = UtilityMethod.hasInternetConnection();
+				}// end of if block
 				
 				// If the not connected to the Internet, for a connection
 				if( !WeatherLionMain.connectedToInternet )
@@ -69,5 +73,4 @@ public class IconUpdateService implements Runnable
 			}// end of catch block
 		}// end of while block
 	}// end of method run
-
 }// end of class IconUpdateService
