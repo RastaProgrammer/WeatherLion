@@ -97,7 +97,7 @@ public class WeatherBitWeatherDataItem
             private double appTemp;
             private String state_code;
             private int ts;
-            private int h_angle;
+            private double h_angle;
             private double dewpt;
             private Weather weather;
             private double uv;
@@ -264,12 +264,12 @@ public class WeatherBitWeatherDataItem
 				this.ts = ts;
 			}
 			
-			public int getHAngle()
+			public double getHAngle()
 			{
 				return h_angle;
 			}
 			
-			public void setHAngle(int h_angle)
+			public void setHAngle(double h_angle)
 			{
 				this.h_angle = h_angle;
 			}
