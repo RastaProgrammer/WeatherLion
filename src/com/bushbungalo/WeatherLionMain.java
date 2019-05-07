@@ -154,8 +154,11 @@ public class WeatherLionMain
 		// clean up any lock files that may have remained after a crash 
 		UtilityMethod.cleanLockFiles();
 		
+		UtilityMethod.logMessage( "info", "Initiating startup...", 
+				thisClass.getEnclosingClass().getSimpleName() + "::main" );
+		
 		// build the required storage files
-		if( buildRequiredDatases() == 1 ) 
+		if( buildRequiredDatabases() == 1 ) 
 		{
 			UtilityMethod.logMessage( "info", 
 					"All required databases constructed successfully.", 
@@ -315,7 +318,7 @@ public class WeatherLionMain
 					{
 						UtilityMethod.logMessage( "info", "Found " + imageCount + 
 							( imageCount > 1 ? " images" : " image" ) + " in the " +
-							Preference.getSavedPreferences().getIconSet().toUpperCase()  +
+							UtilityMethod.toProperCase( Preference.getSavedPreferences().getIconSet() )  +
 							" icon pack...", thisClass.getEnclosingClass().getSimpleName() + "::healthCheck" );
 					}// end of else block
 					
@@ -377,7 +380,7 @@ public class WeatherLionMain
 	 *
 	 * @return An {@code int} value 0 or 1 representing success or failure
 	 */
-	public static int buildRequiredDatases()
+	public static int buildRequiredDatabases()
 	{
 		File storageDirectory = new File( MAIN_STORAGE_DIR );
 		File mainStorageFile = new File( MAIN_STORAGE_DIR + MAIN_DATABASE_NAME );
@@ -400,14 +403,14 @@ public class WeatherLionMain
 			catch ( IOException e )
 			{
 				UtilityMethod.logMessage( "severe", e.getMessage(), 
-						"WeatherLionMain::buildRequiredDatases" );
+						"WeatherLionMain::buildRequiredDatabases" );
 			}// end of catch block
 		}// end of if block
 		else 
 		{
 			UtilityMethod.logMessage( "info", 
 					"The required storage files are present.", 
-					"WeatherLionMain::buildRequiredDatases" );
+					"WeatherLionMain::buildRequiredDatabases" );
 		}// end of else block
 		
 		// get a connection to the main DB
@@ -420,8 +423,8 @@ public class WeatherLionMain
 			success = 1;
 			
 			UtilityMethod.logMessage( "info", 
-					"Weather Access database successfully created and attached to main connection.", 
-					"WeatherLionMain::buildRequiredDatases" );
+					"Weather access database successfully created and attached to main connection.", 
+					"WeatherLionMain::buildRequiredDatabases" );
 		}// end of if block
 		else
 		{
@@ -435,7 +438,7 @@ public class WeatherLionMain
 			
 			UtilityMethod.logMessage( "info", 
 					"World cities database successfully created and attached to main connection.", 
-					"WeatherLionMain::buildRequiredDatases" );
+					"WeatherLionMain::buildRequiredDatabases" );
 		}// end of if block
 		else
 		{
@@ -443,7 +446,7 @@ public class WeatherLionMain
 		}// end of else block
 		
 		return success;
-	}// end of method buildRequiredDatases
+	}// end of method buildRequiredDatabases
 	
 	/***
 	 * Attach additional databases to the main SQLite database
@@ -489,8 +492,8 @@ public class WeatherLionMain
 		}// end of if block
 		else 
 		{
-			UtilityMethod.logMessage( "info", "Required files found...", 
-					thisClass.getEnclosingClass().getSimpleName() );
+			UtilityMethod.logMessage( "info", "Necessary requirements met...", 
+					thisClass.getEnclosingClass().getSimpleName() + "::init" );
 			UtilityMethod.logMessage( "info","Launching Weather Widget...", 
 					thisClass.getEnclosingClass().getSimpleName() + "::init" );				
 			
