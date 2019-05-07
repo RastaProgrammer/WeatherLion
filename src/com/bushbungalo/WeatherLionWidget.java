@@ -1432,6 +1432,10 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				// Check the Internet connection availability
 		        if( UtilityMethod.hasInternetConnection() )
 		        {
+		        	wxUrl.setLength( 0 );
+		        	fxUrl.setLength( 0 );
+		        	axUrl.setLength( 0 );
+		        	
 		        	switch( wxDataPrivider )
 		            {
 		            	case WeatherLionMain.DARK_SKY:
@@ -1564,26 +1568,26 @@ public class WeatherLionWidget extends JFrame implements Runnable
 		        }// end of if block
 		        else 
 		        {
-		        	if( wxUrl != null && fxUrl != null && axUrl != null ) 
+		        	if( wxUrl.length() != 0 && fxUrl.length() != 0 && axUrl.length() != 0 ) 
 			        {
 			        	strJSON.add( UtilityMethod.retrieveWeatherData( wxUrl.toString() ) );	        			
 			        	strJSON.add( UtilityMethod.retrieveWeatherData( fxUrl.toString() ) );	        			
 			        	strJSON.add( UtilityMethod.retrieveWeatherData( axUrl.toString() ) );	        			
 			        }// end of if block
-		        	else if( wxUrl != null && fxUrl != null && axUrl == null ) 
+		        	else if( wxUrl.length() != 0 && fxUrl.length() != 0 && axUrl.length() == 0 ) 
 			        {
 			        	strJSON.add( UtilityMethod.retrieveWeatherData( wxUrl.toString() ) );	        			
 			        	strJSON.add( UtilityMethod.retrieveWeatherData( fxUrl.toString() ) );	        			
 			        }// end of if block
-			        else if( wxUrl != null && fxUrl == null  && axUrl == null ) 
+			        else if( wxUrl.length() != 0 && fxUrl.length() == 0  && axUrl.length() == 0 ) 
 			        {
 			        	strJSON.add( UtilityMethod.retrieveWeatherData( wxUrl.toString() ) );	        			
 			        }// end of else if block
-			        else if( wxUrl == null && fxUrl != null  && axUrl == null ) 
+			        else if( wxUrl.length() == 0 && fxUrl.length() != 0  && axUrl.length() == 0 ) 
 			        {
 			        	strJSON.add( UtilityMethod.retrieveWeatherData( fxUrl.toString() ) );	        			
 			        }// end of else if block
-			        else if( wxUrl == null && fxUrl == null  && axUrl != null ) 
+			        else if( wxUrl.length() == 0 && fxUrl.length() == 0  && axUrl.length() != 0 ) 
 			        {
 			        	strJSON.add( UtilityMethod.retrieveWeatherData( axUrl.toString() ) );	        			
 			        }// end of else if block
@@ -5218,6 +5222,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        	currentLow.setLength( 0 );
 				            currentLow.append(  String.valueOf( Math.round( 0 ) ) + DEGREES ); // not supplied by provider
 				
+				            currentWindSpeed.setLength( 0 );
 				            currentWindSpeed.append( String.valueOf(
 				            		String.valueOf( Math.round( weatherBitWx.getData().get( 0 ).getWindSpeed() ) ) ) );
 				        }// end of else block
