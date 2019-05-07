@@ -77,7 +77,7 @@ import com.bushbungalo.WeatherLionWidget.WidgetUpdateService;
 @SuppressWarnings("unused")
 public class LionSecurityManager 
 {
-	public static Connection conn = ConnectionManager.getInstance().getConnection();;
+	public static Connection conn = ConnectionManager.getInstance().getConnection();
 	public static String databasePath = "res/storage/";
 	public static File databaseDirectory = new File( databasePath );
 	public static File databaseFile = new File( databasePath + WeatherLionMain.WAK_DATABASE_NAME );
@@ -981,7 +981,7 @@ public class LionSecurityManager
 						{
 							webAccessGranted.add( "Dark Sky Weather" );
 							UtilityMethod.logMessage( "info", 
-									"Dark Sky API key loaded!", "SecurityManager::loadAccessProviders" );
+									"Dark Sky key loaded!", "SecurityManager::loadAccessProviders" );
 						}// end of if block
 						
 						break;
