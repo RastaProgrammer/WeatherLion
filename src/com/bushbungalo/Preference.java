@@ -26,6 +26,7 @@ import com.bushbungalo.utils.UtilityMethod;
  * <b style="margin-left:-40px">Updates:</b><br />
  * <ul>
  * 		<li>01/29/19 - Changed the default weather update period to 30 mins (1800000 ms).</li>
+ * 		<li>05/11/19 - Removed printing stack trace errors to console for logging.</li>
  * </ul>
  */
 
@@ -174,7 +175,7 @@ public class Preference
 		catch ( FileNotFoundException ex )
 		{
 			// file does not exist so create the default one
-			createDefaultSPreferencesPropertiesFile();
+			createDefaultPreferencesPropertiesFile();
 			
 			try
 			{
@@ -185,16 +186,19 @@ public class Preference
 			}// end of try block
 			catch ( FileNotFoundException e )
 			{
-				UtilityMethod.logMessage( "SEVERE", e.getMessage(), "Preference::getSavedPreferences" );	
+				UtilityMethod.logMessage( "severe", e.getMessage(),
+					"Preference::getSavedPreferences [line: " + e.getStackTrace()[1].getLineNumber()+ "]" );	
 			}// end of try block
 			catch ( IOException e )
 			{
-				UtilityMethod.logMessage( "SEVERE", e.getMessage(), "Preference::getSavedPreferences" );
+				UtilityMethod.logMessage( "severe", e.getMessage(),
+						"Preference::getSavedPreferences [line: " + e.getStackTrace()[1].getLineNumber()+ "]" );	
 			}// end of try block
 		}// end of try block
 		catch ( IOException ex )
 		{
-			UtilityMethod.logMessage( "SEVERE", ex.getMessage(), "Preference::getSavedPreferences" );
+			UtilityMethod.logMessage( "severe", ex.getMessage(),
+					"Preference::getSavedPreferences [line: " + ex.getStackTrace()[1].getLineNumber()+ "]" );	
 		}// end of try block
 			
 		// get the property value and use it
@@ -241,7 +245,7 @@ public class Preference
 	/***
 	 * method that creates a default properties files
 	 */
-	public static void createDefaultSPreferencesPropertiesFile()
+	public static void createDefaultPreferencesPropertiesFile()
 	{
 		// if the directory does not exist then no previous configuration exists
 		if( !SETTING_DIRECTORY.exists() ) 
@@ -254,7 +258,9 @@ public class Preference
 			}// end of try block
 			catch ( IOException e )
 			{
-				e.printStackTrace();
+				UtilityMethod.logMessage( "severe" , e.getMessage(),
+					"Preference::createdefaultPreferencesPropertiesFile [line: " 
+					+ e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
 		}// end of if block	
 		
@@ -302,7 +308,7 @@ public class Preference
 			switch( propertyFile.getName() ) 
 			{
 				case "preferences.properties":
-					createDefaultSPreferencesPropertiesFile();
+					createDefaultPreferencesPropertiesFile();
 					break;
 				case "config.properties":
 					createDefaultConfigPropertiesFile();
@@ -379,7 +385,7 @@ public class Preference
 			switch( propertyFile.getName() ) 
 			{
 				case "preferences.properties":
-					createDefaultSPreferencesPropertiesFile();
+					createDefaultPreferencesPropertiesFile();
 					break;
 				case "config.properties":
 					createDefaultConfigPropertiesFile();
