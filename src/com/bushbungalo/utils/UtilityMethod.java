@@ -118,6 +118,7 @@ import com.google.gson.reflect.TypeToken;
  *      <li>04/11/19 - Added methods {@code replaceLast}, {@code numberOfCharacterOccurences}, {@code msgBox}, and {@code messagePrompt}</li>
  *      <li>05/02/19 - Added methods {@code confirmBox} and {@code size}</li>
  *      <li>05/06/19 - Added method {@code timeForConnectivityCheck}</li>
+ *      <li>05/11/19 - Removed printing stack trace errors to console for logging</li>
  * </ul>
  */
 
@@ -857,6 +858,8 @@ public abstract class UtilityMethod
         weatherImages.put("fog", "7.png");
         weatherImages.put("foggy", "7.png");
         weatherImages.put("haze", "7.png");
+        weatherImages.put("mist", "7.png");
+        weatherImages.put("misty", "7.png");
         weatherImages.put("cloudy", "8.png");
         weatherImages.put("overcast", "8.png");
         weatherImages.put("broken clouds", "8.png");
@@ -891,6 +894,7 @@ public abstract class UtilityMethod
         weatherImages.put("isolated t-showers", "16.png");
         weatherImages.put("scattered thunderstorms", "16.png");
         weatherImages.put("scattered t-storms", "16.png");
+        weatherImages.put("scattered tstorms", "16.png");
         weatherImages.put("thundershowers", "16.png");
         weatherImages.put("tstorms", "16.png");
         weatherImages.put("t-storms", "16.png");
@@ -900,6 +904,7 @@ public abstract class UtilityMethod
         weatherImages.put("chance of rain", "17.png");
         weatherImages.put("light rain", "17.png");
         weatherImages.put("light rain showers", "17.png");
+        weatherImages.put("light shower rain", "17.png");
         weatherImages.put("chance of a thunderstorm (night)", "18.png");
         weatherImages.put("isolated thunderstorms (night)", "18.png");
         weatherImages.put("isolated t-storms (night)", "18.png");
@@ -1567,11 +1572,15 @@ public abstract class UtilityMethod
      */
     public static String get12HourTime( int hour, int minute )
     {
-        String t = String.format("%d:%s %s",
-                (hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour)),
-                (minute < 10 ? minute == 0 ? "00" :("0" + String.valueOf(minute)) : String.valueOf(minute)),
+    	// 24 hour times might return a negative if the time-zone
+    	// offset is subtracted from 00 or 24hrs
+        if( hour < 0 ) hour = 24 + hour;
+    	
+    	String t = String.format("%d:%s %s",
+                ( hour > 12 ? hour - 12 : ( hour == 0 ? 12 : hour ) ),
+                ( minute < 10 ? minute == 0 ? "00" :( "0" + String.valueOf( minute ) )
+                : String.valueOf( minute ) ),
                 (hour > 12 ? "PM" : "AM"));
-
 
         return t;
     }// end of method getDateTime
@@ -1815,7 +1824,8 @@ public abstract class UtilityMethod
         }// end of try block
         catch ( UnsupportedEncodingException e )
         {
-            e.printStackTrace();
+        	logMessage( "severe" , e.getMessage(),
+				"UtilityMethod::escaprUriString [line: " + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
         }// end of catch block
 
         return encodedString;
@@ -2196,7 +2206,9 @@ public abstract class UtilityMethod
             }// end of try block
             catch ( IOException e )
             {
-                e.printStackTrace();
+            	logMessage( "severe" , e.getMessage(),
+    				"UtilityMethod::retrieveGeoNamesGeoLocationUsingAddress [line: " 
+            	    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
             }// end of catch block
 
         }// end of if block
@@ -2233,7 +2245,9 @@ public abstract class UtilityMethod
             }// end of try block
             catch (IOException e)
             {
-                e.printStackTrace();
+            	logMessage( "severe" , e.getMessage(),
+    				"UtilityMethod::retrieveGoogleGeoLocationUsingAddress [line: " 
+            	    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
             }// end of catch block
 
         }// end of if block
@@ -2284,7 +2298,9 @@ public abstract class UtilityMethod
             }// end of try block
             catch ( IOException e )
             {
-                e.printStackTrace();
+            	logMessage( "severe" , e.getMessage(),
+    				"UtilityMethod::retrieveHereGeoLocationUsingAddress [line: " 
+            	    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
             }// end of catch block
 
         }// end of if block
@@ -2323,7 +2339,9 @@ public abstract class UtilityMethod
             }// end of try block
             catch ( IOException e )
             {
-                e.printStackTrace();
+            	logMessage( "severe" , e.getMessage(),
+    				"UtilityMethod::retrieveYahooGeoLocationUsingAddress [line: " 
+            	    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
             }// end of catch block
 
         }// end of if block
@@ -2362,7 +2380,9 @@ public abstract class UtilityMethod
             }// end of try block
             catch (IOException e)
             {
-                e.printStackTrace();
+            	logMessage( "severe" , e.getMessage(),
+    				"UtilityMethod::retrieveGoogleGeoLocationUsingCoordinates [line: " 
+            	    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
             }// end of catch block
 
         }// end of if block
@@ -2387,7 +2407,7 @@ public abstract class UtilityMethod
     public static String retrieveWeatherData( String wxUrl )
     {
         String strJSON = null;
-
+        
         try
         {
             strJSON = HttpHelper.downloadUrl( wxUrl );
@@ -2827,7 +2847,9 @@ public abstract class UtilityMethod
 		}// end of try block 
     	catch ( IOException e )
     	{
-			e.printStackTrace();
+    		logMessage( "severe" , e.getMessage(),
+				"UtilityMethod::saveToFile [line: " 
+        	    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 		}// end of catch block    	
     }// end of method saveToFile    
 
@@ -2933,7 +2955,9 @@ public abstract class UtilityMethod
 		}// end of try block
 		catch ( JSONException e )
 		{
-			e.printStackTrace();
+			logMessage( "severe" , e.getMessage(),
+				"UtilityMethod::createCityData [line: " 
+        	    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 		}// end of catch block
     	
     	return currentCityData;
@@ -3006,7 +3030,9 @@ public abstract class UtilityMethod
 		}// end of try block
 		catch ( JSONException e )
 		{
-			e.printStackTrace();
+			logMessage( "severe" , e.getMessage(),
+				"UtilityMethod::createGeoNamesCityData [line: " 
+        	    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 		}// end of catch block
     	
     	return currentCityData;
@@ -3119,7 +3145,9 @@ public abstract class UtilityMethod
 		}// end of try block
 		catch ( JSONException e )
 		{
-			e.printStackTrace();
+			logMessage( "severe" , e.getMessage(),
+				"UtilityMethod::createHereCityData [line: " 
+        	    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 		}// end of catch block
     	
     	return currentCityData;
