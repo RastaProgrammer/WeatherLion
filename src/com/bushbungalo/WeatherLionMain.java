@@ -198,7 +198,7 @@ public class WeatherLionMain
 		// check for an Internet connection or previous weather data stored local
 		if( !connectedToInternet && !previousWeatherData.exists() )
 		{
-			JOptionPane.showMessageDialog( null, "The program will not run without a working internet connection or"
+			JOptionPane.showMessageDialog( null, "The program will not run without a working internet connection or "
 					+ "data that was previously stored locally\nResolve your Internet connection and relaunch the program.",
 	    			"Weather Lion", JOptionPane.ERROR_MESSAGE  );
 			
@@ -403,7 +403,8 @@ public class WeatherLionMain
 			catch ( IOException e )
 			{
 				UtilityMethod.logMessage( "severe", e.getMessage(), 
-						"WeatherLionMain::buildRequiredDatabases" );
+					"WeatherLionMain::buildRequiredDatabases [line: " +
+					e.getStackTrace()[ 1 ].getLineNumber()+ "]" );
 			}// end of catch block
 		}// end of if block
 		else 
@@ -471,7 +472,8 @@ public class WeatherLionMain
 		catch( SQLException e )
 		{
 			UtilityMethod.logMessage( "severe", "Could not attach database to main mile!",
-					"WeatherLionMain::buildRequiredDatabase" );
+				"WeatherLionMain::buildRequiredDatabase [line: "
+				+ e.getStackTrace()[1].getLineNumber() + "]" );
 			
 			return 0;
 		}// end of catch block
