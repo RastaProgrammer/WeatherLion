@@ -4484,6 +4484,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        currentHumidity.setLength( 0 );
 	        currentHumidity.append( currentHumidity != null ? currentHumidity : String.valueOf( 0 ) ); // use the humidity reading from previous providers
 	        
+		// append a zero if there is no humidity
+	        if( currentHumidity.length() == 0 ) currentHumidity.append( "0" );
+		
 	        currentLocation = currentCity;
 	        
 	        sunriseTime.setLength( 0 );
