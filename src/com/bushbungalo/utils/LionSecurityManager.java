@@ -72,6 +72,10 @@ import com.bushbungalo.WeatherLionWidget.WidgetUpdateService;
  * <br />
  * 04/04/19
  * <br />
+ * <b style="margin-left:-40px">Updates:</b><br />
+ * <ul>
+ * 		<li>05/11/19 - Removed printing stack trace errors to console for logging</li>
+ * </ul>
  */
 
 @SuppressWarnings("unused")
@@ -188,7 +192,9 @@ public class LionSecurityManager
 			}// end of try black 
 			catch ( IOException e )
 			{
-				e.printStackTrace();
+				UtilityMethod.logMessage( "severe" , e.getMessage(),
+	 				"LionSecurityManager::init [line: " 
+	 				+ e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
 		}// end of if block
 		
@@ -859,7 +865,9 @@ public class LionSecurityManager
 		}// end of try block
 		catch( Exception e )
 		{
-		    e.printStackTrace();
+		    UtilityMethod.logMessage( "severe" , e.getMessage(),
+				"LionSecurityManager::encrypt [line: " 
+				+ e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 		}// end of catch block
 		 
 		return strData;
@@ -888,7 +896,9 @@ public class LionSecurityManager
 		}// end of try block
 	    catch( Exception e )
 		{
-		    e.printStackTrace();
+	    	 UtilityMethod.logMessage( "severe" , e.getMessage(),
+ 				"LionSecurityManager::decrypt [line: " 
+ 				+ e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 		}// end of catch block
 		 
 		return strData;
