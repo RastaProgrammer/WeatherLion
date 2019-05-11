@@ -96,7 +96,14 @@ import com.bushbungalo.utils.XMLHelper;
  * 			02/04/19 - Added methods {@code loadInstalledIconPacks} and {@code getInstalledIconPacks} to
  * 					   support dynamic loading of available icon packs.
  * 		</li>
- * 		<li>02/05/2019 - Moved assets out of the jar file to eliminate path headaches.</li>
+ * 		<li>02/05/19 - Moved assets out of the jar file to eliminate path headaches.</li>
+ *      <li>
+ * 			05/11/19
+ * 			<ol>
+ * 				<li>05/11/19 - Changed {@code cboWeatherProviders}'s accessor to public so that it can be updated externally.</li>
+ * 				<li>05/11/19 - Removed printing stack trace errors to console for logging</li>
+ * 			</ol>
+ * 		</li>
  * </ul>
  */
 
@@ -157,7 +164,7 @@ public class PreferenceForm
 	JCheckBox chkUseMetric;
 	
 	// combo boxes
-    private JComboBox< String > cboWeatherProviders;
+    public static JComboBox< String > cboWeatherProviders;	// expose this object to other classes
     private JComboBox< String > cboRefreshInterval;
     
     // default combo box models    
@@ -319,6 +326,9 @@ public class PreferenceForm
 	 */
 	private void btnApply_Click()
 	{
+		// this flag will be updated after loading success
+		WeatherLionWidget.dataLoadedSuccessfully = false;
+		
 		// stop the thread if it is currently running
 		if( WeatherLionWidget.widgetThread != null ) 
 		{
@@ -1102,7 +1112,7 @@ public class PreferenceForm
 		// About tab
 		String message = "<html><center><b>Weather Lion</b>"
 				+ "<br />Author: Paul O. Patterson<br />"
-				+ "BushBungalo Productions™ 2017<br />"
+				+ "BushBungalo Productionsâ„¢ 2017<br />"
 				+ "Version: 1.0<br />"
 				+ "&copy All rights reserved</center>"
 				+ "<br /><br />"+ ABOUT_PROGRAM  + "</html>";
@@ -1212,7 +1222,7 @@ public class PreferenceForm
 		
 		WeatherLionMain.iconPacksLoaded = true;
 		UtilityMethod.logMessage( "info", "Icon Packs Installed: " + WeatherLionMain.iconPackList,
-				"loadInstalledIconPacks" );
+				"PreferenceForm::loadInstalledIconPacks" );
 		
 	}// end of method  loadInstalledIconPacks
 	
@@ -1403,7 +1413,9 @@ public class PreferenceForm
 			}// end of try block
 			catch ( BadLocationException e )
 			{
-				e.printStackTrace();
+				UtilityMethod.logMessage( "severe" , e.getMessage(),
+					"PreferenceForm::insertUpdate [line: " 
+				    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
 				
 			// Find where the word starts
