@@ -64,6 +64,9 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import com.bushbungalo.model.CityData;
 import com.bushbungalo.model.DarkSkyWeatherDataItem;
@@ -122,6 +125,7 @@ import com.google.gson.Gson;
  * 		</li>
  * 		<li>02/05/19 - Moved assets out of the jar file to eliminate path headaches.</li>
  * 		<li>05/04/19 - Method {@code checkAstronomy} no longer calls the widget service.</li>
+ * 		<li>05/11/19 - Added field {@code dataLoadedSuccessfully} to track loading success.</li>
  * </ul>
  */
 
@@ -241,6 +245,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	public static boolean running;
 	public static boolean iconSetSwtich;
 	public static boolean reAttempted;
+	public static boolean dataLoadedSuccessfully;
 	
 	public static final String WEATHER_IMAGE_PATH_PREFIX =  "res/assets/img/weather_images/";
 	
@@ -313,7 +318,8 @@ public class WeatherLionWidget extends JFrame implements Runnable
     		} // end of try block
             catch ( ParseException e )
             {
-    			e.printStackTrace();
+    			UtilityMethod.logMessage( "severe" , e.getMessage(),
+					"WidgetLionWidget::checkAstronomy [line: " + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
     		}// end of catch block
             	        
             String currentConditionIcon = null;
@@ -1312,6 +1318,13 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	 *  		previous "Yahoo-App-Id" due to changes made by Yahoo to their weather API.
 	 *  	</li>
 	 *  <li>05/07/19 - Weather fields updated to utilize {@code StringBuilder}s instead of {@code String}s<li>
+	 *  <li>
+     *  	05/11/19
+     *  	<ol>
+     *  		<li>Added check to see if Yahoo! Weather returns correct JSON data where expected</li>
+     *  		<li>Added exception throwing to a weather loading methods</li>
+     *  	</ol>
+     *  </li>
 	 * </ul>
 	 */
 	public static class WidgetUpdateService extends SwingWorker<ArrayList<String>, Object>
@@ -1611,101 +1624,149 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				 try 
 				 {
 					strJSON = get();
-					
-					// Temporary fix for Yahoo! Weather bad JSON data
-//					if( !strJSON.toString().startsWith( "{" )  ) 
-//					{
-//						String temp = strJSON.toString();
-//						strJSON.clear();
-//						strJSON.add( temp.substring(temp.indexOf( "{" ), temp.lastIndexOf( "}" ) + 1 ) );
-//					}// end of if block
-					
 				 }// end of try block
 				 catch ( InterruptedException e )
 				 {
-					e.printStackTrace();
+					 UtilityMethod.logMessage( "severe", e.getMessage(),
+							 "WidgetUpdateService::done" );
 				 }// end of catch block
 				 catch ( ExecutionException e )
 				 {
-					e.printStackTrace();
+					 UtilityMethod.logMessage( "severe", e.getMessage(),
+							 "WidgetUpdateService::done" );
 				 }// end of catch block		
 				 
 				 // check that the ArrayList is not empty and the the first element is not null 
-				 if( strJSON != null && !strJSON.isEmpty() && strJSON.get(0) != null )
+				 if( strJSON != null && !strJSON.isEmpty() && strJSON.get( 0 ) != null )
 				 {
 					 lblOffline.setVisible( false ); // we are connected to the Internet if JSON data is returned
 					 
-					 switch( WeatherLionMain.storedPreferences.getProvider() )
+					 try 
 					 {
-		            	case WeatherLionMain.DARK_SKY:
-		            		darkSky = new Gson().fromJson( strJSON.get( 0 ), DarkSkyWeatherDataItem.class );
-		            		loadDarkSkyWeather();
-		            		
-	                    	break;
-		            	case WeatherLionMain.HERE_MAPS:
-		            		hereWeatherWx = new Gson().fromJson( strJSON.get( 0 ), HereMapsWeatherDataItem.WeatherData.class );
-		            		hereWeatherFx = new Gson().fromJson( strJSON.get( 1 ), HereMapsWeatherDataItem.ForecastData.class );
-		            		hereWeatherAx = new Gson().fromJson( strJSON.get( 2 ), HereMapsWeatherDataItem.AstronomyData.class );
-		            		loadHereMapsWeather();
-		            		
-	                    	break;
-		            	case WeatherLionMain.OPEN_WEATHER:
-		            		openWeatherWx = new Gson().fromJson( strJSON.get( 0 ), OpenWeatherMapWeatherDataItem.WeatherData.class );
-		            		openWeatherFx = new Gson().fromJson( strJSON.get( 1 ), OpenWeatherMapWeatherDataItem.ForecastData.class );
-		            		loadOpenWeather();
+						 switch( WeatherLionMain.storedPreferences.getProvider() )
+						 {
+			            	case WeatherLionMain.DARK_SKY:
+			            		darkSky = new Gson().fromJson( strJSON.get( 0 ), DarkSkyWeatherDataItem.class );
+			            		loadDarkSkyWeather();
+			            		
+		                    	break;
+			            	case WeatherLionMain.HERE_MAPS:
+			            		hereWeatherWx = new Gson().fromJson( strJSON.get( 0 ), HereMapsWeatherDataItem.WeatherData.class );
+			            		hereWeatherFx = new Gson().fromJson( strJSON.get( 1 ), HereMapsWeatherDataItem.ForecastData.class );
+			            		hereWeatherAx = new Gson().fromJson( strJSON.get( 2 ), HereMapsWeatherDataItem.AstronomyData.class );
+			            		loadHereMapsWeather();
+			            		
+		                    	break;
+			            	case WeatherLionMain.OPEN_WEATHER:
+			            		openWeatherWx = new Gson().fromJson( strJSON.get( 0 ), OpenWeatherMapWeatherDataItem.WeatherData.class );
+			            		openWeatherFx = new Gson().fromJson( strJSON.get( 1 ), OpenWeatherMapWeatherDataItem.ForecastData.class );
+			            		loadOpenWeather();
 
-	                    	break;
-		            	case WeatherLionMain.WEATHER_BIT:
-		            		weatherBitWx = new Gson().fromJson( strJSON.get( 0 ), WeatherBitWeatherDataItem.WeatherData.class );
-		            		weatherBitFx = new Gson().fromJson( strJSON.get( 1 ), WeatherBitWeatherDataItem.SixteenDayForecastData.class );
-		            		loadWeatherBitWeather();
+		                    	break;
+			            	case WeatherLionMain.WEATHER_BIT:
+			            		weatherBitWx = new Gson().fromJson( strJSON.get( 0 ), WeatherBitWeatherDataItem.WeatherData.class );
+			            		weatherBitFx = new Gson().fromJson( strJSON.get( 1 ), WeatherBitWeatherDataItem.SixteenDayForecastData.class );
+			            		loadWeatherBitWeather();
 
-	                    	break;
-		                case WeatherLionMain.YAHOO_WEATHER:
-		                    yahoo19 = new Gson().fromJson( strJSON.get( 0 ), YahooWeatherYdnDataItem.class);
-		                    loadYahooYdnWeather();
+		                    	break;
+			                case WeatherLionMain.YAHOO_WEATHER:
+			                	
+			                	// Temporary fix for Yahoo! Weather bad JSON data
+//								if( !strJSON.toString().startsWith( "{" )  ) 
+//								{
+//									String temp = strJSON.toString();
+//									strJSON.clear();
+//									strJSON.add( temp.substring(temp.indexOf( "{" ), temp.lastIndexOf( "}" ) + 1 ) );
+//								}// end of if block
+			                	
+			                	// Yahoo is constantly messing around with their API
+			                	String jsonWeatherObj = null;
+			            		
+			        			// Check if a JSON was returned from the web service
+			        			for ( String wxD : strJSON)
+			        			{
+			        				Object json = null;
+									
+			        				try 
+			        				{
+										json = new JSONTokener( wxD ).nextValue();
+									}// end of try block
+			        				catch ( JSONException e )
+			        				{
+										UtilityMethod.logMessage( "severe", "Bad Yahoo data: " + e.getMessage(),
+												"WidgetUpdateService::done" );
+									}// end of catch block
+			        				
+			        				if ( json instanceof JSONObject )
+				        			{
+			        					jsonWeatherObj = wxD;
+				        			}// end of if block
+								}// end of for each loop
+			                	
+			                	yahoo19 = new Gson().fromJson( jsonWeatherObj, YahooWeatherYdnDataItem.class);
+			                    loadYahooYdnWeather();
 
-		                    break;
-		                case WeatherLionMain.YR_WEATHER:
-		                    YrWeatherDataItem.deserializeYrXML( strJSON.get( 0 ) );
-		                    yr = YrWeatherDataItem.yrWeatherDataItem;		                    
-		                    loadYrWeather();
+			                    break;
+			                case WeatherLionMain.YR_WEATHER:
+			                    YrWeatherDataItem.deserializeYrXML( strJSON.get( 0 ) );
+			                    yr = YrWeatherDataItem.yrWeatherDataItem;		                    
+			                    loadYrWeather();
 
-		                    break;
-		                default:
-		                    break;
-					 }// end of switch block
-			         
-					 UtilityMethod.lastUpdated = new Date();
-		
-					 SimpleDateFormat dt = new SimpleDateFormat( "E h:mm a" );
-					 String timeUpdated = dt.format( UtilityMethod.lastUpdated );
-					 currentLocation.setLength( 0 );
-					 currentLocation.append( WeatherLionMain.storedPreferences.getLocation() );
-		
-					 // Update the current location and update time stamp
-					 lblLocation.setText( currentLocation.substring( 0, currentLocation.indexOf( "," ) ) +
-		                    ", " + timeUpdated );
-		
-					 // Update the weather provider
-					 lblWeatherProvider.setText( WeatherLionMain.storedPreferences.getProvider() );
-					 lblWeatherProvider.setIcon( 
-						new ImageIcon(
-							"res/assets/img/icons/" +
-								WeatherLionMain.storedPreferences.getProvider().toLowerCase() + ".png" ) );
-					 
-					 if( UtilityMethod.refreshRequested )
+			                    break;
+			                default:
+			                    break;
+						 }// end of switch block
+						 
+						 UtilityMethod.lastUpdated = new Date();
+							
+						 SimpleDateFormat dt = new SimpleDateFormat( "E h:mm a" );
+						 String timeUpdated = dt.format( UtilityMethod.lastUpdated );
+						 currentLocation.setLength( 0 );
+						 currentLocation.append( WeatherLionMain.storedPreferences.getLocation() );
+			
+						 // Update the current location and update time stamp
+						 lblLocation.setText( currentLocation.substring( 0, currentLocation.indexOf( "," ) ) +
+			                    ", " + timeUpdated );
+			
+						 // Update the weather provider label
+						 lblWeatherProvider.setText( WeatherLionMain.storedPreferences.getProvider() );
+						 lblWeatherProvider.setIcon( 
+							new ImageIcon(
+								"res/assets/img/icons/" +
+									WeatherLionMain.storedPreferences.getProvider().toLowerCase() + ".png" ) );
+						 
+						 if( UtilityMethod.refreshRequested )
+						 {
+							 UtilityMethod.refreshRequested = false;
+						 }// end of if block
+						 
+						 if( !frmWeatherWidget.isVisible() )
+						 {
+							 frmWeatherWidget.setVisible( true );				 
+						 }// end of if block
+						 
+						 WeatherLionMain.weatherLoadedFromProvider = true;
+						 usingPreviousData = false;
+					 }// end of try block
+					 catch( Exception e )
 					 {
-						 UtilityMethod.refreshRequested = false;
-					 }// end of if block
-					 
-					 if( !frmWeatherWidget.isVisible() )
-					 {
-						 frmWeatherWidget.setVisible( true );				 
-					 }// end of if block
-					 
-					 WeatherLionMain.weatherLoadedFromProvider = true;
-					 usingPreviousData = false;
+						 WeatherLionWidget.dataLoadedSuccessfully = false;
+						 
+						 // Undo changes made
+						 WeatherLionMain.storedPreferences.setProvider( 
+							WeatherLionWidget.previousWeatherProvider.toString() );
+						 
+						 Preference.setPropValues( Preference.PREFERENCE_FILE,
+									WeatherLionMain.WEATHER_SOURCE_PREFERENCE,
+									WeatherLionWidget.previousWeatherProvider.toString() );
+						 
+						 if( PreferenceForm.frmPreference.isVisible() )
+						 {
+							 PreferenceForm.cboWeatherProviders.setSelectedItem( 
+									 WeatherLionWidget.previousWeatherProvider.toString() );
+						 }// end of if block
+					 }// end of catch block					 
+					
 				 }// end of inner if block
 				 else // no json data was returned so check for Internet connectivity
 				 {
@@ -1863,7 +1924,6 @@ public class WeatherLionWidget extends JFrame implements Runnable
 		        
 		        HttpResponse<String> response = client.send( request, BodyHandlers.ofString() );
 			 
-		        System.out.println(response.body());
 		        return response.body();
 		 }// end of method getYahooWeatherData
 		 
@@ -1890,7 +1950,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	    	
 	    }// end of method loadWeatherIcon
 		 
-	    private void loadDarkSkyWeather()
+	    private void loadDarkSkyWeather() throws Exception
 	    {
 	    	currentCity.setLength( 0 );
 	    	currentCity.append( CityData.currentCityData.getCityName() );
@@ -1955,7 +2015,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			} // end of try block
 	        catch ( ParseException e )
 	        {
-				e.printStackTrace();
+	        	UtilityMethod.logMessage( "severe" , e.getMessage(),
+	        	    "WidgetUpdateService::loadDarkSkyWeather [line: "
+	        	    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
 	        	        
 	        String currentConditionIcon = null;
@@ -2172,6 +2234,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
                 
 			}// end of for each loop
             
+            // if the code gets to here then all was loaded successfully
+            WeatherLionWidget.dataLoadedSuccessfully = true;
+            
             wXML = new WeatherDataXMLService( WeatherLionMain.DARK_SKY, new Date(), 
 	        		currentCity.toString(), currentCountry.toString(), currentCondition.toString(),
 	        		currentFeelsLikeTemp.toString(), 
@@ -2184,7 +2249,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	    	
 	    }// end of method loadDarkSkyWeather
 	    
-	    private void loadHereMapsWeather() 
+	    private void loadHereMapsWeather() throws Exception 
 	    {
 	    	HereMapsWeatherDataItem.WeatherData.Observations.Location.Observation obs = hereWeatherWx.getObservations().getLocation().get( 0 )
 	    			.getObservation().get( 0 );
@@ -2256,7 +2321,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			} // end of try block
 	        catch ( ParseException e )
 	        {
-				e.printStackTrace();
+	        	UtilityMethod.logMessage( "severe" , e.getMessage(),
+					"WidgetUpdateService::loadHereMapsWeather [line: " 
+	        	    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
 	        	        
 	        String currentConditionIcon = null;
@@ -2363,7 +2430,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				}// end of try block
             	catch ( ParseException pe )
             	{
-					pe.printStackTrace();
+					UtilityMethod.logMessage( "severe" , pe.getMessage(),
+						"WidgetUpdateService::loadHereMapsWeather [line: " +
+						pe.getStackTrace()[ 1 ].getLineNumber() + "]" );
 				}// end of catch block
             	
             	JLabel fDayLabel = null;
@@ -2408,7 +2477,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 					}// end of try block
             		catch ( ParseException pe )
             		{
-						pe.printStackTrace();
+            			UtilityMethod.logMessage( "severe" , pe.getMessage(),
+    						"WidgetUpdateService::loadHereMapsWeather [line: " +
+    						pe.getStackTrace()[ 1 ].getLineNumber() + "]" );
 					}// end of catch block
             		
             		String fCondition =wxForecast.getIconName().contains( "_" ) ?
@@ -2511,6 +2582,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
                 }// end of if block
             }// end of for each loop
             
+            // if the code gets to here then all was loaded successfully
+            WeatherLionWidget.dataLoadedSuccessfully = true;
+            
             wXML = new WeatherDataXMLService( WeatherLionMain.OPEN_WEATHER, new Date(), 
 	        		currentCity.toString(), currentCountry.toString(), currentCondition.toString(), 
 	        		currentTemp.toString().substring( 0, currentTemp.toString().indexOf( DEGREES ) ).trim(),
@@ -2521,7 +2595,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        wXML.execute();
 	    }// end of method loadHereMapsWeather
 	    
-	    private void loadOpenWeather()
+	    private void loadOpenWeather() throws Exception
 	    {
 	    	currentCity.setLength( 0 );
 	    	currentCity.append( CityData.currentCityData.getCityName() );
@@ -2584,7 +2658,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			} // end of try block
 	        catch ( ParseException e )
 	        {
-				e.printStackTrace();
+	        	UtilityMethod.logMessage( "severe" , e.getMessage(),
+					"WidgetUpdateService::loadOpenWeather [line: " +
+					e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
 	        	        
 	        String currentConditionIcon = null;
@@ -2816,6 +2892,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
                 }// end of if block
             }// end of for each loop
             
+            // if the code gets to here then all was loaded successfully
+            WeatherLionWidget.dataLoadedSuccessfully = true;
+            
             wXML = new WeatherDataXMLService( WeatherLionMain.OPEN_WEATHER, new Date(), 
 	        		currentCity.toString(), currentCountry.toString(), currentCondition.toString(), 
 	        		currentTemp.toString().substring( 0, currentTemp.toString().indexOf( DEGREES ) ).trim(),
@@ -2923,6 +3002,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
                 " " + Math.round( Float.parseFloat( currentWindSpeed.toString() ) ) +
                 ( WeatherLionMain.storedPreferences.getUseMetric() ? " km/h" : " mph" ) );
 	        
+	        // Yr's Weather Service does not track humidity
+	        if( currentHumidity.toString().length() == 0 ) currentHumidity.append( "0" );
+	        	        
 	        currentHumidity = currentHumidity.toString().contains( "%" )
 	        		? new StringBuilder( currentHumidity.toString().replaceAll( "%", "" ) )
 	        		: currentHumidity; // remove before parsing
@@ -2938,8 +3020,8 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			}// end of try block
 			catch ( ParseException e )
 			{
-				UtilityMethod.logMessage( "severe", "Couldn't parse the forcecast date!", 
-					thisClass.getEnclosingClass().getSimpleName() + "::loadPreviousWeather" );
+				UtilityMethod.logMessage( "severe" , e.getMessage(),
+						"WidgetUpdateService::loadPreviousWeather [line: " + e.getStackTrace()[1].getLineNumber()+ "]" );
 			}// end of catch block
 			
 	        // Update the current location and update time stamp
@@ -2972,8 +3054,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			} // end of try block
 	        catch ( ParseException e )
 	        {
-				e.printStackTrace();
-			}// end of catch block
+				UtilityMethod.logMessage( "severe" , e.getMessage(),
+					"WidgetUpdateService::loadPreviousWeather [line: " + e.getStackTrace()[1].getLineNumber()+ "]" );
+	        }// end of catch block
 	        	        
 	        String currentConditionIcon = null;
 	        
@@ -3123,7 +3206,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			 usingPreviousData = true; // indicate that old weather data is being used
 	    }// end of method loadPreviousWeatherData
 	    
-	    private void loadWeatherBitWeather()
+	    private void loadWeatherBitWeather() throws Exception
 	    {
 	    	currentCity.setLength( 0 );
 	    	currentCity.append( CityData.currentCityData.getCityName() );
@@ -3197,7 +3280,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			} // end of try block
 	        catch ( ParseException e )
 	        {
-				e.printStackTrace();
+	        	UtilityMethod.logMessage( "severe" , e.getMessage(),
+					"WidgetUpdateService::loadWeatherBitWeather [line: " +
+					e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
 	        	        
 	        String currentConditionIcon = null;
@@ -3454,6 +3539,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
             	ct = currentTemp.toString();
             }// end of else block
             
+            // if the code gets to here then all was loaded successfully
+            WeatherLionWidget.dataLoadedSuccessfully = true;
+            
             wXML = new WeatherDataXMLService( WeatherLionMain.WEATHER_BIT, new Date(), 
 	        		currentCity.toString(), currentCountry.toString(), currentCondition.toString(), 
 	        		ct, currentFeelsLikeTemp.toString(), currentHigh.toString(),
@@ -3468,7 +3556,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	     * Load Weather Underground Weather data
 	     */
 	    @Deprecated
-	    private void loadWeatherUndergroundWeather()
+	    private void loadWeatherUndergroundWeather() throws Exception
 	    {
 	        currentCity.setLength( 0 );
 	        currentCity.append( underground.getCurrent_observation().getDisplay_location().getFull() );
@@ -3557,7 +3645,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			} // end of try block
 	        catch ( ParseException e )
 	        {
-				e.printStackTrace();
+				UtilityMethod.logMessage( "severe" , e.getMessage(),
+					"WidgetUpdateService::loadWeatherUndergroundWeather [line: " +
+					e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
 	        	        
 	        String currentConditionIcon = null;
@@ -3785,6 +3875,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	            i++; // increment sentinel
 	        }// end of for each loop
 	        
+	        // if the code gets to here then all was loaded successfully
+            WeatherLionWidget.dataLoadedSuccessfully = true;
+	        
 	        wXML = new WeatherDataXMLService( WeatherLionMain.WEATHER_UNDERGROUND, new Date(), 
 	        		currentCity.toString(), currentCountry.toString(), currentCondition.toString(), 
 	        		currentTemp.toString().substring( 0, currentTemp.toString().indexOf( DEGREES ) ).trim(),
@@ -3798,7 +3891,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	    /**
 	     * Load Yahoo! Weather data
 	     */
-	    private void loadYahooYdnWeather()
+	    private void loadYahooYdnWeather() throws Exception
 	    {
 	    	currentCity.setLength( 0 );
 	        currentCity.append( yahoo19.getLocation().getCity() +
@@ -3827,7 +3920,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        astronomyCheck();
 	        
 	        lblWeatherCondition.setText( UtilityMethod.toProperCase( currentCondition.toString() ) );
-	
+	        
 	        lblWindReading.setText( currentWindDirection +
                 " " + Math.round( Double.parseDouble( currentWindSpeed.toString() ) ) +
                 	( WeatherLionMain.storedPreferences.getUseMetric() ? " km/h" : " mph" ) );
@@ -3873,7 +3966,8 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			} // end of try block
 	        catch ( ParseException e )
 	        {
-				e.printStackTrace();
+				UtilityMethod.logMessage( "severe", e.getMessage(), 
+					"WidgetUpdateService::loadYahooYdnWeather" );
 			}// end of catch block
 	        	        
 	        String currentConditionIcon = null;
@@ -4064,6 +4158,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	            }// end of if block
 	        }// end of for loop
 	        
+	        // if the code gets to here then all was loaded successfully
+            WeatherLionWidget.dataLoadedSuccessfully = true;
+            
 	        wXML = new WeatherDataXMLService( WeatherLionMain.YAHOO_WEATHER, new Date(), 
 	        		currentCity.toString(), currentCountry.toString(), currentCondition.toString(), 
 	        		currentTemp.toString().substring( 0, currentTemp.toString().indexOf( DEGREES ) ).trim(),
@@ -4078,7 +4175,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	    /**
 	     * Load Yahoo! Weather data
 	     */
-	    private void loadYahooWeather()
+	    private void loadYahooWeather() throws Exception
 	    {
 	    	currentCity.setLength( 0 ); // reset
 	    	currentCity.append( yahoo.getQuery().getResults().getChannel().getLocation().getCity() +
@@ -4154,7 +4251,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			} // end of try block
 	        catch ( ParseException e )
 	        {
-				e.printStackTrace();
+	        	UtilityMethod.logMessage( "severe" , e.getMessage(),
+					"WidgetUpdateService::loadYahooWeather [line: " +
+					e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
 	        	        
 	        String currentConditionIcon = null;
@@ -4341,7 +4440,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				}// end of try block
 				catch (ParseException e)
 				{
-					e.printStackTrace();
+					UtilityMethod.logMessage( "severe" , e.getMessage(),
+						"WidgetUpdateService::loadYahooWeather [line: " +
+						e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 				}// end of catch block
 	            
 	            currentFiveDayForecast.add(
@@ -4353,6 +4454,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	            }// end of if block
 	        }// end of for loop
 	        
+	        // if the code gets to here then all was loaded successfully
+            WeatherLionWidget.dataLoadedSuccessfully = true;
+            
 	        wXML = new WeatherDataXMLService( WeatherLionMain.YAHOO_WEATHER, new Date(), 
 	        		currentCity.toString(), currentCountry.toString(), currentCondition.toString(), 
 	        		currentTemp.toString().substring( 0, currentTemp.toString().indexOf( DEGREES ) ).trim(),
@@ -4366,7 +4470,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	    /**
 	     * Load Yr Weather data
 	     */
-	    private void loadYrWeather()
+	    private void loadYrWeather() throws Exception
 	    {
 	        currentCity.setLength( 0 );
 	        currentCity.append( yr.getName() );
@@ -4438,7 +4542,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			} // end of try block
 	        catch ( ParseException e )
 	        {
-				e.printStackTrace();
+	        	UtilityMethod.logMessage( "severe" , e.getMessage(),
+					"WidgetUpdateService::loadHereMapsWeather [line: " +
+					e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
 	        	        
 	        String currentConditionIcon = null;
@@ -4639,6 +4745,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
                 }// end of if block
 	        }// end of for loop
 	        
+	        // if the code gets to here then all was loaded successfully
+            WeatherLionWidget.dataLoadedSuccessfully = true;
+            
 	        wXML = new WeatherDataXMLService( WeatherLionMain.YR_WEATHER, new Date(), 
 	        		currentCity.toString(), currentCountry.toString(), currentCondition.toString(), 
 	        		currentTemp.toString().substring( 0, currentTemp.toString().indexOf( DEGREES ) ).trim(),
@@ -5263,7 +5372,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 							}// end of try block
 				        	catch ( ParseException e )
 				        	{
-								e.printStackTrace();
+				        		UtilityMethod.logMessage( "severe" , e.getMessage(),
+									"WidgetUpdateService::updateTemps [line: " +
+									e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 							}// end of catch block
 				        	
 				        	if( fxDate.equals( today ) )
@@ -5537,6 +5648,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        	currentFeelsLikeTemp.setLength( 0 );
 				        	currentFeelsLikeTemp.append( String.valueOf( Math.round( fl ) ) );
 				            
+				        	currentWindSpeed.setLength( 0 ); // reset
 				        	currentWindSpeed.append( String.valueOf( yahoo19.getCurrentObservation().getWind().getSpeed() ) );
 				        }// end of else block
 
