@@ -131,10 +131,10 @@ public class LionSecurityManager
 	private static String[] geoNamesRequiredKeys = new String[] { "username" };
 	private static String[] hereMapsRequiredKeys = new String[] { "app_id", "app_code" };
 	private static String[] openWeatherMapRequiredKeys = new String[] { "api_key" };
-	private static String[] weatherUndergroundRequiredKeys = new String[] { "api_key" };
+	private static String[] weatherBitRequiredKeys = new String[] { "api_key" };
 	private static String[] yahooRequiredKeys = new String[] { "app_id", "consumer_key", "consumer_secret" };
 	@Deprecated
-	private static String[] weatherBitRequiredKeys = new String[] { "api_key" };
+	private static String[] weatherUndergroundRequiredKeys = new String[] { "api_key" };
 	
 	private static DefaultComboBoxModel< String > weatherProviders;
 	private static List< String > keysMissing;
@@ -1519,4 +1519,4 @@ public class LionSecurityManager
             }// end of if block
         }// end of method showPopup
     }// end of inner class PopupMenuListener
-}// end of class SecurityManager
+}// end of class LionSecurityManager
