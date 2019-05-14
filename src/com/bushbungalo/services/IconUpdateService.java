@@ -42,13 +42,12 @@ public class IconUpdateService implements Runnable
 					WeatherLionMain.connectedToInternet = UtilityMethod.hasInternetConnection();
 				}// end of if block
 				
-				// If the not connected to the Internet, for a connection
-				if( !WeatherLionMain.connectedToInternet )
+				// If the program is not connected to the Internet, wait for a connection
+				if( WeatherLionMain.connectedToInternet )
 				{
 					// if there was no previous Internet connection, check for a return in connectivity
 					// and refresh the widget
-					if( WeatherLionWidget.usingPreviousData && WeatherLionMain.connectedToInternet 
-							&& UtilityMethod.updatedRequired() )
+					if( WeatherLionWidget.usingPreviousData && UtilityMethod.updatedRequired() )
 					{    			
 						// run the weather service
 						WeatherLionWidget.ws = new WidgetUpdateService( false );
