@@ -947,7 +947,7 @@ public abstract class UtilityMethod
      * 
      * @param fTemp A temperature measured in Fahrenheit
      * @param mphWind A wind speed measure in miles per hour (mph)
-     * @return A integer value representing the calcualted wind chill.
+     * @return A integer value representing the calculated wind chill.
      */
     public static int calculateWindChill( int fTemp, int mphWind ) 
     {
@@ -969,7 +969,7 @@ public abstract class UtilityMethod
      * 
      * @param airTemp	The current air temperature reading
      * @param relativeHumidity The current relative humidity reading
-     * @return A {@double} representing the heat index value 
+     * @return A {@code double} representing the heat index value 
      * @author Kevin Sharp and Mark Klein
      * <br />
      * {@link https://www.wpc.ncep.noaa.gov/html/heatindex.shtml}
@@ -1062,7 +1062,7 @@ public abstract class UtilityMethod
      * </ol>
      * 
      * @param airTemp	The current air temperature reading
-     * @param relativeHumidity The current relative humidity reading
+     * @param dewPoint The current dew point reading
      * @return A {@double} representing the heat index value 
      * @author Kevin Sharp and Mark Klein
      * <br />
@@ -1150,7 +1150,7 @@ public abstract class UtilityMethod
     /***
      * Heat index computed using air temperature C and relative humidity
      * 
-     * @param airTemp	The current air temperature reading
+     * @param airTempCelsius	The current air temperature reading
      * @param relativeHumidity The current relative humidity reading
      * @return A {@double} representing the heat index value 
      * @author Kevin Sharp and Mark Klein
@@ -1242,10 +1242,10 @@ public abstract class UtilityMethod
     }// end of method heatIndexCelsius
     
     /***
-     * Heat index computed using air temperature and dew point temperature.  Degrees C
+     * Heat index computed using air temperature and dew point temperature. Degrees C
      * 
-     * @param airTemp	The current air temperature reading
-     * @param relativeHumidity The current relative humidity reading
+     * @param airTempCelsius	The current air temperature reading
+     * @param dewPointCelsius The current dew point reading
      * @return A {@double} representing the heat index value 
      * @author Kevin Sharp and Mark Klein
      * <br />
@@ -1371,7 +1371,7 @@ public abstract class UtilityMethod
         float celsius = Math.round( ( fahrenheit - 32 ) / 1.8 );
 
         return Float.parseFloat( new DecimalFormat( "##.00" ).format( celsius ) );
-    }// end of method fahrenheitToKelvin
+    }// end of method fahrenheitToCelsius
 
     /**
      * Accepts a numeric value of type float that represents
@@ -1583,7 +1583,7 @@ public abstract class UtilityMethod
                 (hour > 12 ? "PM" : "AM"));
 
         return t;
-    }// end of method getDateTime
+    }// end of method get12HourTime
     
     /**
      * Converts a {@code String} representation of a time in 12hr format
@@ -1611,14 +1611,14 @@ public abstract class UtilityMethod
         if( meridiem.equalsIgnoreCase( "am" ) ) 
         {
         	t = String.format("%s:%d", hour < 10 ? "0" + hour : hour == 12 ? "00" : hour, minute );
-        }
+        }// end of if block
         else if( meridiem.equalsIgnoreCase( "pm" ) ) 
         {
         	t = String.format("%s:%d", hour < 12 ? 12 + hour : hour, minute );
-        }
+        }// end of else if block
         
         return t;
-    }// end of method getDateTime
+    }// end of method get24HourTime
 
     /**
      * Ensures that the city entered by the user is correctly formatted.
@@ -2484,8 +2484,9 @@ public abstract class UtilityMethod
 	{
     	int interval = WeatherLionMain.storedPreferences.getInterval();
     	long minutesToGo = millisecondsToMinutes( interval );
+    	boolean ready = false;
     	
-    	if( lastUpdated != null )
+    	if( lastUpdated != null && !updatedRequired() )
     	{
     		Calendar cal = Calendar.getInstance();
     		cal.setTime( lastUpdated );
@@ -2498,11 +2499,16 @@ public abstract class UtilityMethod
             long secondsInMilli = 1000;
             long minutesInMilli = secondsInMilli * 60;
             minutesToGo = difference / minutesInMilli;
+            
+            ready = minutesToGo <= 1;
          }// end of if block
+    	else if( updatedRequired() || lastUpdated != null )
+    	{
+    		ready = true;
+    	}// end of else if block
     	
-    	return minutesToGo <= 1;
-		
-	}// end of method timeForConnectivityCheck
+    	return ready;
+    }// end of method timeForConnectivityCheck
     
     /**
      * Determine if the widget needs to be refreshed based on the specified refresh period.
@@ -2529,19 +2535,9 @@ public abstract class UtilityMethod
 
         long secondsInMilli = 1000;
         long minutesInMilli = secondsInMilli * 60;
-//        long hoursInMilli = minutesInMilli * 60;
-        //long daysInMilli = hoursInMilli * 24;
-
-//        long elapsedDays = difference / daysInMilli;
-//        difference = difference % daysInMilli;
-
-//        long elapsedHours = different / hoursInMilli;
-//        difference = difference % hoursInMilli;
 
         long elapsedMinutes = difference / minutesInMilli;
         difference = difference % minutesInMilli;
-
-//        long elapsedSeconds = difference / secondsInMilli;
 
         if( elapsedMinutes >= interval )
         {
