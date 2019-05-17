@@ -813,7 +813,263 @@ public abstract class UtilityMethod
         worldCountryCodes.put( "Zambia", "ZM" );
         worldCountryCodes.put( "Zimbabwe", "ZW" );
     };
-
+    
+    public static LinkedHashMap<String, String> worldCountriesByName;
+    static
+    {
+			worldCountriesByName = new LinkedHashMap<String, String>();
+			
+			worldCountriesByName.put( "Afghanistan", "AF" );
+            worldCountriesByName.put( "Aland Islands", "AX" );
+            worldCountriesByName.put( "Albania", "AL" );
+            worldCountriesByName.put( "Algeria", "DZ" );
+            worldCountriesByName.put( "American Samoa", "AS" );
+            worldCountriesByName.put( "Andorra", "AD" );
+            worldCountriesByName.put( "Angola", "AO" );
+            worldCountriesByName.put( "Anguilla", "AI" );
+            worldCountriesByName.put( "Antarctica", "AQ" );
+            worldCountriesByName.put( "Antigua and Barbuda", "AG" );
+            worldCountriesByName.put( "Argentina", "AR" );
+            worldCountriesByName.put( "Armenia", "AM" );
+            worldCountriesByName.put( "Aruba", "AW" );
+            worldCountriesByName.put( "Australia", "AU" );
+            worldCountriesByName.put( "Austria", "AT" );
+            worldCountriesByName.put( "Azerbaijan", "AZ" );
+            worldCountriesByName.put( "Bahamas", "BS" );
+            worldCountriesByName.put( "Bahrain", "BH" );
+            worldCountriesByName.put( "Bangladesh", "BD" );
+            worldCountriesByName.put( "Barbados", "BB" );
+            worldCountriesByName.put( "Belarus", "BY" );
+            worldCountriesByName.put( "Belgium", "BE" );
+            worldCountriesByName.put( "Belize", "BZ" );
+            worldCountriesByName.put( "Benin", "BJ" );
+            worldCountriesByName.put( "Bermuda", "BM" );
+            worldCountriesByName.put( "Bhutan", "BT" );
+            worldCountriesByName.put( "Bolivia", "BO" );
+            worldCountriesByName.put( "Bosnia and Herzegovina", "BA" );
+            worldCountriesByName.put( "Botswana", "BW" );
+            worldCountriesByName.put( "Bouvet Island", "BV" );
+            worldCountriesByName.put( "Brazil", "BR" );
+            worldCountriesByName.put( "British Virgin Islands", "VG" );
+            worldCountriesByName.put( "British Indian Ocean Territory", "IO" );
+            worldCountriesByName.put( "Brunei Darussalam", "BN" );
+            worldCountriesByName.put( "Bulgaria", "BG" );
+            worldCountriesByName.put( "Burkina Faso", "BF" );
+            worldCountriesByName.put( "Burundi", "BI" );
+            worldCountriesByName.put( "Cambodia", "KH" );
+            worldCountriesByName.put( "Cameroon", "CM" );
+            worldCountriesByName.put( "Canada", "CA" );
+            worldCountriesByName.put( "Cape Verde", "CV" );
+            worldCountriesByName.put( "Cayman Islands", "KY" );
+            worldCountriesByName.put( "Central African Republic", "CF" );
+            worldCountriesByName.put( "Chad", "TD" );
+            worldCountriesByName.put( "Chile", "CL" );
+            worldCountriesByName.put( "China", "CN" );
+            worldCountriesByName.put( "Hong Kong", "HK" );
+            worldCountriesByName.put( "Macao", "MO" );
+            worldCountriesByName.put( "Christmas Island", "CX" );
+            worldCountriesByName.put( "Cocos (Keeling) Islands", "CC" );
+            worldCountriesByName.put( "Colombia", "CO" );
+            worldCountriesByName.put( "Comoros", "KM" );
+            worldCountriesByName.put( "Congo (Brazzaville)", "CG" );
+            worldCountriesByName.put( "Congo", "CD" );
+            worldCountriesByName.put( "Cook Islands", "CK" );
+            worldCountriesByName.put( "Costa Rica", "CR" );
+            worldCountriesByName.put( "Côte d'Ivoire", "CI" );
+            worldCountriesByName.put( "Croatia", "HR" );
+            worldCountriesByName.put( "Cuba", "CU" );
+            worldCountriesByName.put( "Cyprus", "CY" );
+            worldCountriesByName.put( "Czech Republic", "CZ" );
+            worldCountriesByName.put( "Denmark", "DK" );
+            worldCountriesByName.put( "Djibouti", "DJ" );
+            worldCountriesByName.put( "Dominica", "DM" );
+            worldCountriesByName.put( "Dominican Republic", "DO" );
+            worldCountriesByName.put( "Ecuador", "EC" );
+            worldCountriesByName.put( "Egypt", "EG" );
+            worldCountriesByName.put( "El Salvador", "SV" );
+            worldCountriesByName.put( "Equatorial Guinea", "GQ" );
+            worldCountriesByName.put( "Eritrea", "ER" );
+            worldCountriesByName.put( "Estonia", "EE" );
+            worldCountriesByName.put( "Ethiopia", "ET" );
+            worldCountriesByName.put( "Falkland Islands (Malvinas)", "FK" );
+            worldCountriesByName.put( "Faroe Islands", "FO" );
+            worldCountriesByName.put( "Fiji", "FJ" );
+            worldCountriesByName.put( "Finland", "FI" );
+            worldCountriesByName.put( "France", "FR" );
+            worldCountriesByName.put( "French Guiana", "GF" );
+            worldCountriesByName.put( "French Polynesia", "PF" );
+            worldCountriesByName.put( "French Southern Territories", "TF" );
+            worldCountriesByName.put( "Gabon", "GA" );
+            worldCountriesByName.put( "Gambia", "GM" );
+            worldCountriesByName.put( "Georgia", "GE" );
+            worldCountriesByName.put( "Germany", "DE" );
+            worldCountriesByName.put( "Ghana", "GH" );
+            worldCountriesByName.put( "Gibraltar", "GI" );
+            worldCountriesByName.put( "Greece", "GR" );
+            worldCountriesByName.put( "Greenland", "GL" );
+            worldCountriesByName.put( "Grenada", "GD" );
+            worldCountriesByName.put( "Guadeloupe", "GP" );
+            worldCountriesByName.put( "Guam", "GU" );
+            worldCountriesByName.put( "Guatemala", "GT" );
+            worldCountriesByName.put( "Guernsey", "GG" );
+            worldCountriesByName.put( "Guinea", "GN" );
+            worldCountriesByName.put( "Guinea-Bissau", "GW" );
+            worldCountriesByName.put( "Guyana", "GY" );
+            worldCountriesByName.put( "Haiti", "HT" );
+            worldCountriesByName.put( "Heard and Mcdonald Islands", "HM" );
+            worldCountriesByName.put( "Holy See (Vatican City State)", "VA" );
+            worldCountriesByName.put( "Honduras", "HN" );
+            worldCountriesByName.put( "Hungary", "HU" );
+            worldCountriesByName.put( "Iceland", "IS" );
+            worldCountriesByName.put( "India", "IN" );
+            worldCountriesByName.put( "Indonesia", "ID" );
+            worldCountriesByName.put( "Iran", "IR" );
+            worldCountriesByName.put( "Iraq", "IQ" );
+            worldCountriesByName.put( "Ireland", "IE" );
+            worldCountriesByName.put( "Isle of Man", "IM" );
+            worldCountriesByName.put( "Israel", "IL" );
+            worldCountriesByName.put( "Italy", "IT" );
+            worldCountriesByName.put( "Jamaica", "JM" );
+            worldCountriesByName.put( "Japan", "JP" );
+            worldCountriesByName.put( "Jersey", "JE" );
+            worldCountriesByName.put( "Jordan", "JO" );
+            worldCountriesByName.put( "Kazakhstan", "KZ" );
+            worldCountriesByName.put( "Kenya", "KE" );
+            worldCountriesByName.put( "Kiribati", "KI" );
+            worldCountriesByName.put( "Korea (North)", "KP" );
+            worldCountriesByName.put( "Korea (South)", "KR" );
+            worldCountriesByName.put( "Kuwait", "KW" );
+            worldCountriesByName.put( "Kyrgyzstan", "KG" );
+            worldCountriesByName.put( "Lao PDR", "LA" );
+            worldCountriesByName.put( "Latvia", "LV" );
+            worldCountriesByName.put( "Lebanon", "LB" );
+            worldCountriesByName.put( "Lesotho", "LS" );
+            worldCountriesByName.put( "Liberia", "LR" );
+            worldCountriesByName.put( "Libya", "LY" );
+            worldCountriesByName.put( "Liechtenstein", "LI" );
+            worldCountriesByName.put( "Lithuania", "LT" );
+            worldCountriesByName.put( "Luxembourg", "LU" );
+            worldCountriesByName.put( "Macedonia", "MK" );
+            worldCountriesByName.put( "Madagascar", "MG" );
+            worldCountriesByName.put( "Malawi", "MW" );
+            worldCountriesByName.put( "Malaysia", "MY" );
+            worldCountriesByName.put( "Maldives", "MV" );
+            worldCountriesByName.put( "Mali", "ML" );
+            worldCountriesByName.put( "Malta", "MT" );
+            worldCountriesByName.put( "Marshall Islands", "MH" );
+            worldCountriesByName.put( "Martinique", "MQ" );
+            worldCountriesByName.put( "Mauritania", "MR" );
+            worldCountriesByName.put( "Mauritius", "MU" );
+            worldCountriesByName.put( "Mayotte", "YT" );
+            worldCountriesByName.put( "Mexico", "MX" );
+            worldCountriesByName.put( "Micronesia", "FM" );
+            worldCountriesByName.put( "Moldova", "MD" );
+            worldCountriesByName.put( "Monaco", "MC" );
+            worldCountriesByName.put( "Mongolia", "MN" );
+            worldCountriesByName.put( "Montenegro", "ME" );
+            worldCountriesByName.put( "Montserrat", "MS" );
+            worldCountriesByName.put( "Morocco", "MA" );
+            worldCountriesByName.put( "Mozambique", "MZ" );
+            worldCountriesByName.put( "Myanmar", "MM" );
+            worldCountriesByName.put( "Namibia", "NA" );
+            worldCountriesByName.put( "Nauru", "NR" );
+            worldCountriesByName.put( "Nepal", "NP" );
+            worldCountriesByName.put( "Netherlands", "NL" );
+            worldCountriesByName.put( "Netherlands Antilles", "AN" );
+            worldCountriesByName.put( "New Caledonia", "NC" );
+            worldCountriesByName.put( "New Zealand", "NZ" );
+            worldCountriesByName.put( "Nicaragua", "NI" );
+            worldCountriesByName.put( "Niger", "NE" );
+            worldCountriesByName.put( "Nigeria", "NG" );
+            worldCountriesByName.put( "Niue", "NU" );
+            worldCountriesByName.put( "Norfolk Island", "NF" );
+            worldCountriesByName.put( "Northern Mariana Islands", "MP" );
+            worldCountriesByName.put( "Norway", "NO" );
+            worldCountriesByName.put( "Oman", "OM" );
+            worldCountriesByName.put( "Pakistan", "PK" );
+            worldCountriesByName.put( "Palau", "PW" );
+            worldCountriesByName.put( "Palestinian Territory", "PS" );
+            worldCountriesByName.put( "Panama", "PA" );
+            worldCountriesByName.put( "Papua New Guinea", "PG" );
+            worldCountriesByName.put( "Paraguay", "PY" );
+            worldCountriesByName.put( "Peru", "PE" );
+            worldCountriesByName.put( "Philippines", "PH" );
+            worldCountriesByName.put( "Pitcairn", "PN" );
+            worldCountriesByName.put( "Poland", "PL" );
+            worldCountriesByName.put( "Portugal", "PT" );
+            worldCountriesByName.put( "Puerto Rico", "PR" );
+            worldCountriesByName.put( "Qatar", "QA" );
+            worldCountriesByName.put( "Réunion", "RE" );
+            worldCountriesByName.put( "Romania", "RO" );
+            worldCountriesByName.put( "Russian Federation", "RU" );
+            worldCountriesByName.put( "Rwanda", "RW" );
+            worldCountriesByName.put( "Saint-Barthélemy", "BL" );
+            worldCountriesByName.put( "Saint Helena", "SH" );
+            worldCountriesByName.put( "Saint Kitts and Nevis", "KN" );
+            worldCountriesByName.put( "Saint Lucia", "LC" );
+            worldCountriesByName.put( "Saint-Martin (French part)", "MF" );
+            worldCountriesByName.put( "Saint Pierre and Miquelon", "PM" );
+            worldCountriesByName.put( "Saint Vincent and Grenadines", "VC" );
+            worldCountriesByName.put( "Samoa", "WS" );
+            worldCountriesByName.put( "San Marino", "SM" );
+            worldCountriesByName.put( "Sao Tome and Principe", "ST" );
+            worldCountriesByName.put( "Saudi Arabia", "SA" );
+            worldCountriesByName.put( "Senegal", "SN" );
+            worldCountriesByName.put( "Serbia", "RS" );
+            worldCountriesByName.put( "Seychelles", "SC" );
+            worldCountriesByName.put( "Sierra Leone", "SL" );
+            worldCountriesByName.put( "Singapore", "SG" );
+            worldCountriesByName.put( "Slovakia", "SK" );
+            worldCountriesByName.put( "Slovenia", "SI" );
+            worldCountriesByName.put( "Solomon Islands", "SB" );
+            worldCountriesByName.put( "Somalia", "SO" );
+            worldCountriesByName.put( "South Africa", "ZA" );
+            worldCountriesByName.put( "South Georgia and the South Sandwich Islands", "GS" );
+            worldCountriesByName.put( "South Sudan", "SS" );
+            worldCountriesByName.put( "Spain", "ES" );
+            worldCountriesByName.put( "Sri Lanka", "LK" );
+            worldCountriesByName.put( "Sudan", "SD" );
+            worldCountriesByName.put( "Suriname", "SR" );
+            worldCountriesByName.put( "Svalbard and Jan Mayen Islands", "SJ" );
+            worldCountriesByName.put( "Swaziland", "SZ" );
+            worldCountriesByName.put( "Sweden", "SE" );
+            worldCountriesByName.put( "Switzerland", "CH" );
+            worldCountriesByName.put( "Syrian Arab Republic (Syria)", "SY" );
+            worldCountriesByName.put( "Taiwan", "TW" );
+            worldCountriesByName.put( "Tajikistan", "TJ" );
+            worldCountriesByName.put( "Tanzania", "TZ" );
+            worldCountriesByName.put( "Thailand", "TH" );
+            worldCountriesByName.put( "Timor-Leste", "TL" );
+            worldCountriesByName.put( "Togo", "TG" );
+            worldCountriesByName.put( "Tokelau", "TK" );
+            worldCountriesByName.put( "Tonga", "TO" );
+            worldCountriesByName.put( "Trinidad and Tobago", "TT" );
+            worldCountriesByName.put( "Tunisia", "TN" );
+            worldCountriesByName.put( "Turkey", "TR" );
+            worldCountriesByName.put( "Turkmenistan", "TM" );
+            worldCountriesByName.put( "Turks and Caicos Islands", "TC" );
+            worldCountriesByName.put( "Tuvalu", "TV" );
+            worldCountriesByName.put( "Uganda", "UG" );
+            worldCountriesByName.put( "Ukraine", "UA" );
+            worldCountriesByName.put( "United Arab Emirates", "AE" );
+            worldCountriesByName.put( "United Kingdom", "GB" );
+            worldCountriesByName.put( "USA", "US" );
+            worldCountriesByName.put( "United States", "US" );
+            worldCountriesByName.put( "United States of America", "US" );
+            worldCountriesByName.put( "US Minor Outlying Islands", "UM" );
+            worldCountriesByName.put( "Uruguay", "UY" );
+            worldCountriesByName.put( "Uzbekistan", "UZ" );
+            worldCountriesByName.put( "Vanuatu", "VU" );
+            worldCountriesByName.put( "Venezuela (Bolivarian Republic)", "VE" );
+            worldCountriesByName.put( "Viet Nam", "VN" );
+            worldCountriesByName.put( "Virgin Islands", "VI" );
+            worldCountriesByName.put( "Wallis and Futuna Islands", "WF" );
+            worldCountriesByName.put( "Western Sahara", "EH" );
+            worldCountriesByName.put( "Yemen", "YE" );
+            worldCountriesByName.put( "Zambia", "ZM" );
+            worldCountriesByName.put( "Zimbabwe", "ZW" );
+	};
+	
     // Maps a weather reading to a specific asset icon file
     public static LinkedHashMap<String, String> weatherImages;
     static
@@ -2776,7 +3032,8 @@ public abstract class UtilityMethod
      * Use the logger to log messages locally
      * 
      * @param level	Level of the log
-     * @param message	Log message
+     * @param message	Message to be logged
+     * @param inMethod	The method in which the data required logging
      */
     public static void logMessage( String level, String message, String inMethod )
     {
@@ -2818,9 +3075,10 @@ public abstract class UtilityMethod
     }// end of method logMessage
     
     /**
-     * Save a file to a specified location on disc.
+     * Saves a file to a specified location on disc.
      * 
      * @param fileName The name of the {@code File} to be stored.
+     * @param path	The path to the specified file.
      * @param content	The content to be stored in the specified file.
      */
     public static void saveToFile( String fileName, String path, String content )
@@ -2927,8 +3185,7 @@ public abstract class UtilityMethod
 														.getQuery()
 														.getResults()
 														.getPlace().get( 0 );
-						
-						
+												
 						cityName = UtilityMethod.toProperCase( place.getName() );
 						countryName = UtilityMethod.toProperCase( place.getCountry().getContent() );
 						countryCode = place.getCountry().getCode().toUpperCase();
@@ -3033,7 +3290,7 @@ public abstract class UtilityMethod
     	
     	return currentCityData;
     	
-    }// end of method createHereCityData
+    }// end of method createGeoNamesCityData
     
     /**
      * Uses data received from the Here Maps web service in a {@code String} JSON format
@@ -3052,7 +3309,6 @@ public abstract class UtilityMethod
 	    	{
 	    		Object json = new JSONTokener( cityJSON ).nextValue();
 	    		String localCityName = null;
-//	    		String countyCityName = null;
 				String countryName = null;
 				String countryCode = null;
 				String regionName = null;
@@ -3081,18 +3337,14 @@ public abstract class UtilityMethod
 						JSONObject address = location.getJSONObject( "Address" );
 						JSONArray additionalData = address.getJSONArray( "AdditionalData" );
 						
-//						countyCityName = address.getString( "County" ) != null ?
-//					         UtilityMethod.toProperCase( address.getString( "County" ) ) :
-//					        	 null;
-						countryName = UtilityMethod.toProperCase( address
-								.getString( "Country" ) );
-						countryCode = address.getString( "State" ).toUpperCase();
+						countryName = UtilityMethod.toProperCase( 
+								additionalData.getJSONObject( 0 ).getString( "value" ) );
+						countryCode = worldCountryCodes.get( countryName ).toUpperCase();
 						regionName = additionalData.getJSONObject( 1 ).getString( "value" ); // "key": "StateName"
 						
 						localCityName = countryName.equalsIgnoreCase( "USA" ) ?             
 										UtilityMethod.toProperCase( address.getString( "District" ) ) :
-										UtilityMethod.toProperCase( address.getString( "City" ) )	;
-						
+										UtilityMethod.toProperCase( address.getString( "City" ) );
 						Latitude = (float) navigationPosition.getDouble( "Latitude" );
 						Longitude = (float) navigationPosition.getDouble( "Longitude" );
 						
@@ -3312,7 +3564,7 @@ public abstract class UtilityMethod
 		{
 			return 0;
 		}// end of catch block
-	}// end of method addCity
+	}// end of method addCityToDatabase
  	
  	/**
  	 * Retrieves a city from a local SQLite 3 database
@@ -3420,7 +3672,7 @@ public abstract class UtilityMethod
         dialog.pack();
         dialog.setDefaultCloseOperation( JDialog.DO_NOTHING_ON_CLOSE );
         dialog.setLocationRelativeTo( parent );
-        dialog.setVisible( true);
+        dialog.setVisible( true );
         
         return Arrays.asList( buttons ).indexOf( prompt.getValue().toString() );
 	}// end of method confirmBox
@@ -3634,7 +3886,7 @@ public abstract class UtilityMethod
 	 * <br />
 	 * <b style="margin-left:-40px">Retrieved from:</b><br />
 	 * <a href='https://stackoverflow.com/questions/2149785/get-size-of-folder-or-file'>Stack Overflow</a>
-	 * @return	An {@code long} representing the size of the file
+	 * @return	A {@code long} representing the size of the file in bytes
 	 */
 	public static long size( Path path )
 	{
