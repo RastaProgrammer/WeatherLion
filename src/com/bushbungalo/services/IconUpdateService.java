@@ -24,6 +24,8 @@ import com.bushbungalo.utils.UtilityMethod;
  */
 public class IconUpdateService implements Runnable
 {
+	private static final String TAG = "IconUpdateService";
+	
 	@Override
 	public void run() 
 	{
@@ -68,7 +70,9 @@ public class IconUpdateService implements Runnable
 			}// end of try block 
 			catch ( InterruptedException e ) 
 			{
-				UtilityMethod.logMessage( "severe", e.getMessage(), "IconUpdateService::run" );				
+				 UtilityMethod.logMessage( "severe", e.getMessage(),
+			        TAG + "::run [line: " +
+			        UtilityMethod.getExceptionLineNumber( e )  + "]" );		
 			}// end of catch block
 		}// end of while block
 	}// end of method run
