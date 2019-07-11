@@ -39,6 +39,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -119,12 +121,18 @@ import com.google.gson.reflect.TypeToken;
  *      <li>05/02/19 - Added methods {@code confirmBox} and {@code size}</li>
  *      <li>05/06/19 - Added method {@code timeForConnectivityCheck}</li>
  *      <li>05/11/19 - Removed printing stack trace errors to console for logging</li>
+ *      <li>05/21/19 - Renamed method {@code makeColorTransparent} to {@code setImageOpacity}.</li>
+ *      <li>06/13/19 - Added method {@code containsWholeWord}</li>
+ *      <li>06/28/19 - Updated methods {@code isFoundInJSONStorage} and {@code isFoundInXMLStorage}</li>
+ *      <li>07/04/19 - Added method {@code getExceptionLineNumber}</li>
  * </ul>
  */
 
 @SuppressWarnings("unused")
 public abstract class UtilityMethod
 {
+	private static final String TAG = "UtilityMethod";
+	
 	// obtain OS information
 	public static String OS = System.getProperty( "os.name" ).toLowerCase();
 		
@@ -336,11 +344,11 @@ public abstract class UtilityMethod
         worldCountries.put("CC", "Cocos (Keeling) Islands");
         worldCountries.put("CO", "Colombia");
         worldCountries.put("KM", "Comoros");
-        worldCountries.put("CG", "Congo (Brazzaville)");
+        worldCountries.put("CG", "Congo�(Brazzaville)");
         worldCountries.put("CD", "Congo, (Kinshasa)");
         worldCountries.put("CK", "Cook Islands");
         worldCountries.put("CR", "Costa Rica");
-        worldCountries.put("CI", "Côte d'Ivoire");
+        worldCountries.put("CI", "C�te d'Ivoire");
         worldCountries.put("HR", "Croatia");
         worldCountries.put("CU", "Cuba");
         worldCountries.put("CY", "Cyprus");
@@ -382,7 +390,7 @@ public abstract class UtilityMethod
         worldCountries.put("GY", "Guyana");
         worldCountries.put("HT", "Haiti");
         worldCountries.put("HM", "Heard and Mcdonald Islands");
-        worldCountries.put("VA", "Holy SeeÂ (Vatican City State)");
+        worldCountries.put("VA", "Holy See (Vatican City State)");
         worldCountries.put("HN", "Honduras");
         worldCountries.put("HU", "Hungary");
         worldCountries.put("IS", "Iceland");
@@ -401,8 +409,8 @@ public abstract class UtilityMethod
         worldCountries.put("KZ", "Kazakhstan");
         worldCountries.put("KE", "Kenya");
         worldCountries.put("KI", "Kiribati");
-        worldCountries.put("KP", "KoreaÂ (North)");
-        worldCountries.put("KR", "KoreaÂ (South)");
+        worldCountries.put("KP", "Korea (North)");
+        worldCountries.put("KR", "Korea (South)");
         worldCountries.put("KW", "Kuwait");
         worldCountries.put("KG", "Kyrgyzstan");
         worldCountries.put("LA", "Lao PDR");
@@ -468,7 +476,7 @@ public abstract class UtilityMethod
         worldCountries.put("RO", "Romania");
         worldCountries.put("RU", "Russian Federation");
         worldCountries.put("RW", "Rwanda");
-        worldCountries.put("BL", "Saint-BarthÃ©lemy");
+        worldCountries.put("BL", "Saint-Barthélemy");
         worldCountries.put("SH", "Saint Helena");
         worldCountries.put("KN", "Saint Kitts and Nevis");
         worldCountries.put("LC", "Saint Lucia");
@@ -499,7 +507,7 @@ public abstract class UtilityMethod
         worldCountries.put("SZ", "Swaziland");
         worldCountries.put("SE", "Sweden");
         worldCountries.put("CH", "Switzerland");
-        worldCountries.put("SY", "Syrian Arab RepublicÂ (Syria)");
+        worldCountries.put("SY", "Syrian Arab Republic (Syria)");
         worldCountries.put("TW", "Taiwan, Republic of China");
         worldCountries.put("TJ", "Tajikistan");
         worldCountries.put("TZ", "Tanzania, United Republic of");
@@ -523,7 +531,7 @@ public abstract class UtilityMethod
         worldCountries.put("UY", "Uruguay");
         worldCountries.put("UZ", "Uzbekistan");
         worldCountries.put("VU", "Vanuatu");
-        worldCountries.put("VE", "VenezuelaÂ (Bolidouble ian Republic)");
+        worldCountries.put("VE", "Venezuela (Bolidouble ian Republic)");
         worldCountries.put("VN", "Viet Nam");
         worldCountries.put("VI", "Virgin Islands, US");
         worldCountries.put("WF", "Wallis and Futuna Islands");
@@ -596,11 +604,11 @@ public abstract class UtilityMethod
         worldCountryCodes.put( "Cocos Islands", "CC" );
         worldCountryCodes.put( "Colombia", "CO" );
         worldCountryCodes.put( "Comoros", "KM" );
-        worldCountryCodes.put( "Congo (Brazzaville)", "CG" );
+        worldCountryCodes.put( "Congo�(Brazzaville)", "CG" );
         worldCountryCodes.put( "Congo (Kinshasa)", "CD" );
         worldCountryCodes.put( "Cook Islands", "CK" );
         worldCountryCodes.put( "Costa Rica", "CR" );
-        worldCountryCodes.put( "Côte d'Ivoire", "CI" );
+        worldCountryCodes.put( "C�te d'Ivoire", "CI" );
         worldCountryCodes.put( "Croatia", "HR" );
         worldCountryCodes.put( "Cuba", "CU" );
         worldCountryCodes.put( "Cyprus", "CY" );
@@ -664,9 +672,9 @@ public abstract class UtilityMethod
         worldCountryCodes.put( "Kazakhstan", "KZ" );
         worldCountryCodes.put( "Kenya", "KE" );
         worldCountryCodes.put( "Kiribati", "KI" );
-        worldCountryCodes.put( "Korea (North)", "KP" );
+        worldCountryCodes.put( "Korea�(North)", "KP" );
         worldCountryCodes.put( "North Korea", "KP" );
-        worldCountryCodes.put( "Korea (South)", "KR" );
+        worldCountryCodes.put( "Korea�(South)", "KR" );
         worldCountryCodes.put( "South Korea", "KR" );
         worldCountryCodes.put( "Kuwait", "KW" );
         worldCountryCodes.put( "Kyrgyzstan", "KG" );
@@ -736,7 +744,7 @@ public abstract class UtilityMethod
         worldCountryCodes.put( "Romania", "RO" );
         worldCountryCodes.put( "Russian Federation", "RU" );
         worldCountryCodes.put( "Rwanda", "RW" );
-        worldCountryCodes.put( "Saint Barthélemy", "BL" );
+        worldCountryCodes.put( "Saint Barth�lemy", "BL" );
         worldCountryCodes.put( "Saint Helena", "SH" );
         worldCountryCodes.put( "Saint Kitts and Nevis", "KN" );
         worldCountryCodes.put( "Saint Kitts & Nevis", "KN" );
@@ -774,7 +782,7 @@ public abstract class UtilityMethod
         worldCountryCodes.put( "Swaziland", "SZ" );
         worldCountryCodes.put( "Sweden", "SE" );
         worldCountryCodes.put( "Switzerland", "CH" );
-        worldCountryCodes.put( "Syrian Arab Republic (Syria)", "SY" );
+        worldCountryCodes.put( "Syrian Arab Republic�(Syria)", "SY" );
         worldCountryCodes.put( "Syria", "SY" );
         worldCountryCodes.put( "Taiwan, Republic of China", "TW" );
         worldCountryCodes.put( "Taiwan", "TW" );
@@ -803,7 +811,7 @@ public abstract class UtilityMethod
         worldCountryCodes.put( "Uruguay", "UY" );
         worldCountryCodes.put( "Uzbekistan", "UZ" );
         worldCountryCodes.put( "Vanuatu", "VU" );
-        worldCountryCodes.put( "Venezuela (Bolidouble ian Republic)", "VE" );
+        worldCountryCodes.put( "Venezuela�(Bolidouble ian Republic)", "VE" );
         worldCountryCodes.put( "Venezuela", "VE" );
         worldCountryCodes.put( "Viet Nam", "VN" );
         worldCountryCodes.put( "Virgin Islands, US", "VI" );
@@ -875,7 +883,7 @@ public abstract class UtilityMethod
             worldCountriesByName.put( "Congo", "CD" );
             worldCountriesByName.put( "Cook Islands", "CK" );
             worldCountriesByName.put( "Costa Rica", "CR" );
-            worldCountriesByName.put( "Côte d'Ivoire", "CI" );
+            worldCountriesByName.put( "C�te d'Ivoire", "CI" );
             worldCountriesByName.put( "Croatia", "HR" );
             worldCountriesByName.put( "Cuba", "CU" );
             worldCountriesByName.put( "Cyprus", "CY" );
@@ -999,11 +1007,11 @@ public abstract class UtilityMethod
             worldCountriesByName.put( "Portugal", "PT" );
             worldCountriesByName.put( "Puerto Rico", "PR" );
             worldCountriesByName.put( "Qatar", "QA" );
-            worldCountriesByName.put( "Réunion", "RE" );
+            worldCountriesByName.put( "R�union", "RE" );
             worldCountriesByName.put( "Romania", "RO" );
             worldCountriesByName.put( "Russian Federation", "RU" );
             worldCountriesByName.put( "Rwanda", "RW" );
-            worldCountriesByName.put( "Saint-Barthélemy", "BL" );
+            worldCountriesByName.put( "Saint-Barth�lemy", "BL" );
             worldCountriesByName.put( "Saint Helena", "SH" );
             worldCountriesByName.put( "Saint Kitts and Nevis", "KN" );
             worldCountriesByName.put( "Saint Lucia", "LC" );
@@ -1116,6 +1124,7 @@ public abstract class UtilityMethod
         weatherImages.put("haze", "7.png");
         weatherImages.put("mist", "7.png");
         weatherImages.put("misty", "7.png");
+        weatherImages.put("clouds", "8.png");
         weatherImages.put("cloudy", "8.png");
         weatherImages.put("overcast", "8.png");
         weatherImages.put("broken clouds", "8.png");
@@ -1199,7 +1208,7 @@ public abstract class UtilityMethod
 	/** Weather Calculations **/
 	
     /***
-     * Calculate the wind chill for temperatures at or below 50° F and wind speeds above 3 mph
+     * Calculate the wind chill for temperatures at or below 50� F and wind speeds above 3 mph
      * 
      * @param fTemp A temperature measured in Fahrenheit
      * @param mphWind A wind speed measure in miles per hour (mph)
@@ -1207,7 +1216,7 @@ public abstract class UtilityMethod
      */
     public static int calculateWindChill( int fTemp, int mphWind ) 
     {
-    	// The wind chill calculator only works for temperatures at or below 50 ° F
+    	// The wind chill calculator only works for temperatures at or below 50 � F
     	// and wind speeds above 3 mph.
     	if( fTemp > 50 || mphWind < 3 )
     	{
@@ -1961,7 +1970,7 @@ public abstract class UtilityMethod
      * <br />
      * {@link https://stackoverflow.com/questions/665406/how-to-make-a-color-transparent-in-a-bufferedimage-and-save-as-png#665428}
      */
-     public static Image makeColorTransparent( BufferedImage im, final Color color ) 
+     public static Image setImageOpacity( BufferedImage im, final Color color ) 
      {
         ImageFilter filter = new RGBImageFilter()
         {
@@ -1985,7 +1994,7 @@ public abstract class UtilityMethod
 
         ImageProducer ip = new FilteredImageSource( im.getSource(), filter );
         return Toolkit.getDefaultToolkit().createImage( ip );
-    }// end of method makeColorTransparent
+    }// end of method setImageOpacity
     
     /***
      * Scales an image to specified dimensions
@@ -2008,7 +2017,9 @@ public abstract class UtilityMethod
 		}// end of try block
 		catch( NullPointerException e )
 		{
-			logMessage( "severe", "Could not scale icon " + img, "UtilityMethod::scaleImageIcon" );
+			logMessage( "severe", "Could not scale icon " + img + " " + e.getMessage(),
+ 		        TAG + "::scaleImageIcon [line: " +
+        	    getExceptionLineNumber( e ) + "]" );
 		}// end of catch block
 		
 		return new ImageIcon( newImg );  // transform it back
@@ -2052,6 +2063,17 @@ public abstract class UtilityMethod
         return sequence.toString();
 
     }// end of method properCase
+    
+    /**
+     * Checks if a string contains a whole word on its own
+     * @param input	A search {@code String}
+     * @param word	A {@code String} being searched for
+     * @return	True if the whole word is found, otherwise False.
+     */
+    public static boolean containsWholeWord( String input, String word )
+    {  	        
+        return Pattern.compile( String.format( "\b%s\b", word ) ).matcher( input ).find();
+    }// end of method containsWholeWord
 
     /**
      * Returns an {@code ImageIcon} from a specified file path.
@@ -2080,8 +2102,8 @@ public abstract class UtilityMethod
         }// end of try block
         catch ( UnsupportedEncodingException e )
         {
-        	logMessage( "severe" , e.getMessage(),
-				"UtilityMethod::escaprUriString [line: " + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
+        	logMessage( "severe", e.getMessage(),
+		        TAG + "::escaprUriString [line: " + getExceptionLineNumber( e ) + "]" );
         }// end of catch block
 
         return encodedString;
@@ -2125,51 +2147,56 @@ public abstract class UtilityMethod
 	public static boolean isFoundInXMLStorage( String cityName )
 	{
 		String[] city = cityName.split( "," );
+		boolean found = false;
 		
-		//XML file search
-        SAXBuilder builder = new SAXBuilder();
+		if( new File( XMLHelper.PREVIOUSLY_FOUND_CITIES_XML ).exists() ) 
+		{
+			//XML file search
+	        SAXBuilder builder = new SAXBuilder();
+	    	
+	    	try 
+	    	{
+	    		// just in case the document contains unnecessary white spaces
+	    		builder.setIgnoringElementContentWhitespace( true );
+	    		
+	    		// download the document from the URL and build it
+	    		Document document = builder.build( XMLHelper.PREVIOUSLY_FOUND_CITIES_XML );
+	    		
+	    		// get the root node of the XML document
+	    		Element rootNode = document.getRootElement();
+	    		
+	    		List< Element > list = rootNode.getChildren( "City" );
+	    		
+	    		for ( int i = 0; i < list.size(); i++ )
+	    		{
+	    			Element node = (Element) list.get(i);    			
+	    			
+	    			if( node.getChildText( "CityName" ).equalsIgnoreCase( city[ 0 ].trim().toLowerCase() ) &&
+	    					node.getChildText( "RegionName" ).equalsIgnoreCase( city[ 1 ].trim() ) &&
+	    					!UtilityMethod.isNumeric( node.getChildText( "RegionCode" ) ) ||
+	    					node.getChildText( "CountryName" ).equalsIgnoreCase( city[ 1 ].trim() ) ) 
+	            	{
+	    				logMessage( "info",  cityName + " was found in the XML storage.",
+    						TAG + "::isFoundInXMLStorage" );
+	            		found = true;
+	            	}// end of if block
+	    		}// end of for loop    		 		
+	    		
+	    	}// end of try block 
+	    	catch ( IOException io )
+	    	{
+	    		 logMessage( "severe", io.getMessage(),
+			        TAG + "::isFoundInXMLStorage [line: " + getExceptionLineNumber( io ) + "]" );
+	    	}// end of catch block 
+	    	catch ( JDOMException jdomex )
+	    	{
+	    		logMessage( "severe", jdomex.getMessage(),
+			        TAG + "::isFoundInXMLStorage [line: " + 
+		        		getExceptionLineNumber( jdomex ) + "]" );
+	    	}// end of catch block
+		}// end of if block	
     	
-    	try 
-    	{
-    		// just in case the document contains unnecessary white spaces
-    		builder.setIgnoringElementContentWhitespace( true );
-    		
-    		// download the document from the URL and build it
-    		Document document = builder.build( XMLHelper.PREVIOUSLY_FOUND_CITIES_XML );
-    		
-    		// get the root node of the XML document
-    		Element rootNode = document.getRootElement();
-    		
-    		List< Element > list = rootNode.getChildren( "City" );
-    		
-    		for ( int i = 0; i < list.size(); i++ )
-    		{
-    			Element node = (Element) list.get(i);    			
-    			
-    			if( node.getChildText( "CityName" ).equalsIgnoreCase( city[ 0 ].trim().toLowerCase() ) &&
-    					node.getChildText( "RegionName" ).equalsIgnoreCase( city[ 1 ].trim() ) &&
-    					!UtilityMethod.isNumeric( node.getChildText( "RegionCode" ) ) ||
-    					node.getChildText( "CountryName" ).equalsIgnoreCase( city[ 1 ].trim() ) ) 
-            	{
-    				logMessage( "info",  cityName + " was found in the XML storage.",
-    						"UtilityMethod::isFoundInXMLStorage" );
-            		return true;
-            	}// end of if block
-    		}// end of for loop    		 		
-    		
-    	}// end of try block 
-    	catch ( IOException io )
-    	{
-    		logMessage( "severe",  io.getMessage(),
-					"UtilityMethod::isFoundInXMLStorage" );
-    	}// end of catch block 
-    	catch ( JDOMException jdomex )
-    	{
-    		logMessage( "severe",  jdomex.getMessage(),
-					"UtilityMethod::isFoundInXMLStorage" );
-    	}// end of catch block
-    	
-    	return false;
+    	return found;
 	}// end of method isFoundInXMLStorage
 
 	/**
@@ -2181,35 +2208,50 @@ public abstract class UtilityMethod
 	public static boolean isFoundInJSONStorage( String cityName )
 	{
 		String[] city = cityName.split( "," );
+		boolean found = false;
 		
-		//JSON File Search
-		Gson gson = new Gson();
-		
-		if( new File( JSONHelper.PREVIOUSLY_FOUND_CITIES_JSON).exists() )
+		//JSON File Search		
+		if( new File( JSONHelper.PREVIOUSLY_FOUND_CITIES_JSON ).exists() )
         {
-			JSONHelper.cityDataList = JSONHelper.importFromJSON();
-        }// end of if block
-
-        // convert the list to a JSON string
-        String jsonString = gson.toJson(JSONHelper.cityDataList);
+			Gson gson = new Gson();
+			//JSONHelper.cityDataList = JSONHelper.importFromJSON();
+			// convert the list to a JSON string
+	        //String jsonString = gson.toJson(JSONHelper.cityDataList);
+	        
+			String jsonString = null;
+			
+	        try 
+	        {
+				jsonString = 
+						new String( Files.readAllBytes( Paths.get( JSONHelper.PREVIOUSLY_FOUND_CITIES_JSON ) ) );
+			}// end of try block
+	        catch ( IOException e )
+	        {
+	        	logMessage( "severe", e.getMessage(),
+    		        TAG + "::isFoundInJSONStorage [line: " + getExceptionLineNumber( e ) + "]" );
+			}// end of catch block 
+	        
+	        if (jsonString != null)
+            {
+	        	// convert the file JSON into a list of objects
+		        List< CityData > cityDataList = gson.fromJson( jsonString, new TypeToken< List<CityData > >() {}.getType() );
+		        
+		        for ( CityData c : cityDataList )
+		        {
+		        	if( c.getCityName().equalsIgnoreCase( city[ 0 ].trim().toLowerCase() ) &&
+		        			c.getRegionCode().equalsIgnoreCase( city[ 1 ].trim() ) &&
+		        			!UtilityMethod.isNumeric( c.getRegionCode() )  ||
+		        			c.getCountryName().equalsIgnoreCase( city[ 1 ].trim() ) ) 
+		        	{
+		        		logMessage( "info",  cityName + " was found in the JSON storage.",
+	    					TAG + "::isFoundInJSONStorage" );
+		        		found = true;
+		        	}// end of if block
+				}// end of for each loop
+            }// end of if block
+        }// end of if block       
         
-        // convert the file JSON into a list of objects
-        List< CityData > cityDataList = gson.fromJson( jsonString, new TypeToken< List<CityData > >() {}.getType() );
-        
-        for ( CityData c : cityDataList )
-        {
-        	if( c.getCityName().equalsIgnoreCase( city[ 0 ].trim().toLowerCase() ) &&
-        			c.getRegionName().equalsIgnoreCase( city[ 1 ].trim() ) &&
-        			!UtilityMethod.isNumeric( c.getRegionName() )  ||
-        			c.getCountryName().equalsIgnoreCase( city[ 1 ].trim() ) ) 
-        	{
-        		logMessage( "info",  cityName + " was found in the JSON storage.",
-    					"UtilityMethod::isFoundInJSONStorage" );
-        		return true;
-        	}// end of if block
-		}// end of for each loop
-        
-        return false;
+        return found;
 	}// end of method isFoundInJSONStorage
 
 	/**
@@ -2259,14 +2301,14 @@ public abstract class UtilityMethod
 			if( found > 0 )
 			{
 				logMessage( "info",  cityName + cityName + " was found in the Database storage.",
-    					"UtilityMethod::isFoundInJSONStorage" );
+					TAG  + "::isFoundInJSONStorage" );
 				return true;
 			}// end of if block			
 		}// end of try block
 		catch( SQLException e ) 
 		{
-			logMessage( "severe",  e.getMessage(),
-					"UtilityMethod::isFoundInJSONStorage" );
+			 logMessage( "severe", e.getMessage(),
+		        TAG + "::isFoundInDatabase [line: " + getExceptionLineNumber( e ) + "]" );
 		}// end of catch block
 		
 		return false;
@@ -2435,6 +2477,7 @@ public abstract class UtilityMethod
     public static String retrieveGeoNamesGeoLocationUsingAddress( String wxLocation )
     {
     	int maxRows = 10;
+    	
     	// All spaces must be replaced with the + symbols for the HERE Maps web service
         if( wxLocation.contains( " " ) )
         {
@@ -2454,7 +2497,7 @@ public abstract class UtilityMethod
                 "&maxRows=" + maxRows +
 				"&username=" + WidgetUpdateService.geoNameAccount;
 
-        if ( UtilityMethod.hasInternetConnection() )
+        if ( hasInternetConnection() )
         {
             try
             {
@@ -2462,9 +2505,9 @@ public abstract class UtilityMethod
             }// end of try block
             catch ( IOException e )
             {
-            	logMessage( "severe" , e.getMessage(),
-    				"UtilityMethod::retrieveGeoNamesGeoLocationUsingAddress [line: " 
-            	    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
+            	logMessage( "severe", e.getMessage(),
+    		        TAG + "::retrieveGeoNamesGeoLocationUsingAddress [line: " +
+    		        	getExceptionLineNumber( e ) + "]" );
             }// end of catch block
 
         }// end of if block
@@ -2501,16 +2544,16 @@ public abstract class UtilityMethod
             }// end of try block
             catch (IOException e)
             {
-            	logMessage( "severe" , e.getMessage(),
-    				"UtilityMethod::retrieveGoogleGeoLocationUsingAddress [line: " 
-            	    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
+            	logMessage( "severe", e.getMessage(),
+    		        TAG + "::retrieveGoogleGeoLocationUsingAddress [line: " +
+    		        getExceptionLineNumber( e ) + "]" ); 
             }// end of catch block
 
         }// end of if block
         else
         {
         	JOptionPane.showMessageDialog( null, "No Internet Connection.",
-    				WeatherLionMain.PROGRAM_NAME, JOptionPane.ERROR_MESSAGE );
+				WeatherLionMain.PROGRAM_NAME, JOptionPane.ERROR_MESSAGE );
 
         }// end of else block
 
@@ -2546,7 +2589,7 @@ public abstract class UtilityMethod
                 + "&app_code=" + WidgetUpdateService.hereAppCode
                 + "&searchtext=" + escapeUriString( wxLocation.toLowerCase() );
 
-        if ( UtilityMethod.hasInternetConnection() )
+        if ( hasInternetConnection() )
         {
             try
             {
@@ -2554,9 +2597,9 @@ public abstract class UtilityMethod
             }// end of try block
             catch ( IOException e )
             {
-            	logMessage( "severe" , e.getMessage(),
-    				"UtilityMethod::retrieveHereGeoLocationUsingAddress [line: " 
-            	    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
+            	logMessage( "severe", e.getMessage(),
+        		        TAG + "::retrieveHereGeoLocationUsingAddress [line: " +
+        		        getExceptionLineNumber( e ) + "]" );
             }// end of catch block
 
         }// end of if block
@@ -2595,9 +2638,9 @@ public abstract class UtilityMethod
             }// end of try block
             catch ( IOException e )
             {
-            	logMessage( "severe" , e.getMessage(),
-    				"UtilityMethod::retrieveYahooGeoLocationUsingAddress [line: " 
-            	    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
+            	 logMessage( "severe", e.getMessage(),
+     		        TAG + "::retrieveYahooGeoLocationUsingAddress [line: " +
+            	    getExceptionLineNumber( e ) + "]" );
             }// end of catch block
 
         }// end of if block
@@ -2636,9 +2679,9 @@ public abstract class UtilityMethod
             }// end of try block
             catch (IOException e)
             {
-            	logMessage( "severe" , e.getMessage(),
-    				"UtilityMethod::retrieveGoogleGeoLocationUsingCoordinates [line: " 
-            	    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
+            	logMessage( "severe", e.getMessage(),
+    		        TAG + "::retrieveGoogleGeoLocationUsingCoordinates [line: " +
+    		        getExceptionLineNumber( e ) + "]" );            	
             }// end of catch block
 
         }// end of if block
@@ -2670,8 +2713,9 @@ public abstract class UtilityMethod
         }// end of try block
         catch ( IOException e )
         {
-        	logMessage( "severe",  "No data returned from " + wxUrl,
-					"UtilityMethod::retrieveWeatherData" );
+        	logMessage( "severe", e.getMessage(),
+		        TAG + "::retrieveWeatherData [line: " +
+		        getExceptionLineNumber( e ) + "]" ); 
         }// end of catch block
         
         // Return the data from specified URL
@@ -2698,7 +2742,7 @@ public abstract class UtilityMethod
     }// end of method subtractTime
     
     /**
-     * Returns an RCB Color which corresponds with a temperature
+     * Returns an RGB Color which corresponds with a temperature
      * 
      * @param t The temperature to be tested
      * @return A new {@code Color}
@@ -2706,6 +2750,9 @@ public abstract class UtilityMethod
     public static Color temperatureColor( int t )
     {
     	Color c;
+    	t = WeatherLionMain.storedPreferences.getUseMetric()
+                ? (int) celsiusToFahrenheit( t )
+                : t;
     	
     	if( t <= 40 )
     	{
@@ -2769,7 +2816,6 @@ public abstract class UtilityMethod
     /**
      * Determine if the widget needs to be refreshed based on the specified refresh period.
      *
-     * @param context The calling context.
      * @return  True/False depending on the result of the check.
      */
     public static boolean updatedRequired()
@@ -2804,6 +2850,17 @@ public abstract class UtilityMethod
             return false;
         }// end of else block
     }// end of method updatedRequired  
+    
+    /**
+     * Returns the line number were the exception occurred in the code.
+     * 
+     * @param e		The exception that was thrown by the compiler.
+     * @return		The line number at which the exception was thrown.
+     */
+    public static int getExceptionLineNumber( Exception e )
+    {
+    	return e.getStackTrace()[ 1 ].getLineNumber();
+    }// end of method getExceptionLineNumber
     
     /**
      * Uses the computers Internet connection to determine the current city location of the connection.
@@ -2866,8 +2923,8 @@ public abstract class UtilityMethod
     	}// end of try block 
     	catch ( IOException io )
     	{
-    		logMessage( "severe", "IOException: " + io.getMessage(),
-					"UtilityMethod::getSystemLocation" );
+    		logMessage( "severe", io.getMessage(),
+		        TAG + "::cleanLockFiles [line: " + getExceptionLineNumber( io ) + "]" );
     		
     		// Use backup data from https://ipapi.co instead
     		String ip = getSystemIpAddress();
@@ -2912,18 +2969,18 @@ public abstract class UtilityMethod
     		catch( IOException e ) 
     		{
     			logMessage( "severe", e.getMessage(),
-     					"UtilityMethods::getSystemLocation::JSONException" );
+    				TAG + "::getSystemLocation [line: " + getExceptionLineNumber( e ) + "]" );
     		}// end of catch block
      		catch ( JSONException e )
      		{
      			logMessage( "severe", e.getMessage(),
-     					"UtilityMethods::getSystemLocation::JSONException" );
+    				TAG + "::getSystemLocation [line: " + getExceptionLineNumber( e ) + "]" );
      		}// end of catch block
     	}// end of catch block 
     	catch ( JDOMException jdomex )
     	{
-    		logMessage( "severe", "JDOMException: " + jdomex.getMessage() ,
-					"getSystemLocation - UtilityMethods" );
+    		 logMessage( "severe", jdomex.getMessage(),
+		        TAG + "::getSystemLocation [line: " + getExceptionLineNumber( jdomex ) + "]" );
     	}// end of catch block
     	
     	return cd;
@@ -3009,15 +3066,15 @@ public abstract class UtilityMethod
 					}// end of try block
 					catch ( JSONException je )
 					{
-						logMessage( "severe", "No valid JSON returned from url.",
-								"UtilityMethod::getSystemIpAddress" );
+						 logMessage( "warning", je.getMessage(),
+					        TAG + "::getSystemIpAddress [line: " + getExceptionLineNumber( je ) + "]" );
 					}// end of catch block
 				
 				}// end of if block
 				else
 				{
 					JOptionPane.showMessageDialog( null, "No Internet Connection.",
-							WeatherLionMain.PROGRAM_NAME, JOptionPane.ERROR_MESSAGE );
+						WeatherLionMain.PROGRAM_NAME, JOptionPane.ERROR_MESSAGE );
 				
 				}// end of else block
     		}// end of catch block
@@ -3101,9 +3158,9 @@ public abstract class UtilityMethod
 		}// end of try block 
     	catch ( IOException e )
     	{
-    		logMessage( "severe" , e.getMessage(),
-				"UtilityMethod::saveToFile [line: " 
-        	    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
+    		logMessage( "severe", e.getMessage(),
+ 		        TAG + "::saveToFile [line: " +
+        	    getExceptionLineNumber( e ) + "]" );
 		}// end of catch block    	
     }// end of method saveToFile    
 
@@ -3208,9 +3265,8 @@ public abstract class UtilityMethod
 		}// end of try block
 		catch ( JSONException e )
 		{
-			logMessage( "severe" , e.getMessage(),
-				"UtilityMethod::createCityData [line: " 
-        	    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
+			logMessage( "warning", e.getMessage(),
+		        TAG + "::createCityData [line: " + getExceptionLineNumber( e ) + "]" );
 		}// end of catch block
     	
     	return currentCityData;
@@ -3283,9 +3339,8 @@ public abstract class UtilityMethod
 		}// end of try block
 		catch ( JSONException e )
 		{
-			logMessage( "severe" , e.getMessage(),
-				"UtilityMethod::createGeoNamesCityData [line: " 
-        	    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
+			  logMessage( "warning", e.getMessage(),
+				  TAG + "::createGeoNamesCityData [line: " + getExceptionLineNumber( e ) + "]" );
 		}// end of catch block
     	
     	return currentCityData;
@@ -3393,9 +3448,8 @@ public abstract class UtilityMethod
 		}// end of try block
 		catch ( JSONException e )
 		{
-			logMessage( "severe" , e.getMessage(),
-				"UtilityMethod::createHereCityData [line: " 
-        	    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
+			logMessage( "severe", e.getMessage(),
+		        TAG + "::createHereCityData [line: " + getExceptionLineNumber( e ) + "]" );
 		}// end of catch block
     	
     	return currentCityData;
@@ -3782,7 +3836,8 @@ public abstract class UtilityMethod
 		}// end of try block
 		catch( SQLException e )
 		{
-			logMessage( "severe", e.getMessage(), "UtilityMethod::getCurrentDatabaseFileName" );
+			logMessage( "severe", e.getMessage(),
+		        TAG + "::getCurrentDatabaseFileName [line: " + getExceptionLineNumber( e ) + "]" );
 			return null;
 		}// end of catch block
 	}// end of method getCurrentDatabaseFileName
@@ -3814,7 +3869,8 @@ public abstract class UtilityMethod
 	    }// end of try block 
 		catch ( IOException e )
 		{
-			logMessage( "warning", "HTML locked files could not be cleaned!", "UtilityMethod::cleanLockFiles" );
+			logMessage( "warning", e.getMessage(),
+		        TAG + "::cleanLockFiles [line: " + getExceptionLineNumber( e ) + "]" );
 		}// end of catch block
 		
 		// remove unwanted TXT files
@@ -3836,23 +3892,28 @@ public abstract class UtilityMethod
 	    }// end of try block 
 		catch ( IOException e )
 		{
-			logMessage( "warning", "Text locked files could not be cleaned!", "UtilityMethod::cleanLockFiles" );
+			logMessage( "warning", e.getMessage(),
+		        TAG + "::cleanLockFiles [line: " + getExceptionLineNumber( e ) + "]" );
 		}// end of catch block
 		
 		if( badHTMLFileCount > 0 )
 		{
-			logMessage( "info", "Removed " + badHTMLFileCount +
+			logMessage( "warning", 
+				"Removed " + badHTMLFileCount +
 				( badHTMLFileCount == 1 ?
 					" bad file " :
-					" bad files " ) + "from html log directory." , "UtilityMethod::cleanLockFiles" );
+					" bad files " ) + "from html log directory.",
+		        TAG + "::cleanLockFiles" );
 		}// end of if block
 		
 		if( badTXTFileCount > 0 )
 		{
-			logMessage( "info", "Removed " + badTXTFileCount +
-				( badTXTFileCount == 1 ?
-					" bad file " :
-					" bad files " ) + "from txt log directory." , "UtilityMethod::cleanLockFiles" );
+			logMessage( "warning", 
+					"Removed " + badTXTFileCount +
+					( badTXTFileCount == 1 ?
+						" bad file " :
+						" bad files " ) + "from txt log directory.",
+		        TAG + "::cleanLockFiles" );
 		}// end of if block
 	}// end of method cleanLockFiles
 	
@@ -3865,12 +3926,11 @@ public abstract class UtilityMethod
 	{
 		// prompt the user
 		JOptionPane.showMessageDialog( null, "There are missing files or information that are neccessary for"
-				+ " the program to run and\ntherefore renders the program currupt and unable to lauch!",
+				+ " the program to run and\ntherefore renders the program currupt and unable to launch!",
     			WeatherLionMain.PROGRAM_NAME + " (" + asset + ")", JOptionPane.ERROR_MESSAGE  );
 		
 		// log message
-		UtilityMethod.logMessage( "severe", "Missing: " + asset, 
-				"WeatherLionMain::missingAssetPrompt" );
+		logMessage( "severe", "Missing: " + asset, TAG + "::missingAssetPrompt" );
 		
 		System.exit( 0 );	// terminate the program
 	}// end of method missingAssetPrompt
