@@ -56,7 +56,7 @@ import com.bushbungalo.utils.XMLHelper;
  * </ul>
  */
 
-public class WeatherLionMain
+public abstract class WeatherLionMain
 {
 	public static Connection conn = null;
 	
@@ -144,7 +144,7 @@ public class WeatherLionMain
 	public static boolean connectedToInternet = UtilityMethod.hasInternetConnection();
 	
 	// The name of this class
-	private static Class< ? > thisClass = new Object(){}.getClass();
+	private static final String TAG = "WeatherLionMain";
 	
 	public static void main( String[] args )
 	{
@@ -155,7 +155,7 @@ public class WeatherLionMain
 		UtilityMethod.cleanLockFiles();
 		
 		UtilityMethod.logMessage( "info", "Initiating startup...", 
-				thisClass.getEnclosingClass().getSimpleName() + "::main" );
+				TAG + "::main" );
 		
 		// build the required storage files
 		if( buildRequiredDatabases() == 1 ) 
@@ -287,7 +287,7 @@ public class WeatherLionMain
 				UtilityMethod.logMessage( "info", 
 					"Found " + iconPacks.size() + " icon " +
 						( iconPacks.size() > 1 ? "packs..." : "pack..."), 
-						thisClass.getEnclosingClass().getSimpleName() 
+						TAG 
 						+ "::healthCheck" );				
 				
 				if( !iconPacks.contains( DEFAULT_ICON_SET ) ) 
@@ -299,7 +299,7 @@ public class WeatherLionMain
 					UtilityMethod.logMessage( "warning", 
 						"The " + Preference.getSavedPreferences().getIconSet().toUpperCase() +
 						" icon pack could not be found so the default " + DEFAULT_ICON_SET.toUpperCase() +
-						" will be used!", thisClass.getEnclosingClass().getSimpleName() + "::healthCheck" );
+						" will be used!", TAG + "::healthCheck" );
 					
 					Preference.setPropValues( Preference.PREFERENCE_FILE,
 							WeatherLionMain.ICON_SET_PREFERENCE, DEFAULT_ICON_SET );
@@ -319,7 +319,7 @@ public class WeatherLionMain
 						UtilityMethod.logMessage( "info", "Found " + imageCount + 
 							( imageCount > 1 ? " images" : " image" ) + " in the " +
 							UtilityMethod.toProperCase( Preference.getSavedPreferences().getIconSet() )  +
-							" icon pack...", thisClass.getEnclosingClass().getSimpleName() + "::healthCheck" );
+							" icon pack...", TAG + "::healthCheck" );
 					}// end of else block
 					
 					// check for the background and icon  images
@@ -343,7 +343,7 @@ public class WeatherLionMain
 						{
 							UtilityMethod.logMessage( "info", 
 								"Found " + imageCount + ( imageCount > 1 ? " images" : " image" )
-								+ " in the backgrounds directory...", thisClass.getEnclosingClass().getSimpleName()
+								+ " in the backgrounds directory...", TAG
 								+ "::healthCheck" );
 						}// end of else block
 					}// end of else block
@@ -367,7 +367,7 @@ public class WeatherLionMain
 								"Found " + imageCount + 
 								( imageCount > 1 ? " images" : " image" ) +
 								" in the icons directory...", 
-								thisClass.getEnclosingClass().getSimpleName() + "::healthCheck" );
+								TAG + "::healthCheck" );
 						}// end of else block
 					}// end of else block
 				}// end of else block
@@ -402,30 +402,33 @@ public class WeatherLionMain
 			}// end of try black 
 			catch ( IOException e )
 			{
-				UtilityMethod.logMessage( "severe", e.getMessage(), 
-					"WeatherLionMain::buildRequiredDatabases [line: " +
-					e.getStackTrace()[ 1 ].getLineNumber()+ "]" );
+				UtilityMethod.logMessage( "severe", e.getMessage(),
+			        TAG + "::buildRequiredDatabases [line: " +
+			        UtilityMethod.getExceptionLineNumber( e )  + "]" );				
 			}// end of catch block
-		}// end of if block
-		else 
-		{
-			UtilityMethod.logMessage( "info", 
-					"The required storage files are present.", 
-					"WeatherLionMain::buildRequiredDatabases" );
-		}// end of else block
+		}// end of if block	
 		
-		// get a connection to the main DB
-		conn = ConnectionManager.getInstance().getConnection();
+		if ( mainStorageFile.exists() && cityStorageFile.exists() && wakStorageFile.exists())
+        {
+            UtilityMethod.logMessage( "info", "The required storage files are present.",
+                TAG + "::buildRequiredDatabases" );
+
+            // get a connection to the main DB
+            if (conn == null) conn = ConnectionManager.getInstance().getConnection();           
+
+        }// end of if block
+        else
+        {
+            UtilityMethod.logMessage("severe", "All the required storage files are not present.",
+            		 TAG + "::buildRequiredDatabases");
+            return 0;
+        }// end of else block	
 		
 		// attach required databases to the main database file
 		if( attachDatabase( wakStorageFile.toString(), "wak" ) == 1 )
 		{
 			UtilityMethod.createWSADatabase();
-			success = 1;
-			
-			UtilityMethod.logMessage( "info", 
-					"Weather access database successfully created and attached to main connection.", 
-					"WeatherLionMain::buildRequiredDatabases" );
+			success = 1;		
 		}// end of if block
 		else
 		{
@@ -435,11 +438,7 @@ public class WeatherLionMain
 		if( attachDatabase( cityStorageFile.toString(), "WorldCities" ) == 1 )
 		{
 			UtilityMethod.createWorldCitiesDatabase();
-			success = 1;
-			
-			UtilityMethod.logMessage( "info", 
-					"World cities database successfully created and attached to main connection.", 
-					"WeatherLionMain::buildRequiredDatabases" );
+			success = 1;			
 		}// end of if block
 		else
 		{
@@ -471,7 +470,7 @@ public class WeatherLionMain
 		}// end of try block
 		catch( SQLException e )
 		{
-			UtilityMethod.logMessage( "severe", "Could not attach database to main mile!",
+			UtilityMethod.logMessage( "severe", "Could not attach database to main file!",
 				"WeatherLionMain::buildRequiredDatabase [line: "
 				+ e.getStackTrace()[1].getLineNumber() + "]" );
 			
@@ -495,9 +494,9 @@ public class WeatherLionMain
 		else 
 		{
 			UtilityMethod.logMessage( "info", "Necessary requirements met...", 
-					thisClass.getEnclosingClass().getSimpleName() + "::init" );
+					TAG + "::init" );
 			UtilityMethod.logMessage( "info","Launching Weather Widget...", 
-					thisClass.getEnclosingClass().getSimpleName() + "::init" );				
+					TAG + "::init" );				
 			
 			frmWeatherWidget = WeatherLionWidget.getInstance();
 		}// end of else block
