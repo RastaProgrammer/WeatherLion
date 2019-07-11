@@ -15,6 +15,8 @@ import java.net.Socket;
 
 public class NetworkHelper
 {
+	private static final String TAG = "NetworkHelper";
+	
 	/**
 	 * Determines is the computer has an open Internet connection
 	 * @return True/False dependent on the outcome of the check.
@@ -31,6 +33,10 @@ public class NetworkHelper
 		}// end of try block
 		catch ( Exception e )
 		{
+			UtilityMethod.logMessage( "severe", e.getMessage(),
+		        TAG + "::hasNetworkAccess [line: " +
+		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
+			
 			return false;
 		}// end of catch block
 		finally 
@@ -41,7 +47,9 @@ public class NetworkHelper
 			}// end of try block
 			catch ( IOException e )
 			{
-				e.printStackTrace();
+				UtilityMethod.logMessage( "severe", e.getMessage(),
+			        TAG + "::hasNetworkAccess [line: " +
+			        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 			}// end of catch block
 		}// end of finally block		
 	}// end of method hasNetworkAccess
