@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,75 +25,105 @@ import com.bushbungalo.model.CityData;
  * <br />
  * 11/21/17
  * <br />
+ * <b style="margin-left:-40px">Updates:</b><br />
+ * <ul>
+ * 		<li>06/29/19 - Minor code fixes.</li>
+ * </ul>
  */
 
 public class XMLHelper
 {
-	public static final String PREVIOUSLY_FOUND_CITIES_XML = "res/storage/previous_cities.xml";
+	public static String TAG = "XMLHelper";
+	public static final String PREVIOUSLY_FOUND_CITIES_XML = "res/storage/locations_used/xml/previous_cities.xml";
 
 	public XMLHelper()
 	{
 	}// default constructor
 	
+	/**
+     * Accepts a CityData object and exports it to an XML file.
+     * 
+     * @param dataItem	The CityData object to be written to an XML file
+     * @return	A {@code boolean} value representing success or failure
+     */
 	public static boolean exportToXML( CityData cityData )
-    {    
-	    try 
+    {   
+		if ( cityData != null )
         {
-	    	File xmlFile = new File( PREVIOUSLY_FOUND_CITIES_XML );
-	    	Element worldCities = null; 
-	    	Document doc = null; 
-	    	Element city = new Element( "City" );
-	    	
-        	if( !xmlFile.exists() ) 
-        	{	
-        		worldCities = new Element( "WorldCities" ); 
-    	    	doc = new Document( worldCities );        		     		
-        	}// end of if block
-        	else 
-        	{
-        		FileInputStream fis = new FileInputStream( xmlFile );
-    	        SAXBuilder builder = new SAXBuilder();
-    	        doc = builder.build( fis );
-    	        worldCities = doc.getRootElement();
-    	        fis.close();
-        	}// end of else block
-        	
-        	city.addContent( new Element( "CityName" ).setText( cityData.getCityName() ) );
-    		city.addContent( new Element( "CountryName" ).setText( cityData.getCountryName() ) );
-    		city.addContent( new Element( "CountryCode" ).setText( cityData.getCountryCode() ) );
-    		city.addContent( new Element( "RegionName" ).setText( cityData.getRegionName() ) );
-    		city.addContent( new Element( "RegionCode" ).setText( cityData.getRegionCode() ) );
-    		city.addContent( new Element( "Latitude" ).setText( String.valueOf( cityData.getLatitude() ) ) );
-    		city.addContent( new Element( "Longitude" ).setText( String.valueOf( cityData.getLongitude() ) ) ); 
-        	
-        	doc.getRootElement().addContent( city );
-    		
-    		// new XMLOutputter().output(doc, System.out);
-    		XMLOutputter xmlOutput = new XMLOutputter();
-    		
-    		// display nice nice
-    		xmlOutput.setFormat( Format.getPrettyFormat() );
-    		xmlOutput.output( doc, new FileWriter( PREVIOUSLY_FOUND_CITIES_XML ) );  
-	    				
-			return true;
-		}// end of try block
-        catch ( FileNotFoundException e )
-        {
-        	UtilityMethod.logMessage( "severe", e.getMessage(), "XMLHelper::exportToXML" );
-		}// end of catch block
-        catch ( IOException e )
-        {
-        	UtilityMethod.logMessage( "severe", e.getMessage(), "XMLHelper::exportToXML" );
-		}// end of catch block
-	    catch ( JDOMException e )
-	    {
-	    	UtilityMethod.logMessage( "severe", e.getMessage(), "XMLHelper::exportToXML" );
-			e.printStackTrace();
-		}// end of catch block
+			try 
+	        {
+				File previousCities = new File( PREVIOUSLY_FOUND_CITIES_XML );
+	            File parentDir = new File( 
+	        		Paths.get( previousCities.toString() ).getParent().toAbsolutePath().toString() );
+	            
+	            // check to see if the parent directory exists
+	            if( !parentDir.exists() )
+	            {
+	            	parentDir.mkdirs();
+	            }// end of if block
+	            
+		    	Element worldCities = null; 
+		    	Document doc = null; 
+		    	Element city = new Element( "City" );
+		    	
+	        	if( !previousCities.exists() ) 
+	        	{	
+	        		worldCities = new Element( "WorldCities" ); 
+	    	    	doc = new Document( worldCities );        		     		
+	        	}// end of if block
+	        	else 
+	        	{
+	        		FileInputStream fis = new FileInputStream( previousCities );
+	    	        SAXBuilder builder = new SAXBuilder();
+	    	        doc = builder.build( fis );
+	    	        worldCities = doc.getRootElement();
+	    	        fis.close();
+	        	}// end of else block
+	        	
+	        	city.addContent( new Element( "CityName" ).setText( cityData.getCityName() ) );
+	    		city.addContent( new Element( "CountryName" ).setText( cityData.getCountryName() ) );
+	    		city.addContent( new Element( "CountryCode" ).setText( cityData.getCountryCode() ) );
+	    		city.addContent( new Element( "RegionName" ).setText( cityData.getRegionName() ) );
+	    		city.addContent( new Element( "RegionCode" ).setText( cityData.getRegionCode() ) );
+	    		city.addContent( new Element( "Latitude" ).setText( String.valueOf( cityData.getLatitude() ) ) );
+	    		city.addContent( new Element( "Longitude" ).setText( String.valueOf( cityData.getLongitude() ) ) ); 
+	        	
+	        	doc.getRootElement().addContent( city );
+	    		
+	    		// new XMLOutputter().output(doc, System.out);
+	    		XMLOutputter xmlOutput = new XMLOutputter();
+	    		
+	    		// display nice nice
+	    		xmlOutput.setFormat( Format.getPrettyFormat() );
+	    		xmlOutput.output( doc, new FileWriter( PREVIOUSLY_FOUND_CITIES_XML ) );  
+		    				
+				return true;
+			}// end of try block
+	        catch ( FileNotFoundException e )
+	        {
+	        	 UtilityMethod.logMessage( "severe", e.getMessage(),
+    		        TAG + "::exportToXML [line: " + UtilityMethod.getExceptionLineNumber(e)  + "]" );
+			}// end of catch block
+	        catch ( IOException e )
+	        {
+	        	 UtilityMethod.logMessage( "severe", e.getMessage(),
+     		        TAG + "::exportToXML [line: " + UtilityMethod.getExceptionLineNumber(e)  + "]" );
+			}// end of catch block
+		    catch ( JDOMException e )
+		    {
+		    	 UtilityMethod.logMessage( "severe", e.getMessage(),
+    		        TAG + "::exportToXML [line: " + UtilityMethod.getExceptionLineNumber(e)  + "]" );				
+			}// end of catch block
+        }// end of if block	    
 		 
 		 return false;
     }// end of method  exportToXML
 	
+	/**
+     * Converts XML data and converts them into a list of CityData objects.
+     * 
+     * @return	A {@code List} containing CityData objects that were converted from XML
+     */
 	public static List< CityData > importFromXML()
     {    	
     	SAXBuilder builder = new SAXBuilder();
@@ -127,12 +158,15 @@ public class XMLHelper
     	catch ( IOException io )
     	{
     		cd = null;
-    		UtilityMethod.logMessage( "severe", io.getMessage(), "XMLHelper::importFromXML" );
+    	    
+    		UtilityMethod.logMessage( "severe", io.getMessage(),
+ 		        TAG + "::importFromXML [line: " + UtilityMethod.getExceptionLineNumber(io)  + "]" );
     	}// end of catch block 
     	catch ( JDOMException jdomex )
     	{
     		cd = null;
-    		UtilityMethod.logMessage( "severe", jdomex.getMessage(), "XMLHelper::importFromXML" );
+    		UtilityMethod.logMessage( "severe", jdomex.getMessage(),
+ 		        TAG + "::importFromXML [line: " + UtilityMethod.getExceptionLineNumber(jdomex)  + "]" );
     	}// end of catch block
 		
        return cd;
