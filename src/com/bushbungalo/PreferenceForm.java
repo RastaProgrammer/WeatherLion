@@ -20,6 +20,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -60,10 +61,9 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.text.BadLocationException;
 
 import com.bushbungalo.model.CityData;
-import com.bushbungalo.model.GeoNamesGeoLocation;
+import com.bushbungalo.services.CityStorageService;
 import com.bushbungalo.utils.JSONHelper;
 import com.bushbungalo.utils.UtilityMethod;
-import com.bushbungalo.utils.XMLHelper;
 
 /**
  * @author Paul O. Patterson
@@ -104,13 +104,15 @@ import com.bushbungalo.utils.XMLHelper;
  * 				<li>05/11/19 - Removed printing stack trace errors to console for logging</li>
  * 			</ol>
  * 		</li>
+ * 		<li>06/28/19 - Added method {@code storeNewLocationLocally}</li>
+ *      <li>07/03/19 - Updated preference saving method.</li>
  * </ul>
  */
 
 public class PreferenceForm
 {
 	@SuppressWarnings("unused")
-	private static final long serialVersionUID = 5004285498268440865L;		
+	private static final long serialVersionUID = 5004285498268440865L;
 	
 	private static enum Mode 
 	{
@@ -229,6 +231,7 @@ public class PreferenceForm
 	private static boolean clickAction;
 	private static boolean hoverAction;
 	private static boolean outsideListArea;
+	private static int cityIndex;
 	
 	public static boolean locationSelected;
 	
@@ -295,8 +298,6 @@ public class PreferenceForm
 		if( searchCity.toString().trim().length() > 0 &&
 				!UtilityMethod.isKnownCity( searchCity.toString() ) )
 		{
-//			UtilityMethod.findYahooCity( searchCity.toString() );			
-//			UtilityMethod.findHereCity( searchCity.toString() );			
 			UtilityMethod.findGeoNamesCity( searchCity.toString() );
 		}// end of if block
 	}// end of method btnSearch_Click
@@ -318,6 +319,7 @@ public class PreferenceForm
 	 */
 	private void btnCancel_Click()
 	{
+		WeatherLionWidget.applyPreferenceUpdates = false;
 		frmPreference.dispose();
 	}// end of method btnCancel_Click
 	
@@ -341,6 +343,7 @@ public class PreferenceForm
 			matchesScrollPane.setVisible( false );
 		}// end of if block
 		
+		WeatherLionWidget.applyPreferenceUpdates = true;
 		saveLocationPreference();
 	}// end of method btnApply_Click
 	
@@ -352,7 +355,7 @@ public class PreferenceForm
 		List< CityData > previousSearches = JSONHelper.importFromJSON();
 		List< String > searchList = new ArrayList< String >();
 		
-		// when the program is first ran there will be no previous searches so
+		// when the program is first runs there will be no previous searches so
 		// this function does nothing on the first run
 		if( previousSearches != null )
 		{
@@ -389,55 +392,15 @@ public class PreferenceForm
 				txtLocation.getWidth(), jlMatches.getPreferredSize().height );
 			
 			jlMatches.addListSelectionListener( new ListSelectionListener()
-			{			
+			{
 				@Override
 				public void valueChanged( ListSelectionEvent e ) 
 				{		
 					// do nothing if there is no selection or the mouse hovered over an item selecting it
 					if( hoverAction || jlMatches.isSelectionEmpty() ) return;
 					
-					GeoNamesGeoLocation.GeoNames gn = GeoNamesGeoLocation.cityGeographicalData
-							.getGeoNames()
-							.get( jlMatches.getSelectedIndex() );
-					
-					String cityName = UtilityMethod.toProperCase( GeoNamesGeoLocation.cityGeographicalData
-							.getGeoNames().get( 0 ).getName() );
-					String countryName = UtilityMethod
-							.toProperCase( gn.getCountryName() );
-					String countryCode = gn.getCountryCode().toUpperCase(); 
-					String regionName = UtilityMethod
-							.toProperCase( gn.getAdminName1() );
-					
-					String regionCode = null;
-					regionCode = gn.getAdminCodes1().getISO() != null ?
-							gn.getAdminCodes1().getISO().toUpperCase() :
-								null;
-					
-					Float Latitude = gn.getLatitude();
-					Float Longitude = gn.getLongitude();	
-
-					CityData cityData = new CityData( cityName, countryName, countryCode, 
-							regionName, regionCode,	Latitude, Longitude );
-					
-					String currentCity = regionCode != null ? cityName + ", " + regionCode : cityName + ", " + countryName;
-					
-					if( !UtilityMethod.isFoundInDatabase( currentCity ) )
-					{
-						UtilityMethod.addCityToDatabase( cityName, countryName, countryCode, 
-								regionName, regionCode,	Latitude, Longitude );
-					}// end of if block
-					
-					if( !UtilityMethod.isFoundInJSONStorage( currentCity ) )
-					{
-						JSONHelper.exportToJSON( cityData );
-					}// end of if block
-					
-					if( !UtilityMethod.isFoundInXMLStorage( currentCity ) )
-					{
-						XMLHelper.exportToXML( cityData );
-					}// end of if block
-					
 					txtLocation.setText( jlMatches.getSelectedValue() );
+					cityIndex = jlMatches.getSelectedIndex();
 					matchesScrollPane.setVisible( false );
 				}
 			});
@@ -460,6 +423,8 @@ public class PreferenceForm
 	 */
 	private void saveLocationPreference() 
 	{
+		String currentLocation = null;
+		
 		// the location setting is the only one that does not get written
 		// to the preferences files automatically so the user has to do this
 		// explicitly but clicking OK or Apply.		
@@ -467,7 +432,6 @@ public class PreferenceForm
 				txtLocation.getText().trim().length() > 0 ) 
 		{
 			// combine the city and the region as the current location
-            String currentLocation;
             final String[] location = txtLocation.getText().toString().split( "," );
             
             if( location.length > 0 )
@@ -480,22 +444,16 @@ public class PreferenceForm
                 else
                 {
                     currentLocation = txtLocation.getText().toString().trim();
-                }// end of else block
-			
-                Preference.setPropValues( Preference.PREFERENCE_FILE,
-					WeatherLionMain.CURRENT_LOCATION_PREFERENCE,
-						currentLocation );
-                
+                }// end of else block			
+                               
                 // notify the widget of this update
-				if( !WeatherLionWidget.preferenceUpdated.contains(
+				if( !WeatherLionWidget.preferenceUpdated.containsKey(
 						WeatherLionMain.CURRENT_LOCATION_PREFERENCE ) ) 
 				{
-					WeatherLionWidget.preferenceUpdated.add( 
-							WeatherLionMain.CURRENT_LOCATION_PREFERENCE );
+					WeatherLionWidget.preferenceUpdated.put( 
+						WeatherLionMain.CURRENT_LOCATION_PREFERENCE, currentLocation );
 					locationSelected = true;
-				}// end of if block
-				
-				WeatherLionMain.storedPreferences.setLocation( currentLocation );				
+				}// end of if block							
 				
 				if( WeatherLionWidget.frmWeatherWidget != null )
 				{
@@ -506,7 +464,26 @@ public class PreferenceForm
 				}// end of if block
 			}// end of if block
 		}// end of if block
-	}// end of method saveLocationPreference
+		 else
+         {
+             currentLocation = txtLocation.getText();
+         }// end of else block
+
+         if (!UtilityMethod.isFoundInJSONStorage( currentLocation ) )
+         {
+        	 cityIndex = 0; // pick the first city found in the search by default
+        	 
+        	 if( jlMatches.getSelectedIndex() != -1 )
+        	 {
+        		 cityIndex = jlMatches.getSelectedIndex();
+        	 }// end of if block
+        	 
+        	//run an background service
+         	CityStorageService cs = new CityStorageService( cityIndex,
+     			txtLocation.getText() );
+         	cs.execute();
+         }// end of if block
+	}// end of method saveLocationPreference	
 	
 	/**
 	 * Initialize the contents of the frmPreference.
@@ -572,7 +549,7 @@ public class PreferenceForm
 		});
 		
 		// scale the user form ( JFrame )
-		frmPreference.setSize( 696, 730 );
+		frmPreference.setSize( 682, 726 );
 			
 	}// end of method createUserForm	
 	
@@ -769,26 +746,21 @@ public class PreferenceForm
 			{
 				if( e.getActionCommand().equals( "comboBoxChanged" ) )
 				{
-					String  selectedProvider = cboWeatherProviders.getSelectedItem().toString();
+					String selectedProvider = cboWeatherProviders.getSelectedItem().toString();
 					
 					if( !selectedProvider.equals( WeatherLionMain.storedPreferences.getProvider() ) )
 					{
 						// notify the widget of this update
-						if( !WeatherLionWidget.preferenceUpdated.contains(
+						if( !WeatherLionWidget.preferenceUpdated.containsKey(
 								WeatherLionMain.WEATHER_SOURCE_PREFERENCE ) ) 
 						{
-							WeatherLionWidget.preferenceUpdated.add( 
-									WeatherLionMain.WEATHER_SOURCE_PREFERENCE );
+							WeatherLionWidget.preferenceUpdated.put( 
+								WeatherLionMain.WEATHER_SOURCE_PREFERENCE, selectedProvider );
 						}// end of if block
 						
 						WeatherLionWidget.previousWeatherProvider.setLength( 0 ); // clear the string
 						WeatherLionWidget.previousWeatherProvider.append(
-							WeatherLionMain.storedPreferences.getProvider() );
-						
-						Preference.setPropValues( Preference.PREFERENCE_FILE,
-								WeatherLionMain.WEATHER_SOURCE_PREFERENCE,
-								cboWeatherProviders.getSelectedItem().toString() );
-						WeatherLionMain.storedPreferences.setProvider( selectedProvider );
+							WeatherLionMain.storedPreferences.getProvider() );					
 					}// end of if block					
 				}// end of if block
 			}
@@ -846,21 +818,17 @@ public class PreferenceForm
 					if( selectedInterval != WeatherLionMain.storedPreferences.getInterval() )
 					{
 						// notify the widget of this update
-						if( !WeatherLionWidget.preferenceUpdated.contains(
+						if( !WeatherLionWidget.preferenceUpdated.containsKey(
 								WeatherLionMain.UPDATE_INTERVAL ) ) 
 						{
-							WeatherLionWidget.preferenceUpdated.add( WeatherLionMain.UPDATE_INTERVAL );
+							WeatherLionWidget.preferenceUpdated.put( WeatherLionMain.UPDATE_INTERVAL,
+								String.valueOf( 
+									UtilityMethod.minutesToMilliseconds(
+										Integer.parseInt( 
+											cboRefreshInterval.getSelectedItem().toString() ) ) ) );
 						}// end of if block
 						
-						lblInterval.setText( cboRefreshInterval.getSelectedItem() + " min." );
-						
-						Preference.setPropValues( Preference.PREFERENCE_FILE,
-								WeatherLionMain.UPDATE_INTERVAL,
-									String.valueOf( 
-											UtilityMethod.minutesToMilliseconds(
-													Integer.parseInt( 
-															cboRefreshInterval.getSelectedItem().toString() ) ) ) );
-						WeatherLionMain.storedPreferences.setInterval( selectedInterval );
+						lblInterval.setText( cboRefreshInterval.getSelectedItem() + " min." );					
 					}// end of if block
 				}// end of if block	actionPerformed		
 			}// end of method 
@@ -888,18 +856,13 @@ public class PreferenceForm
 				txtLocation.setEnabled( !chkUseSystemLocation.isSelected() );
 				
 				// notify the widget of this update
-				if( !WeatherLionWidget.preferenceUpdated.contains(
+				if( !WeatherLionWidget.preferenceUpdated.containsKey(
 						WeatherLionMain.USE_SYSTEM_LOCATION_PREFERENCE ) ) 
 				{
-					WeatherLionMain.storedPreferences.setUseSystemLocation( 
-							!chkUseSystemLocation.isSelected() );
-					WeatherLionWidget.preferenceUpdated.add(
-							WeatherLionMain.USE_SYSTEM_LOCATION_PREFERENCE );
-				}// end of if block
-				
-				Preference.setPropValues( Preference.PREFERENCE_FILE, 
-						WeatherLionMain.USE_SYSTEM_LOCATION_PREFERENCE,
-						Boolean.toString( chkUseSystemLocation.isSelected() ) );
+					WeatherLionWidget.preferenceUpdated.put(
+						WeatherLionMain.USE_SYSTEM_LOCATION_PREFERENCE, 
+						String.valueOf( chkUseSystemLocation.isSelected() ) );
+				}// end of if block				
 			}
 		});
 		
@@ -923,19 +886,13 @@ public class PreferenceForm
 			public void itemStateChanged( ItemEvent e )
 			{
 				// notify the widget of this update
-				if( !WeatherLionWidget.preferenceUpdated.contains(
+				if( !WeatherLionWidget.preferenceUpdated.containsKey(
 						WeatherLionMain.USE_METRIC_PREFERENCE ) ) 
 				{
-					WeatherLionMain.storedPreferences.setUseMetric( 
-							chkUseMetric.isSelected() );
-					
-					WeatherLionWidget.preferenceUpdated.add(
-							WeatherLionMain.USE_METRIC_PREFERENCE );
-				}// end of if block
-				
-				Preference.setPropValues( Preference.PREFERENCE_FILE, 
-						WeatherLionMain.USE_METRIC_PREFERENCE,
-						Boolean.toString( chkUseMetric.isSelected() ) );
+					WeatherLionWidget.preferenceUpdated.put(
+						WeatherLionMain.USE_METRIC_PREFERENCE, 
+						String.valueOf( chkUseMetric.isSelected() ) );
+				}// end of if block				
 			}
 		});
 		
@@ -1047,12 +1004,8 @@ public class PreferenceForm
 					if( !WeatherLionMain.storedPreferences.getWidgetBackground().equals( "default" ) &&
 							radDefault.isSelected() )
 					{
-						Preference.setPropValues( Preference.PREFERENCE_FILE,
-								WeatherLionMain.WIDGET_BACKGROUND_PREFERENCE,
-								"default" );
-						WeatherLionMain.storedPreferences.setWidgetBackground( "default" );
-						WeatherLionWidget.preferenceUpdated.add(
-								WeatherLionMain.WIDGET_BACKGROUND_PREFERENCE );
+						WeatherLionWidget.preferenceUpdated.put(
+							WeatherLionMain.WIDGET_BACKGROUND_PREFERENCE, "default" );
 					}// end of if block
 				}// end of if block				
 			    else if ( e.getStateChange() == ItemEvent.DESELECTED )
@@ -1071,12 +1024,8 @@ public class PreferenceForm
 					if( !WeatherLionMain.storedPreferences.getWidgetBackground().equals( "android" ) &&
 							radAndroid.isSelected() )
 					{
-						Preference.setPropValues( Preference.PREFERENCE_FILE,
-								WeatherLionMain.WIDGET_BACKGROUND_PREFERENCE,
-								"android" );
-						WeatherLionMain.storedPreferences.setWidgetBackground( "android" );
-						WeatherLionWidget.preferenceUpdated.add( 
-								WeatherLionMain.WIDGET_BACKGROUND_PREFERENCE );
+						WeatherLionWidget.preferenceUpdated.put( 
+							WeatherLionMain.WIDGET_BACKGROUND_PREFERENCE, "android" );
 					}// end of if block
 				}// end of if block				
 			    else if ( e.getStateChange() == ItemEvent.DESELECTED )
@@ -1095,12 +1044,8 @@ public class PreferenceForm
 					if( !WeatherLionMain.storedPreferences.getWidgetBackground().equals( "rabalac" ) &&
 							radRabalac.isSelected() )
 					{
-						Preference.setPropValues( Preference.PREFERENCE_FILE,
-								WeatherLionMain.WIDGET_BACKGROUND_PREFERENCE,
-								"rabalac" );
-						WeatherLionMain.storedPreferences.setWidgetBackground( "rabalac" );
-						WeatherLionWidget.preferenceUpdated.add( 
-								WeatherLionMain.WIDGET_BACKGROUND_PREFERENCE );
+						WeatherLionWidget.preferenceUpdated.put( 
+							WeatherLionMain.WIDGET_BACKGROUND_PREFERENCE, "rabalac" );
 					}// end of if block
 				}// end of if block				
 			    else if ( e.getStateChange() == ItemEvent.DESELECTED )
@@ -1110,9 +1055,10 @@ public class PreferenceForm
 		});
 		
 		// About tab
+		int thisYear = Calendar.getInstance().get( Calendar.YEAR );
 		String message = "<html><center><b>Weather Lion</b>"
 				+ "<br />Author: Paul O. Patterson<br />"
-				+ "BushBungalo Productions™ 2017<br />"
+				+ "BushBungalo Productions� 2017 - " + thisYear + "<br />"
 				+ "Version: 1.0<br />"
 				+ "&copy All rights reserved</center>"
 				+ "<br /><br />"+ ABOUT_PROGRAM  + "</html>";
@@ -1192,13 +1138,8 @@ public class PreferenceForm
 				    {
 				    	if( !WeatherLionMain.storedPreferences.getIconSet().equals( packName ) )
 				    	{
-				    		WeatherLionMain.storedPreferences.setIconSet( packName );
-				    		
-				    		Preference.setPropValues( Preference.PREFERENCE_FILE,
-									WeatherLionMain.ICON_SET_PREFERENCE,
-									packName );
-							WeatherLionWidget.preferenceUpdated.add( 
-									WeatherLionMain.ICON_SET_PREFERENCE );
+				    		WeatherLionWidget.preferenceUpdated.put( 
+								WeatherLionMain.ICON_SET_PREFERENCE, packName );
 						}// end of if block
 				    }// end of if block
 				    else if ( e.getStateChange() == ItemEvent.DESELECTED )
