@@ -16,6 +16,7 @@ import com.bushbungalo.WeatherLionMain;
 
 public class ConnectionManager
 {
+	private static final String TAG = "ConnectionManager";
 	private static ConnectionManager instance = null;
 
 	private final String SQLITE_CONN_STRING = "jdbc:sqlite:" 
@@ -63,6 +64,10 @@ public class ConnectionManager
 		}// end of try black
 		catch ( SQLException e )
 		{
+			 UtilityMethod.logMessage( "severe", e.getMessage(),
+		        TAG + "::openConnection [line: " +
+		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
+			 
 			return false;
 		}// end of catch block
 	}// end of method openConnection
@@ -94,6 +99,9 @@ public class ConnectionManager
 		}// end of try block 
 		catch ( Exception e )
 		{
+			UtilityMethod.logMessage( "severe", e.getMessage(),
+		        TAG + "::close [line: " +
+		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		}// end of catch block
 	}// end of method close()
 }// end of class ConnectionManager
