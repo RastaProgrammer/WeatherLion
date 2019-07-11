@@ -21,7 +21,8 @@ import java.net.URL;
 
 public class HttpHelper
 {
-
+	private static final String TAG = "HttpHelper";
+	
     /**
      * Returns text from a URL on a web server
      *
@@ -57,8 +58,9 @@ public class HttpHelper
         }// end of try block
         catch ( IOException e )
         {
-            System.out.println( "An error occured while retieving data from " + address );
-        	e.printStackTrace();
+        	UtilityMethod.logMessage( "severe", e.getMessage(),
+		        TAG + "::downloadUrl [line: " +
+		        UtilityMethod.getExceptionLineNumber( e )  + "]" );   	
         }// end of catch block
         finally
         {
@@ -101,7 +103,10 @@ public class HttpHelper
         }// end of try block
         catch ( IOException e )
         {
-            e.printStackTrace();
+        	UtilityMethod.logMessage( "severe", e.getMessage(),
+		        TAG + "::readStream [line: " +
+		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
+        	
             return null;
         }// end of catch block
         finally
