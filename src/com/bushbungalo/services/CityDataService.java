@@ -1,7 +1,13 @@
 package com.bushbungalo.services;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.lang.annotation.Inherited;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
@@ -22,6 +28,7 @@ import com.bushbungalo.model.GeoNamesGeoLocation.GeoNames;
 import com.bushbungalo.model.HereGeoLocation;
 import com.bushbungalo.model.YahooGeoLocation;
 import com.bushbungalo.utils.HttpHelper;
+import com.bushbungalo.utils.JSONHelper;
 import com.bushbungalo.utils.UtilityMethod;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -43,6 +50,8 @@ import com.google.gson.GsonBuilder;
 @SuppressWarnings("unused")
 public class CityDataService extends SwingWorker< String, Object >
 {
+	private static final String TAG = "CityDataService";
+	
 	private String m_url;
 	private String m_service;
 	private static String cityName = null;
@@ -54,6 +63,7 @@ public class CityDataService extends SwingWorker< String, Object >
 	private static String Longitude = null;	
 	
 	public static CityData cityData;
+	public static boolean serviceRequest = false;
 
 	public CityDataService( String url, String service )
 	{
@@ -87,17 +97,66 @@ public class CityDataService extends SwingWorker< String, Object >
 	@Override
 	protected String doInBackground() throws Exception
 	{
+		File previousSearchesPath = new File( "res/storage/previous_searches/" ); 
 		String uri = getUrl();
-		String response;
+		int start = uri.indexOf( "q=" ) + 2;
+        int end = uri.indexOf( "&" );
+		String response = null;
 
-		try
+		if( uri.contains( "geonames" ) ) 
 		{
-			response = HttpHelper.downloadUrl( uri.toString() );
-		}// end of try block
-		catch ( IOException e )
-		{
-			response = null;
-		}// end of catch block
+			String cityName = URLDecoder.decode( uri.substring( start, end ).toLowerCase(), "UTF-8" );
+			
+			// just the city name is required and nothing else
+            if ( cityName.contains( "," ) )
+            {
+                cityName = cityName.substring( 0, cityName.indexOf( "," ) );
+            }// end of if block
+            
+			String ps = String.format( "%s%s%s", "gn_sd_", cityName.replaceAll( " ", "_" ), ".json" );
+            File previousCitySearchFile = new File( previousSearchesPath.getPath() + "/" +  ps );
+            StringBuilder fileData = new StringBuilder();
+            
+            if( previousCitySearchFile.exists() )
+            {
+            	try(
+            			FileReader fr = new FileReader( previousCitySearchFile );	// declare and initialize the file reader object
+            			BufferedReader br = new BufferedReader( fr ); 	// declare and initialize the buffered reader object
+            	)
+            	{
+            		String line;                                                 
+                    
+                    while((line = br.readLine()) != null) 
+                    {
+                        fileData.append( line );
+                    }// end of while loop
+                    
+            		response = fileData.toString();
+            	}// end of try block
+            	catch ( FileNotFoundException e )
+                {
+            		 UtilityMethod.logMessage( "severe", e.getMessage(),
+     			        TAG + "::doInBackground [line: " +
+     			        UtilityMethod.getExceptionLineNumber( e )  + "]" );
+                }// end of catch block
+            }// end of if block
+            else 
+            {
+            	try
+        		{
+        			response = HttpHelper.downloadUrl( uri.toString() );
+        			JSONHelper.saveToJSONFile( response, previousCitySearchFile.toString() );
+        		}// end of try block
+        		catch ( IOException e )
+        		{
+        			 UtilityMethod.logMessage( "severe", e.getMessage(),
+				        TAG + "::doInBackground [line: " +
+				        UtilityMethod.getExceptionLineNumber( e )  + "]" );
+        			 
+        			response = null;
+        		}// end of catch block
+            }// end of else block
+		}// end of if block		
 
 		return response;
 	}// end of message doInBackground
@@ -186,15 +245,21 @@ public class CityDataService extends SwingWorker< String, Object >
 		}// end of try block
 		catch ( InterruptedException e )
 		{
-			e.printStackTrace();
+			 UtilityMethod.logMessage( "severe", e.getMessage(),
+		        TAG + "::getGeoNamesSuggestions [line: " +
+		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		}// end of catch block
 		catch ( ExecutionException e )
 		{
-			e.printStackTrace();
+			 UtilityMethod.logMessage( "severe", e.getMessage(),
+		        TAG + "::getGeoNamesSuggestions [line: " +
+		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		}// end of catch block
 		catch ( JSONException e )
 		{
-			e.printStackTrace();
+			 UtilityMethod.logMessage( "severe", e.getMessage(),
+		        TAG + "::getGeoNamesSuggestions [line: " +
+		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		}// end of catch block
 		
 		for ( GeoNames place : GeoNamesGeoLocation.cityGeographicalData.getGeoNames() )
@@ -206,7 +271,7 @@ public class CityDataService extends SwingWorker< String, Object >
 				
 			match.append( place.getName() );				
 						
-			// Geo Name may not return adminCodes1 for some results 
+			// Geo Names may not return adminCodes1 for some results 
 			if( place.getAdminCodes1() != null )
 			{
 				if ( place.getAdminCodes1().getISO() != null && 
@@ -233,40 +298,43 @@ public class CityDataService extends SwingWorker< String, Object >
 			}// end of if block
 		}// end of for each loop
 		
-		if( matches.size() > 0 )
+		if( !serviceRequest )
 		{
-			String[] s = matches.toArray ( new String[ matches.size() ] );
-			PreferenceForm.cityNames = new DefaultComboBoxModel< String >( s );
+			if( matches.size() > 0 )
+			{
+				String[] s = matches.toArray ( new String[ matches.size() ] );
+				PreferenceForm.cityNames = new DefaultComboBoxModel< String >( s );
+			}// end of if block
+			else
+			{
+				matches.clear();
+				
+				String[] s = new String[] { "No match found..." };
+				PreferenceForm.cityNames = new DefaultComboBoxModel< String >( s );
+			}// end of else block
+				
+			PreferenceForm.jlMatches.setModel( PreferenceForm.cityNames );
+			
+			int dropDownHeight = PreferenceForm.jlMatches.getPreferredSize().height > 308
+					? 310
+					: PreferenceForm.jlMatches.getPreferredSize().height + 6;
+			
+			PreferenceForm.jlMatches.setSize( PreferenceForm.txtLocation.getWidth(),
+					dropDownHeight );
+			PreferenceForm.matchesScrollPane.setSize( PreferenceForm.txtLocation.getWidth(),
+					dropDownHeight );
+			
+			// force the list to appear below the text field like a combo box list
+			PreferenceForm.matchesScrollPane.setBounds( PreferenceForm.txtLocation.getX(), 
+					PreferenceForm.txtLocation.getY() + PreferenceForm.txtLocation.getHeight(),
+					PreferenceForm.txtLocation.getWidth(), 
+					PreferenceForm.jlMatches.getPreferredSize().height );
+			
+			PreferenceForm.btnSearch.setIcon( null );
+			PreferenceForm.btnSearch.setText( "Search" );
+			PreferenceForm.btnSearch.setEnabled( true );
+			PreferenceForm.matchesScrollPane.setVisible( true );
 		}// end of if block
-		else
-		{
-			matches.clear();
-			
-			String[] s = new String[] { "No match found..." };
-			PreferenceForm.cityNames = new DefaultComboBoxModel< String >( s );
-		}// end of else block
-			
-		PreferenceForm.jlMatches.setModel( PreferenceForm.cityNames );
-		
-		int dropDownHeight = PreferenceForm.jlMatches.getPreferredSize().height > 308
-				? 308
-				: PreferenceForm.jlMatches.getPreferredSize().height + 6;
-		
-		PreferenceForm.jlMatches.setSize( PreferenceForm.txtLocation.getWidth(),
-				dropDownHeight );
-		PreferenceForm.matchesScrollPane.setSize( PreferenceForm.txtLocation.getWidth(),
-				dropDownHeight );
-		
-		// force the list to appear below the text field like a combo box list
-		PreferenceForm.matchesScrollPane.setBounds( PreferenceForm.txtLocation.getX(), 
-				PreferenceForm.txtLocation.getY() + PreferenceForm.txtLocation.getHeight(),
-				PreferenceForm.txtLocation.getWidth(), 
-				PreferenceForm.jlMatches.getPreferredSize().height );
-		
-		PreferenceForm.btnSearch.setIcon( null );
-		PreferenceForm.btnSearch.setText( "Search" );
-		PreferenceForm.btnSearch.setEnabled( true );
-		PreferenceForm.matchesScrollPane.setVisible( true );
 	}// end of method getGeoNamesSuggestions
 	
 	private void getHereSuggestions()
@@ -310,7 +378,7 @@ public class CityDataService extends SwingWorker< String, Object >
 					Latitude = displayPosition.getString( "Latitude" );
 					Longitude = displayPosition.getString( "Longitude" );					
 					
-					response = address.getString( "Label" );
+					response = label;
 					matches.add( response );
 				}// end of if block
 				else
@@ -340,15 +408,21 @@ public class CityDataService extends SwingWorker< String, Object >
 		}// end of try block
 		catch ( InterruptedException e )
 		{
-			e.printStackTrace();
+			 UtilityMethod.logMessage( "severe", e.getMessage(),
+		        TAG + "::getHereSuggestions [line: " +
+		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		}// end of catch block
 		catch ( ExecutionException e )
 		{
-			e.printStackTrace();
+			UtilityMethod.logMessage( "severe", e.getMessage(),
+		        TAG + "::getHereSuggestions [line: " +
+		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		}// end of catch block
 		catch ( JSONException e )
 		{
-			e.printStackTrace();
+			UtilityMethod.logMessage( "severe", e.getMessage(),
+		        TAG + "::getHereSuggestions [line: " +
+		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		}// end of catch block
 		
 		String[] s = matches.toArray ( new String[ matches.size() ] );
@@ -426,15 +500,21 @@ public class CityDataService extends SwingWorker< String, Object >
 		}// end of try block
 		catch ( InterruptedException e )
 		{
-			e.printStackTrace();
+			UtilityMethod.logMessage( "severe", e.getMessage(),
+		        TAG + "::getYahooSuggestions [line: " +
+		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		}// end of catch block
 		catch ( ExecutionException e )
 		{
-			e.printStackTrace();
+			UtilityMethod.logMessage( "severe", e.getMessage(),
+		        TAG + "::getYahooSuggestions [line: " +
+		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		}// end of catch block
 		catch ( JSONException e )
 		{
-			e.printStackTrace();
+			UtilityMethod.logMessage( "severe", e.getMessage(),
+		        TAG + "::getYahooSuggestions [line: " +
+		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		}// end of catch block
 		
 		ArrayList< String > matches = new ArrayList< String >();
