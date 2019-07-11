@@ -28,6 +28,8 @@ import com.bushbungalo.utils.UtilityMethod;
 
 public class WeatherDataXMLService  extends SwingWorker< String, Object >
 {	
+	private static final String TAG = "WeatherDataXMLService";
+	
 	private String providerName;
 	private Date datePublished;
 	private String cityName;
@@ -46,7 +48,7 @@ public class WeatherDataXMLService  extends SwingWorker< String, Object >
 
 	public WeatherDataXMLService() 
 	{
-	}
+	}// end of default constructor
 	
 	public WeatherDataXMLService( String providerName, Date datePublished,
 			String cityName, String countryName, String currentConditions,
@@ -70,7 +72,7 @@ public class WeatherDataXMLService  extends SwingWorker< String, Object >
 		this.sunriseTime = sunriseTime;
 		this.sunsetTime = sunsetTime;
 		this.fiveDayForecast = fiveDayForecast;
-	}	
+	}// end of fifteen-argument constructor	
 	
 	 public String getProviderName() 
 	 {
@@ -325,19 +327,22 @@ public class WeatherDataXMLService  extends SwingWorker< String, Object >
 				 WeatherLionMain.WEATHER_DATA_XML ) );
 			 
 			 UtilityMethod.logMessage( "info", providerName + "'s weather data was stored locally!",
-				 "WeatherDataXMLService::saveCurrentWeatherXML" );
+					 TAG + "::saveCurrentWeatherXML" );
 	    				
 		 }// end of try block
 		 catch ( FileNotFoundException e )
 		 {
-			 e.printStackTrace();
+			 UtilityMethod.logMessage( "severe", e.getMessage(),
+		        TAG + "::saveCurrentWeatherXML [line: " +
+		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		 }// end of catch block
 		 catch ( IOException e )
 		 {
-			 e.printStackTrace();
+			 UtilityMethod.logMessage( "severe", e.getMessage(),
+		        TAG + "::saveCurrentWeatherXML [line: " +
+		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		 }// end of catch block
 		 
 		 return true;
-    }// end of method saveCurrentWeatherXML
-	 
+    }// end of method saveCurrentWeatherXML	 
 }// end of class WeatherDataXMLService
