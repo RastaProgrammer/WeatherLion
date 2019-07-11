@@ -40,6 +40,8 @@ public class Preference
 	private String m_widget_background;	
 	private String m_icon_set;	
 	
+	private static final String TAG = "Preference";
+	
 	// private static Properties configProps;
 	public static final File CONFIG_FILE = new File( "res/settings/config.properties" );
 	public static final File PREFERENCE_FILE = new File( "res/settings/preferences.properties" );
@@ -283,13 +285,16 @@ public class Preference
 		}// end of try block
 		catch ( FileNotFoundException e )
 		{
-			
+			UtilityMethod.logMessage("severe", e.getMessage(),
+		        TAG + "::createDefaultPreferencesPropertiesFile [line: " +
+		        UtilityMethod.getExceptionLineNumber( e )  + "]");
 		}// end of catch block
 		catch ( IOException e )
 		{
-		    // I/O error
+			UtilityMethod.logMessage("severe", e.getMessage(),
+		        TAG + "::createDefaultPreferencesPropertiesFile [line: " +
+		        UtilityMethod.getExceptionLineNumber( e )  + "]");
 		}// end of catch block	
-	
 	}// end of method createDefaultPropertiesFile
 	
 	public String getPropValues( File propertyFile, String property )
@@ -326,16 +331,22 @@ public class Preference
 			}// end of try block
 			catch ( FileNotFoundException e )
 			{
-			    
+				UtilityMethod.logMessage("severe", e.getMessage(),
+			        TAG + "::getPropValues [line: " +
+			        UtilityMethod.getExceptionLineNumber( e )  + "]");
 			}// end of try block
 			catch ( IOException e )
 			{
-			    // I/O error
+				UtilityMethod.logMessage("severe", e.getMessage(),
+			        TAG + "::getPropValues [line: " +
+			        UtilityMethod.getExceptionLineNumber( e )  + "]");
 			}// end of try block
 		}// end of try block
 		catch ( IOException ex )
 		{
-		    // I/O error
+			UtilityMethod.logMessage("severe", ex.getMessage(),
+		        TAG + "::getPropValues [line: " +
+		        UtilityMethod.getExceptionLineNumber( ex )  + "]");
 		}// end of try block
 		
 		// get the property value and use it
@@ -396,7 +407,9 @@ public class Preference
 		}// end of catch block
 		catch ( IOException ex )
 		{
-		    // I/O error
+			UtilityMethod.logMessage("severe", ex.getMessage(),
+		        TAG + "::setPropValues [line: " +
+		        UtilityMethod.getExceptionLineNumber( ex )  + "]");
 		}// end of catch block
 	}// end of method setPropValues
 	
