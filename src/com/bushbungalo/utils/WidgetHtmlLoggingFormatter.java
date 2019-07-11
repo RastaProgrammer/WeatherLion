@@ -37,9 +37,16 @@ public class WidgetHtmlLoggingFormatter extends Formatter
 		buf.append( "<tr>" );
 
 		// highlight any levels >= WARNING in red
-		if( rec.getLevel().intValue() >= Level.WARNING.intValue() )
+		if( rec.getLevel().intValue() >= Level.SEVERE.intValue() )
 		{
 			buf.append( "<td style=\"color:red\">" );
+			buf.append( "<b>" );
+			buf.append( rec.getLevel() );
+			buf.append( "</b>" );
+		}// end of if block
+		else if( rec.getLevel().intValue() >= Level.WARNING.intValue() )
+		{
+			buf.append( "<td style=\"color:orange\">" );
 			buf.append( "<b>" );
 			buf.append( rec.getLevel() );
 			buf.append( "</b>" );
