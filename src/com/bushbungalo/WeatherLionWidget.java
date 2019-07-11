@@ -126,6 +126,7 @@ import com.google.gson.Gson;
  * 		<li>02/05/19 - Moved assets out of the jar file to eliminate path headaches.</li>
  * 		<li>05/04/19 - Method {@code checkAstronomy} no longer calls the widget service.</li>
  * 		<li>05/11/19 - Added field {@code dataLoadedSuccessfully} to track loading success.</li>
+ * 		<li>07/03/19 - Updated preference saving method.</li>
  * </ul>
  */
 
@@ -237,7 +238,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
  	
  	public static boolean usingPreviousData = false; // flag for old weather data
  	
- 	private HashMap< String, Component > componentMap;
+ 	private static HashMap< String, Component > componentMap;
  	
  	// The name of this class
  	private static Class<?> thisClass = new Object(){}.getClass();
@@ -249,11 +250,16 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	
 	public static final String WEATHER_IMAGE_PATH_PREFIX =  "res/assets/img/weather_images/";
 	
-	public static ArrayList< String > preferenceUpdated = new ArrayList< String >();
+	public static boolean applyPreferenceUpdates;
+	
+	public static LinkedHashMap<String, String> preferenceUpdated = new LinkedHashMap<String, String>();
 	public static StringBuilder previousWeatherProvider = new StringBuilder();
 	
 	public static Thread widgetThread;
+	public static Thread iconThread;
 	public static WidgetUpdateService ws;	
+	
+	private static final String TAG = "WeatherLionWidget";
 
 	private WeatherLionWidget()
 	{		
@@ -265,11 +271,11 @@ public class WeatherLionWidget extends JFrame implements Runnable
  		
  	    // start the object that is implemented by the WeatherLionWidget class
  		widgetThread = new Thread( this ); 
- 		widgetThread.start();
- 		
+		
  		Runnable iconService = new IconUpdateService();
- 		Thread iconThread = new Thread( iconService );
- 		iconThread.start();
+ 		iconThread = new Thread( iconService );
+ 		
+ 		widgetThread.start();		
 	}// default constructor
 	
 	/**
@@ -319,7 +325,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
             catch ( ParseException e )
             {
     			UtilityMethod.logMessage( "severe" , e.getMessage(),
-					"WidgetLionWidget::checkAstronomy [line: " + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
+					TAG + "::checkAstronomy [line: " + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
     		}// end of catch block
             	        
             String currentConditionIcon = null;
@@ -349,11 +355,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
             	            	
             	if( !sunsetUpdatedPerformed && !sunsetIconsInUse )
             	{
-            		WidgetUpdateService.loadWeatherIcon( lblCurrentConditionImage, WEATHER_IMAGE_PATH_PREFIX +
-            				WeatherLionMain.iconSet + "/weather_" + currentConditionIcon, 140, 140 );
-            		
             		lblCurrentConditionImage.setToolTipText( UtilityMethod.toProperCase(
             			WidgetUpdateService.currentCondition.toString() ) );
+            		
             		sunsetIconsInUse = true;
                 	sunriseIconsInUse = false;
             		sunsetUpdatedPerformed = true;
@@ -361,10 +365,6 @@ public class WeatherLionWidget extends JFrame implements Runnable
             	}// end of if block 
             	else if( WeatherLionWidget.iconSetSwtich )
                 {
-                	WidgetUpdateService.loadWeatherIcon( lblCurrentConditionImage, 
-            			WEATHER_IMAGE_PATH_PREFIX + WeatherLionMain.iconSet + 
-            				"/weather_" + currentConditionIcon, 140, 140 );
-                	
                 	// reset the flag after switch is made
                 	WeatherLionWidget.iconSetSwtich = false;
                 }// end of else if block
@@ -374,9 +374,6 @@ public class WeatherLionWidget extends JFrame implements Runnable
             {
             	currentConditionIcon = UtilityMethod.weatherImages.get(
     				WidgetUpdateService.currentCondition.toString().toLowerCase() );
-            	
-            	WidgetUpdateService.loadWeatherIcon( lblCurrentConditionImage, WEATHER_IMAGE_PATH_PREFIX +
-    				WeatherLionMain.iconSet + "/weather_" + currentConditionIcon, 140, 140 );
             	
             	// reset the flag after switch is made
             	WeatherLionWidget.iconSetSwtich = false;
@@ -388,22 +385,16 @@ public class WeatherLionWidget extends JFrame implements Runnable
         		
         		if( !sunriseUpdatedPerformed && !sunriseIconsInUse )
             	{
-            		WidgetUpdateService.loadWeatherIcon( lblCurrentConditionImage, 
-        				WEATHER_IMAGE_PATH_PREFIX + WeatherLionMain.iconSet + 
-        					"/weather_" + currentConditionIcon, 140, 140 );
             		lblCurrentConditionImage.setToolTipText(
         				UtilityMethod.toProperCase( WidgetUpdateService.currentCondition.toString() ) );
+            		
             		sunriseUpdatedPerformed = true;
             		sunsetUpdatedPerformed = false;
             	}// end of if block
         		else if( WeatherLionWidget.iconSetSwtich )
                 {
                 	currentConditionIcon = UtilityMethod.weatherImages.get(
-        				WidgetUpdateService.currentCondition.toString().toLowerCase() );
-                	
-                	WidgetUpdateService.loadWeatherIcon( lblCurrentConditionImage, 
-            			WEATHER_IMAGE_PATH_PREFIX + WeatherLionMain.iconSet +
-            				"/weather_" + currentConditionIcon, 140, 140 );
+        				WidgetUpdateService.currentCondition.toString().toLowerCase() );            	
                 	
                 	// reset the flag after switch is made
                 	WeatherLionWidget.iconSetSwtich = false;
@@ -414,7 +405,10 @@ public class WeatherLionWidget extends JFrame implements Runnable
             		sunsetIconsInUse = false;
         		}// end of else block
         		
-            }// end of else block                       
+            }// end of else block
+            
+            WidgetUpdateService.loadWeatherIcon( lblCurrentConditionImage, WEATHER_IMAGE_PATH_PREFIX +
+    				WeatherLionMain.iconSet + "/weather_" + currentConditionIcon, 140, 140 );
         }// end of if block
 	}// end of method checkAstronomy
 
@@ -446,7 +440,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 		{
 			return m_instance;
 		}// end of else block
-	}// end of method WeatherLionWidget
+	}// end of method getInstance
 	
 	/**
 	 * Load all the necessary components for the program operation
@@ -515,7 +509,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	 * 
 	 * @author aioobe
 	 */
-	private HashMap< String, Component > getAllComponents( final Container c )
+	private static HashMap< String, Component > getAllComponents( final Container c )
 	{
 	    Component[] comps = c.getComponents();
 	    	    
@@ -540,7 +534,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	 * @param name A {@code String} value representing the name of the component
 	 * @return	The requested {@code Component}
 	 */
-	public Component getComponentByName( String name )
+	public static Component getComponentByName( String name )
 	{
         if( componentMap.containsKey( name ) )
         {
@@ -742,7 +736,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 		lblFeelsLike.setFont( font16 );
 		lblFeelsLike.setForeground( Color.WHITE );
 		lblFeelsLike.setToolTipText( "Feels Like Temperature" );
-		lblFeelsLike.setBounds( 146, 52, 110, 20 );
+		lblFeelsLike.setBounds( 146, 52, 120, 20 );
 		lblWidget.add( lblFeelsLike );
 		
 		lblDayHigh = new JLabel( NO_READING_H, SwingConstants.CENTER );
@@ -783,7 +777,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 		lblHumidity.setForeground( Color.WHITE );
 		lblHumidity.setFont( font14 );
 		lblHumidity.setToolTipText( "Humidity" );
-		lblHumidity.setIconTextGap( 0 );	
+		lblHumidity.setIconTextGap( 1 );	
 		
 		pnlWindAndAptomosphere = new JPanel( new FlowLayout( FlowLayout.LEFT, 0, 0 ) );
 		pnlWindAndAptomosphere.setName( "pnlWindAndAptomosphere" );
@@ -1053,65 +1047,142 @@ public class WeatherLionWidget extends JFrame implements Runnable
 		// update the widget on a separate thread
 		while( running )
 		{	
-			if( preferenceUpdated.size() > 0 ) 
-			{
-				for ( String preference : preferenceUpdated )
-				{
-					switch ( preference )
-					{
-						case WeatherLionMain.CURRENT_LOCATION_PREFERENCE:
-						case WeatherLionMain.WEATHER_SOURCE_PREFERENCE:
-						case WeatherLionMain.USE_SYSTEM_LOCATION_PREFERENCE:
-							
-							// reset the re-attempted flag before running the service
-							reAttempted = false;
-							
-							// run the weather service
-							ws = new WidgetUpdateService( false );
-							ws.execute();
-							
-							break;												
-						case WeatherLionMain.USE_METRIC_PREFERENCE:
-							// update the units displayed on the widget
-							ws = new WidgetUpdateService( true );
-							ws.execute();
-							
-							break;
-						case WeatherLionMain.ICON_SET_PREFERENCE:
-							WeatherLionMain.iconSet = WeatherLionMain.storedPreferences.getIconSet();
-							updateIconSet();
-							break;		
-						case WeatherLionMain.WIDGET_BACKGROUND_PREFERENCE:
-							switch ( WeatherLionMain.storedPreferences.getWidgetBackground() )
-							{
-								case "default": default:
-									lblWidget.setIcon( WeatherLionMain.DEFAULT_BACKGROUND_IMAGE );
-									frmWeatherWidget.repaint();
-									break;
-								case "android":
-									lblWidget.setIcon( WeatherLionMain.ANDROID_BACKGROUND_IMAGE );
-									frmWeatherWidget.repaint();
-									break;	
-								case "rabalac":
-									lblWidget.setIcon( WeatherLionMain.RABALAC_BACKGROUND_IMAGE );
-									frmWeatherWidget.repaint();
-									break;							
-							}// end of switch block
-							
-							break;						
-						default:
-							break;
-					}// end of switch block
-				}// end of for each loop
-				
-				// remove this update after it has been handled
-				preferenceUpdated.clear();
-			}// end of if block
+			 if ( applyPreferenceUpdates )
+			 {
+
+				 if( preferenceUpdated.size() > 0 ) 
+				 {
+					 for ( String preference : preferenceUpdated.keySet() )
+					 {
+						 switch ( preference )
+						 {
+						 	case WeatherLionMain.CURRENT_LOCATION_PREFERENCE:
+						 		// update the local preference file
+								Preference.setPropValues( Preference.PREFERENCE_FILE,
+									preference, preferenceUpdated.get( preference ) );
+								
+								// update running data
+								WeatherLionMain.storedPreferences.setLocation( 
+									preferenceUpdated.get( preference ) );
+								
+								// reset the re-attempted flag before running the service
+								reAttempted = false;
+								
+								// run the weather service
+								ws = new WidgetUpdateService( false );
+								ws.execute();
+								
+								break;
+							case WeatherLionMain.WEATHER_SOURCE_PREFERENCE:
+								// update the local preference file
+								Preference.setPropValues( Preference.PREFERENCE_FILE,
+									preference, preferenceUpdated.get( preference ) );
+								
+								// update running data
+								WeatherLionMain.storedPreferences.setProvider( 
+									preferenceUpdated.get( preference ) );
+								
+								// reset the re-attempted flag before running the service
+								reAttempted = false;
+								
+								// run the weather service
+								ws = new WidgetUpdateService( false );
+								ws.execute();
+								
+								break;
+							case WeatherLionMain.USE_SYSTEM_LOCATION_PREFERENCE:
+								// update the local preference file
+								Preference.setPropValues( Preference.PREFERENCE_FILE,
+									preference, preferenceUpdated.get( preference ) );
+								
+								// update running data
+								WeatherLionMain.storedPreferences.setUseSystemLocation( 
+									Boolean.parseBoolean( preferenceUpdated.get( preference ) ) );
+																
+								// reset the re-attempted flag before running the service
+								reAttempted = false;
+								
+								// run the weather service
+								ws = new WidgetUpdateService( false );
+								ws.execute();
+								
+								break;
+							case WeatherLionMain.UPDATE_INTERVAL:
+								// update the local preference file
+								Preference.setPropValues( Preference.PREFERENCE_FILE,
+									preference, preferenceUpdated.get( preference ) );
+								
+								// update running data
+								WeatherLionMain.storedPreferences.setInterval( 
+									Integer.parseInt( preferenceUpdated.get( preference ) ) );
+								
+								break;
+							case WeatherLionMain.USE_METRIC_PREFERENCE:
+								// update the local preference file
+								Preference.setPropValues( Preference.PREFERENCE_FILE,
+									preference, preferenceUpdated.get( preference ) );
+								
+								// update running data
+								WeatherLionMain.storedPreferences.setUseMetric( 
+									Boolean.parseBoolean( preferenceUpdated.get( preference ) ) );
+								
+								// update the units displayed on the widget
+								ws = new WidgetUpdateService( true );
+								ws.execute();
+								
+								break;
+							case WeatherLionMain.ICON_SET_PREFERENCE:
+								// update the local preference file
+								Preference.setPropValues( Preference.PREFERENCE_FILE,
+									preference, preferenceUpdated.get( preference ) );
+								
+								// update running data
+								WeatherLionMain.storedPreferences.setIconSet( 
+									preferenceUpdated.get( preference ) );
+								
+								WeatherLionMain.iconSet = WeatherLionMain.storedPreferences.getIconSet();
+								updateIconSet();
+								break;		
+							case WeatherLionMain.WIDGET_BACKGROUND_PREFERENCE:
+								// update the local preference file
+								Preference.setPropValues( Preference.PREFERENCE_FILE,
+									preference,	preferenceUpdated.get( preference ) );
+								
+								// update running data
+								WeatherLionMain.storedPreferences.setWidgetBackground(
+									preferenceUpdated.get( preference ) );
+								
+								switch ( WeatherLionMain.storedPreferences.getWidgetBackground() )
+								{
+									case "default": default:
+										lblWidget.setIcon( WeatherLionMain.DEFAULT_BACKGROUND_IMAGE );
+										frmWeatherWidget.repaint();
+										break;
+									case "android":
+										lblWidget.setIcon( WeatherLionMain.ANDROID_BACKGROUND_IMAGE );
+										frmWeatherWidget.repaint();
+										break;	
+									case "rabalac":
+										lblWidget.setIcon( WeatherLionMain.RABALAC_BACKGROUND_IMAGE );
+										frmWeatherWidget.repaint();
+										break;							
+								}// end of switch block
+								
+								break;						
+							default:
+								break;
+						}// end of switch block
+					}// end of for each loop
+					 
+					// remove all items from the object
+	                preferenceUpdated.clear();
+				}// end of if block
+			 }// end of if block			 
 			
 			try
 			{
 				Thread.sleep( WeatherLionMain.storedPreferences.getInterval() );			
-
+			
 				ws = new WidgetUpdateService( false );
 				ws.execute();
 				
@@ -1122,8 +1193,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				running = false;
 				resumeThread();
 			}// end of catch block
-		}// end of while loop
-					
+		}// end of while loop					
 	}// end of method run	
 	
 	/**
@@ -1342,9 +1412,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	    private static YahooWeatherYdnDataItem yahoo19;	
 	    private static YrWeatherDataItem yr;	
 
-	    private StringBuilder wxUrl = new StringBuilder();;
-	    private StringBuilder fxUrl = new StringBuilder();;
-	    private StringBuilder axUrl = new StringBuilder();;
+	    private StringBuilder wxUrl = new StringBuilder();
+	    private StringBuilder fxUrl = new StringBuilder();
+	    private StringBuilder axUrl = new StringBuilder();
 	    private ArrayList<String> strJSON;
 	    
 	    private final String CELSIUS = "\u00B0C";
@@ -1628,12 +1698,12 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				 catch ( InterruptedException e )
 				 {
 					 UtilityMethod.logMessage( "severe", e.getMessage(),
-							 "WidgetUpdateService::done" );
+							 TAG + "::done" );
 				 }// end of catch block
 				 catch ( ExecutionException e )
 				 {
 					 UtilityMethod.logMessage( "severe", e.getMessage(),
-							 "WidgetUpdateService::done" );
+							 TAG + "::done" );
 				 }// end of catch block		
 				 
 				 // check that the ArrayList is not empty and the the first element is not null 
@@ -1694,7 +1764,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			        				catch ( JSONException e )
 			        				{
 										UtilityMethod.logMessage( "severe", "Bad Yahoo data: " + e.getMessage(),
-												"WidgetUpdateService::done" );
+												TAG + "::done" );
 									}// end of catch block
 			        				
 			        				if ( json instanceof JSONObject )
@@ -1760,13 +1830,15 @@ public class WeatherLionWidget extends JFrame implements Runnable
 									WeatherLionMain.WEATHER_SOURCE_PREFERENCE,
 									WeatherLionWidget.previousWeatherProvider.toString() );
 						 
-						 if( PreferenceForm.frmPreference.isVisible() )
+						 if( PreferenceForm.frmPreference != null )
 						 {
-							 PreferenceForm.cboWeatherProviders.setSelectedItem( 
-									 WeatherLionWidget.previousWeatherProvider.toString() );
-						 }// end of if block
-					 }// end of catch block					 
-					
+							 if( PreferenceForm.frmPreference.isVisible() )
+							 {
+								 PreferenceForm.cboWeatherProviders.setSelectedItem( 
+										 WeatherLionWidget.previousWeatherProvider.toString() );
+							 }// end of if block
+						 }// end of if block						 
+					 }// end of catch block		
 				 }// end of inner if block
 				 else // no json data was returned so check for Internet connectivity
 				 {
@@ -1794,33 +1866,34 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			        }// end of if block	
 			        else // we are connected to the Internet so that means the issue lies with the weather source
 			        {
-			        	int scheduleTime = 5000; // Sleep for five seconds
+//			        	int scheduleTime = 5000; // Sleep for five seconds
+//			    		
+//			    		// wait for five seconds and try the provider once more
+//			    		while( WeatherLionWidget.running && !reAttempted )
+//			    		{
+//			    	 		new java.util.Timer().schedule( 
+//			    		        new java.util.TimerTask()
+//			    		        {
+//			    		            @Override
+//			    		            public void run()
+//			    		            {
+//			    		            	UtilityMethod.logMessage( "info", "Waiting to retry service provider...",
+//					    						thisClass.getEnclosingClass().getSimpleName()+ "::run" );	
+//					    				UtilityMethod.logMessage( "info", "Retrying service provider...",
+//					    						thisClass.getEnclosingClass().getSimpleName() + "::run" );
+//						    				
+//					    				reAttempted = true;
+//			    		            	
+//			    		            	// run the weather service
+//			    						widgetThread = new Thread( this ); 
+//			    						widgetThread.start();
+//			    		            }
+//			    		        }, scheduleTime 
+//			    			);
+//			    		}// end of while block
 			    		
-			    		// wait for five seconds and try the provider once more
-			    		while( WeatherLionWidget.running && !reAttempted )
-			    		{
-			    	 		new java.util.Timer().schedule( 
-			    		        new java.util.TimerTask()
-			    		        {
-			    		            @Override
-			    		            public void run()
-			    		            {
-			    		            	UtilityMethod.logMessage( "info", "Waiting to retry service provider...",
-					    						thisClass.getEnclosingClass().getSimpleName()+ "::run" );	
-					    				UtilityMethod.logMessage( "info", "Retrying service provider...",
-					    						thisClass.getEnclosingClass().getSimpleName() + "::run" );
-						    				
-					    				reAttempted = true;
-			    		            	
-			    		            	// run the weather service
-			    						widgetThread = new Thread( this ); 
-			    						widgetThread.start();
-			    		            }
-			    		        }, scheduleTime 
-			    			);
-			    		}// end of while block
-			    		
-			    		if( usingPreviousData && reAttempted  )
+//			    		if( usingPreviousData && reAttempted  )
+			    		if( usingPreviousData )
 			        	{			        		
 			        		UtilityMethod.logMessage( "severe", "Data service responded with: " + 
 			        			strJSON.toString(),	"Get Data Retry" );
@@ -1844,9 +1917,15 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				updateTemps( true );
 			}// end of else block
 			 
+			// start the icon thread after the first launch of this thread.
+			if( !iconThread.isAlive() )
+			{
+				iconThread.start();
+			}// end of if block
+			 
 	     }// end of overridden method done
 		 
-		/***
+		 /***
 		 * Yahoo! Developers Network 2019 documentation
 		 * url: https://developer.yahoo.com/weather/documentation.html#java
 		 * 
@@ -1928,9 +2007,12 @@ public class WeatherLionWidget extends JFrame implements Runnable
 		 }// end of method getYahooWeatherData
 		 
 		 /**
-	     * Load the applicable weather icon image
-	     * @param resID The Id of the resource
+	     * Loads the applicable weather icon image an sizes it accordingly
+	     * 
+	     * @param component The {@code JLabel} in which the image will be displayed
 	     * @param iconFile  The file name for the icon
+	     * @param width  The new width of the image
+	     * @param height  The new height of the image
 	     */
 	    public static void loadWeatherIcon( JLabel component, String iconFile, int width, int height )
 	    {
@@ -1965,7 +2047,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	    	currentWindDirection.append( UtilityMethod.compassDirection(darkSky.getCurrently().getWindBearing() ) );
 	    	
 	    	currentHumidity.setLength( 0 );
-	    	currentHumidity.append( String.valueOf( Math.round( darkSky.getCurrently().getHumidity() * 100 ) ) + "%" );
+	    	currentHumidity.append( String.valueOf( Math.round( darkSky.getCurrently().getHumidity() * 100 ) ) );
 	    	
 	    	sunriseTime.setLength( 0 );
 	    	sunriseTime.append( new SimpleDateFormat( "h:mm a" ).format(
@@ -1985,7 +2067,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        lblWindReading.setText( currentWindDirection +
                 " " + currentWindSpeed + ( WeatherLionMain.storedPreferences.getUseMetric() ?
             		" km/h" : " mph" ) );
-	        lblHumidity.setText( currentHumidity.toString() );
+	        lblHumidity.setText( currentHumidity.toString() + "%" );
 	        lblSunrise.setText( sunriseTime.toString() );
 	        lblSunset.setText( sunsetTime.toString() );
 	
@@ -2016,7 +2098,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        catch ( ParseException e )
 	        {
 	        	UtilityMethod.logMessage( "severe" , e.getMessage(),
-	        	    "WidgetUpdateService::loadDarkSkyWeather [line: "
+	        	    TAG + "::loadDarkSkyWeather [line: "
 	        	    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
 	        	        
@@ -2105,7 +2187,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
             int i = 1;
             currentFiveDayForecast.clear(); // ensure that this list is clean
             
-            for ( DarkSkyWeatherDataItem.Daily.Data wxForecast : darkSky.getDaily().getData()  )
+            for ( DarkSkyWeatherDataItem.Daily.Data wxForecast : darkSky.getDaily().getData() )
             {
 				Date fxDate = UtilityMethod.getDateTime( wxForecast.getTime() );
 				String fCondition = wxForecast.getSummary().toLowerCase();
@@ -2144,42 +2226,8 @@ public class WeatherLionWidget extends JFrame implements Runnable
 
                 fCondition = UtilityMethod.toProperCase( fCondition );
                 
-                JLabel fDayLabel = null;
-	            JLabel fIcon = null;
-	            
-	            switch ( i )
-	            {
-					case 1:
-						fDayLabel = lblDay1Day;
-			            fIcon = lblDay1Image;
-			            
-						break;					
-					case 2:					
-						fDayLabel = lblDay2Day;
-			            fIcon = lblDay2Image;
-			            
-						break;						
-					case 3:					
-						fDayLabel = lblDay3Day;
-			            fIcon = lblDay3Image;
-			            
-						break;						
-					case 4:					
-						fDayLabel = lblDay4Day;
-			            fIcon = lblDay4Image;
-			            
-						break;						
-					case 5:					
-						fDayLabel = lblDay5Day;
-			            fIcon = lblDay5Image;
-			            
-						break;	
-					default:
-						break;
-				}// end of switch block
-	
-	            String fd = new SimpleDateFormat( "E d" ).format( fxDate );
-	            fDayLabel.setText( fd );
+                ( (JLabel) getComponentByName( "lblDay"+ i +"Day" ) ).setText(
+            			new SimpleDateFormat( "E d" ).format( fxDate ) );
 	
 	            // Load current forecast condition weather image
 	            if( fCondition.toLowerCase().contains( "(day)" ) )
@@ -2215,11 +2263,11 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	            else
 	            {
 	            	fConditionIcon = UtilityMethod.weatherImages.get( fCondition.toLowerCase() );
-	            }// end of if block
-	            
-	            loadWeatherIcon( fIcon, WEATHER_IMAGE_PATH_PREFIX + 
-	            		WeatherLionMain.iconSet + "/weather_" + fConditionIcon, 40, 40 );
-	            fIcon.setToolTipText( UtilityMethod.toProperCase( fCondition ) );
+	            }// end of if block	        
+
+	            loadWeatherIcon( ( (JLabel) getComponentByName( "lblDay"+ i +"Image" ) ), WEATHER_IMAGE_PATH_PREFIX + 
+            			WeatherLionMain.iconSet + "/weather_" + fConditionIcon, 40, 40 );
+            	( (JLabel) getComponentByName( "lblDay"+ i +"Image" ) ).setToolTipText( UtilityMethod.toProperCase( fCondition ) );
 	            
 	            currentFiveDayForecast.add(
 	            		new FiveDayForecast( fxDate, String.valueOf( hl[ i - 1 ][ 0 ] ),
@@ -2273,7 +2321,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	    	currentWindSpeed.append( String.valueOf( obs.getWindSpeed() ) );
 	    	
 	    	currentHumidity.setLength( 0 );
-	    	currentHumidity.append( String.valueOf( Math.round( obs.getHumidity() ) ) + "%" );
+	    	currentHumidity.append( String.valueOf( Math.round( obs.getHumidity() ) ) );
 	    	
 	    	sunriseTime.setLength( 0 );
 	    	sunriseTime.append( ast.getSunrise().toUpperCase() );
@@ -2291,7 +2339,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        lblWindReading.setText( currentWindDirection +
                 " " + currentWindSpeed + ( WeatherLionMain.storedPreferences.getUseMetric() ? 
             		" km/h" : " mph" ) );
-	        lblHumidity.setText( currentHumidity.toString() );
+	        lblHumidity.setText( currentHumidity.toString() + "%" );
 	
 	        lblSunrise.setText( sunriseTime.toString() );
 	        lblSunset.setText( sunsetTime.toString());
@@ -2322,7 +2370,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        catch ( ParseException e )
 	        {
 	        	UtilityMethod.logMessage( "severe" , e.getMessage(),
-					"WidgetUpdateService::loadHereMapsWeather [line: " 
+					TAG + "::loadHereMapsWeather [line: " 
 	        	    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
 	        	        
@@ -2431,57 +2479,14 @@ public class WeatherLionWidget extends JFrame implements Runnable
             	catch ( ParseException pe )
             	{
 					UtilityMethod.logMessage( "severe" , pe.getMessage(),
-						"WidgetUpdateService::loadHereMapsWeather [line: " +
+						TAG + "::loadHereMapsWeather [line: " +
 						pe.getStackTrace()[ 1 ].getLineNumber() + "]" );
-				}// end of catch block
-            	
-            	JLabel fDayLabel = null;
-	            JLabel fIcon = null;
-	            
-	            switch ( i )
-	            {
-					case 1:
-						fDayLabel = lblDay1Day;
-			            fIcon = lblDay1Image;
-			            
-						break;					
-					case 2:					
-						fDayLabel = lblDay2Day;
-			            fIcon = lblDay2Image;
-			            
-						break;						
-					case 3:					
-						fDayLabel = lblDay3Day;
-			            fIcon = lblDay3Image;
-			            
-						break;						
-					case 4:					
-						fDayLabel = lblDay4Day;
-			            fIcon = lblDay4Image;
-			            
-						break;						
-					case 5:					
-						fDayLabel = lblDay5Day;
-			            fIcon = lblDay5Image;
-			            
-						break;	
-					default:
-						break;
-				}// end of switch block
+				}// end of catch block            	            	
             	
             	if ( !df.format( fxDate ).equals( df.format( lastDate ) ) )
                 {
-            		try 
-            		{
-						lastDate = df.parse( wxForecast.getUtcTime().substring( 0, 10 ) );
-					}// end of try block
-            		catch ( ParseException pe )
-            		{
-            			UtilityMethod.logMessage( "severe" , pe.getMessage(),
-    						"WidgetUpdateService::loadHereMapsWeather [line: " +
-    						pe.getStackTrace()[ 1 ].getLineNumber() + "]" );
-					}// end of catch block
-            		
+            		lastDate = fxDate;
+            		            		
             		String fCondition =wxForecast.getIconName().contains( "_" ) ?
     	    			UtilityMethod.toProperCase( wxForecast.getIconName().replaceAll( "_", " " ) ) :
     	    				UtilityMethod.toProperCase( wxForecast.getIconName().replaceAll( "_", " " ) );
@@ -2527,7 +2532,8 @@ public class WeatherLionWidget extends JFrame implements Runnable
                     
                     fCondition = UtilityMethod.toProperCase( fCondition );
                 	
-    	            fDayLabel.setText( fDay );
+                    ( (JLabel) getComponentByName( "lblDay"+ i +"Day" ) ).setText(
+                			new SimpleDateFormat( "E d" ).format( fDay ) );
     	
     	            // Load current forecast condition weather image
     	            if( fCondition.toLowerCase().contains( "(day)") )
@@ -2565,9 +2571,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
     	            	fConditionIcon = UtilityMethod.weatherImages.get( fCondition.toLowerCase() );
     	            }// end of if block
     	            
-    	            loadWeatherIcon( fIcon, WEATHER_IMAGE_PATH_PREFIX + 
-    	            		WeatherLionMain.iconSet + "/weather_" + fConditionIcon, 40, 40 );
-    	            fIcon.setToolTipText( UtilityMethod.toProperCase( fCondition ) );
+    	            loadWeatherIcon( ( (JLabel) getComponentByName( "lblDay"+ i +"Image" ) ), WEATHER_IMAGE_PATH_PREFIX + 
+                			WeatherLionMain.iconSet + "/weather_" + fConditionIcon, 40, 40 );
+                	( (JLabel) getComponentByName( "lblDay"+ i +"Image" ) ).setToolTipText( UtilityMethod.toProperCase( fCondition ) );
     	            
     	            currentFiveDayForecast.add(
     	            		new FiveDayForecast( fxDate, String.valueOf( hl[ i - 1 ][ 0 ] ),
@@ -2610,7 +2616,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	    	currentWindDirection.append( UtilityMethod.compassDirection( openWeatherWx.getWind().getDeg() ) );
 	    	
 	    	currentHumidity.setLength( 0 );
-	    	currentHumidity.append( String.valueOf( Math.round( openWeatherWx.getMain().getHumidity() ) ) + "%" );
+	    	currentHumidity.append( String.valueOf( Math.round( openWeatherWx.getMain().getHumidity() ) ) );
 	    	
 	    	sunriseTime.setLength( 0 );
 	    	sunriseTime.append( new SimpleDateFormat( "h:mm a" ).format(
@@ -2628,7 +2634,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	
 	        lblWindReading.setText( currentWindDirection +
 	                " " + currentWindSpeed + ( WeatherLionMain.storedPreferences.getUseMetric() ? " km/h" : " mph" ) );
-	        lblHumidity.setText( currentHumidity.toString() );
+	        lblHumidity.setText( currentHumidity.toString() + "%" );
 	
 	        lblSunrise.setText( sunriseTime.toString() );
 	        lblSunset.setText( sunsetTime.toString() );
@@ -2659,7 +2665,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        catch ( ParseException e )
 	        {
 	        	UtilityMethod.logMessage( "severe" , e.getMessage(),
-					"WidgetUpdateService::loadOpenWeather [line: " +
+					TAG + "::loadOpenWeather [line: " +
 					e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
 	        	        
@@ -2755,41 +2761,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        // loop through the forecast data. only 5 days are needed
             for ( OpenWeatherMapWeatherDataItem.ForecastData.Data wxForecast : fdf )
             {
-            	Date fxDate = UtilityMethod.getDateTime( wxForecast.getDt() );
-            	
-            	JLabel fDayLabel = null;
-	            JLabel fIcon = null;
-	            
-	            switch ( i )
-	            {
-					case 1:
-						fDayLabel = lblDay1Day;
-			            fIcon = lblDay1Image;
-			            
-						break;					
-					case 2:					
-						fDayLabel = lblDay2Day;
-			            fIcon = lblDay2Image;
-			            
-						break;						
-					case 3:					
-						fDayLabel = lblDay3Day;
-			            fIcon = lblDay3Image;
-			            
-						break;						
-					case 4:					
-						fDayLabel = lblDay4Day;
-			            fIcon = lblDay4Image;
-			            
-						break;						
-					case 5:					
-						fDayLabel = lblDay5Day;
-			            fIcon = lblDay5Image;
-			            
-						break;	
-					default:
-						break;
-				}// end of switch block
+            	Date fxDate = UtilityMethod.getDateTime( wxForecast.getDt() );            	            	
             	
             	if ( !df.format( fxDate ).equals( df.format( lastDate ) ) )
                 {
@@ -2837,7 +2809,8 @@ public class WeatherLionWidget extends JFrame implements Runnable
                     
                     fCondition = UtilityMethod.toProperCase( fCondition );
                 	
-    	            fDayLabel.setText( fDay );
+                    ( (JLabel) getComponentByName( "lblDay"+ i +"Day" ) ).setText(
+                			new SimpleDateFormat( "E d" ).format( fDay ) );
     	
     	            // Load current forecast condition weather image
     	            if( fCondition.toLowerCase().contains( "(day)") )
@@ -2875,9 +2848,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
     	            	fConditionIcon = UtilityMethod.weatherImages.get( fCondition.toLowerCase() );
     	            }// end of if block
     	            
-    	            loadWeatherIcon( fIcon, WEATHER_IMAGE_PATH_PREFIX + 
-    	            		WeatherLionMain.iconSet + "/weather_" + fConditionIcon, 40, 40 );
-    	            fIcon.setToolTipText( UtilityMethod.toProperCase( fCondition ) );
+    	            loadWeatherIcon( ( (JLabel) getComponentByName( "lblDay"+ i +"Image" ) ), WEATHER_IMAGE_PATH_PREFIX + 
+                			WeatherLionMain.iconSet + "/weather_" + fConditionIcon, 40, 40 );
+                	( (JLabel) getComponentByName( "lblDay"+ i +"Image" ) ).setToolTipText( UtilityMethod.toProperCase( fCondition ) );
     	            
     	            currentFiveDayForecast.add(
     	            		new FiveDayForecast( fxDate, String.valueOf( hl[ i - 1 ][ 0 ] ),
@@ -2905,6 +2878,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        wXML.execute();
 	    }// end of method loadOpenWeather
 	    
+	    /**
+	     * Load Weather previously received from provider
+	     */
 	    private void loadPreviousWeatherData()
 	    {
 	    	File previousWeatherData = new File( 
@@ -3021,7 +2997,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			catch ( ParseException e )
 			{
 				UtilityMethod.logMessage( "severe" , e.getMessage(),
-						"WidgetUpdateService::loadPreviousWeather [line: " + e.getStackTrace()[1].getLineNumber()+ "]" );
+						TAG + "::loadPreviousWeather [line: " + e.getStackTrace()[1].getLineNumber()+ "]" );
 			}// end of catch block
 			
 	        // Update the current location and update time stamp
@@ -3055,7 +3031,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        catch ( ParseException e )
 	        {
 				UtilityMethod.logMessage( "severe" , e.getMessage(),
-					"WidgetUpdateService::loadPreviousWeather [line: " + e.getStackTrace()[1].getLineNumber()+ "]" );
+					TAG + "::loadPreviousWeather [line: " + e.getStackTrace()[1].getLineNumber()+ "]" );
 	        }// end of catch block
 	        	        
 	        String currentConditionIcon = null;
@@ -3103,43 +3079,8 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        	        
 	        for ( int i = 0; i < xmlForecastList.size(); i++ )
 			{
-	            JLabel fDay = null;
-				JLabel fIcon = null;
-				x++;
-				
-				Element wxDailyForecast = xmlForecastList.get( i ).getChild( "ForecastData" );
-				
-				switch ( i + 1 )
-				{
-					case 1:
-						fDay = lblDay1Day;
-						fIcon = lblDay1Image;
-						
-						break;					
-					case 2:					
-						fDay = lblDay2Day;
-						fIcon = lblDay2Image;
-						
-						break;						
-					case 3:					
-						fDay = lblDay3Day;
-						fIcon = lblDay3Image;
-						
-						break;						
-					case 4:					
-						fDay = lblDay4Day;
-						fIcon = lblDay4Image;
-						
-						break;						
-					case 5:					
-						fDay = lblDay5Day;
-						fIcon = lblDay5Image;
-						
-						break;	
-					default:
-						break;
-				}// end of switch block
-                	
+	            x++;				
+				Element wxDailyForecast = xmlForecastList.get( i ).getChild( "ForecastData" );                	
             	Date forecastDate = null;
             	
 				try
@@ -3152,7 +3093,8 @@ public class WeatherLionWidget extends JFrame implements Runnable
 						thisClass.getEnclosingClass().getSimpleName() + "::loadPreviousWeather"  );
 				}// end of catch block
 				
-            	fDay.setText( new SimpleDateFormat( "E d" ).format( forecastDate ) );
+				( (JLabel) getComponentByName( String.format("lblDay%dDay", i + 1 ) ) ).setText(
+            			new SimpleDateFormat( "E d" ).format( forecastDate ) );
             	
             	// Load current forecast condition weather image
             	String fCondition =   wxDailyForecast.getChildText( "Condition" );
@@ -3170,9 +3112,10 @@ public class WeatherLionWidget extends JFrame implements Runnable
             		= UtilityMethod.weatherImages.get( fCondition.toLowerCase() ) == null 
             			? "na.png" : UtilityMethod.weatherImages.get( fCondition.toLowerCase() );
             	
-            	loadWeatherIcon( fIcon, WEATHER_IMAGE_PATH_PREFIX + 
-            			WeatherLionMain.iconSet + "/weather_" + fConditionIcon, 40, 40 );
-            	fIcon.setToolTipText( UtilityMethod.toProperCase( fCondition ) );
+            	loadWeatherIcon( ( (JLabel) getComponentByName( String.format("lblDay%dImage", i + 1 ) ) ),
+        			WEATHER_IMAGE_PATH_PREFIX + WeatherLionMain.iconSet + "/weather_" + fConditionIcon, 40, 40 );
+            	( (JLabel) getComponentByName( String.format("lblDay%dImage", i + 1 ) ) ).setToolTipText( 
+            			UtilityMethod.toProperCase( fCondition ) );
             	            	
             	currentFiveDayForecast.add(
             			new FiveDayForecast( forecastDate,
@@ -3222,7 +3165,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	    	currentWindDirection.append( weatherBitWx.getData().get( 0 ).getWind_cdir() );
 	    	
 	    	currentHumidity.setLength( 0 );
-	    	currentHumidity.append( String.valueOf( Math.round( weatherBitWx.getData().get( 0 ).getRh() ) ) + "%" );
+	    	currentHumidity.append( String.valueOf( Math.round( weatherBitWx.getData().get( 0 ).getRh() ) ) );
 	    	
 	    	// Weather seems to be in a time-zone that is four hours ahead of Eastern Standard Time
             // They do not supply that information though.
@@ -3251,7 +3194,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        lblWindReading.setText( currentWindDirection +
                 " " + currentWindSpeed + ( WeatherLionMain.storedPreferences.getUseMetric() 
             		? " km/h" : " mph" ) );
-	        lblHumidity.setText( currentHumidity.toString() );
+	        lblHumidity.setText( currentHumidity.toString() + "%" );
 	        lblSunrise.setText( sunriseTime.toString() );
 	        lblSunset.setText( sunsetTime.toString() );
 	
@@ -3281,7 +3224,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        catch ( ParseException e )
 	        {
 	        	UtilityMethod.logMessage( "severe" , e.getMessage(),
-					"WidgetUpdateService::loadWeatherBitWeather [line: " +
+					TAG + "::loadWeatherBitWeather [line: " +
 					e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
 	        	        
@@ -3389,45 +3332,10 @@ public class WeatherLionWidget extends JFrame implements Runnable
         				thisClass.getEnclosingClass().getSimpleName() + "::loadWeatherBitWeather" );
 	        		UtilityMethod.logMessage( "severe", e.getMessage(),
         				thisClass.getEnclosingClass().getSimpleName() + "::loadWeatherBitWeather");
-				}// end of catch block
-            	
-            	JLabel fDayLabel = null;
-	            JLabel fIcon = null;
+				}// end of catch block          	
 	            
 	            if ( fxDate.after( new Date() ) )
                 {
-	            	switch ( i )
-		            {
-						case 1:
-							fDayLabel = lblDay1Day;
-				            fIcon = lblDay1Image;
-				            
-							break;					
-						case 2:					
-							fDayLabel = lblDay2Day;
-				            fIcon = lblDay2Image;
-				            
-							break;						
-						case 3:					
-							fDayLabel = lblDay3Day;
-				            fIcon = lblDay3Image;
-				            
-							break;						
-						case 4:					
-							fDayLabel = lblDay4Day;
-				            fIcon = lblDay4Image;
-				            
-							break;						
-						case 5:					
-							fDayLabel = lblDay5Day;
-				            fIcon = lblDay5Image;
-				            
-							break;	
-						default:
-							break;
-					}// end of switch block
-            		
-            		String fDay = new SimpleDateFormat( "E d" ).format( fxDate );
                     String fCondition = wxForecast.getWeather().getDescription();
         	            
                 	if ( fxDate.after( new Date() ) )
@@ -3471,7 +3379,8 @@ public class WeatherLionWidget extends JFrame implements Runnable
                         
                         fCondition = UtilityMethod.toProperCase( fCondition );
                     	
-        	            fDayLabel.setText( fDay );
+                        ( (JLabel) getComponentByName( "lblDay"+ i +"Day" ) ).setText(
+                    			new SimpleDateFormat( "E d" ).format( fxDate ) );
         	
         	            // Load current forecast condition weather image
         	            if(fCondition.toLowerCase().contains( "(day)" ) )
@@ -3509,9 +3418,10 @@ public class WeatherLionWidget extends JFrame implements Runnable
         	            	fConditionIcon = UtilityMethod.weatherImages.get( fCondition.toLowerCase() );
         	            }// end of if block
         	            
-        	            loadWeatherIcon( fIcon, WEATHER_IMAGE_PATH_PREFIX + 
-        	            		WeatherLionMain.iconSet + "/weather_" + fConditionIcon, 40, 40 );
-        	            fIcon.setToolTipText( UtilityMethod.toProperCase( fCondition ) );
+        	            loadWeatherIcon( ( (JLabel) getComponentByName( "lblDay"+ i +"Image" ) ), 
+    	            		WEATHER_IMAGE_PATH_PREFIX +	WeatherLionMain.iconSet + "/weather_" + fConditionIcon, 40, 40 );
+                    	( (JLabel) getComponentByName( "lblDay"+ i +"Image" ) ).setToolTipText( 
+                    		UtilityMethod.toProperCase( fCondition ) );
         	            
         	            currentFiveDayForecast.add(
         	            		new FiveDayForecast( fxDate, String.valueOf( hl[ i - 1 ][ 0 ] ),
@@ -3616,7 +3526,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        lblWindReading.setText( currentWindDirection +
                 " " + currentWindSpeed + ( WeatherLionMain.storedPreferences.getUseMetric() 
             		? " km/h" : " mph" ) );
-	        lblHumidity.setText( currentHumidity.toString() );
+	        lblHumidity.setText( currentHumidity.toString() + "%" );
 	        lblSunrise.setText( sunriseTime.toString() );
 	        lblSunset.setText( sunsetTime.toString() );
 	
@@ -3646,7 +3556,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        catch ( ParseException e )
 	        {
 				UtilityMethod.logMessage( "severe" , e.getMessage(),
-					"WidgetUpdateService::loadWeatherUndergroundWeather [line: " +
+					TAG + "::loadWeatherUndergroundWeather [line: " +
 					e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
 	        	        
@@ -3742,40 +3652,6 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        // loop through the forecast data. only 5 days are needed
 	        for ( WeatherUndergroundDataItem.Forecast.SimpleForecast.ForecastDay wxForecast : fdf )
 	        {
-	        	JLabel fDay = null;
-	            JLabel fIcon = null;
-	            
-	            switch ( i )
-	            {
-					case 1:
-						fDay = lblDay1Day;
-			            fIcon = lblDay1Image;
-			            
-						break;					
-					case 2:					
-						fDay = lblDay2Day;
-			            fIcon = lblDay2Image;
-			            
-						break;						
-					case 3:					
-						fDay = lblDay3Day;
-			            fIcon = lblDay3Image;
-			            
-						break;						
-					case 4:					
-						fDay = lblDay4Day;
-			            fIcon = lblDay4Image;
-			            
-						break;						
-					case 5:					
-						fDay = lblDay5Day;
-			            fIcon = lblDay5Image;
-			            
-						break;	
-					default:
-						break;
-				}// end of switch block
-	        	
 	        	int period = wxForecast.getPeriod();
 	
 	            c.set( wxForecast.getDate().getYear(),
@@ -3820,8 +3696,8 @@ public class WeatherLionWidget extends JFrame implements Runnable
                 
 	            fCondition = UtilityMethod.toProperCase( fCondition );
 	
-	            String fd = new SimpleDateFormat( "E d" ).format( fxDate );
-	            fDay.setText( fd );
+	            ( (JLabel) getComponentByName( "lblDay"+ i +"Day" ) ).setText(
+            			new SimpleDateFormat( "E d" ).format( fxDate ) );
 	
 	            // Load current forecast condition weather image
 	            if( fCondition.toLowerCase().contains( "(day)" ) )
@@ -3859,9 +3735,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	            	fConditionIcon = UtilityMethod.weatherImages.get( fCondition.toLowerCase() );
 	            }// end of if block
 	            
-	            loadWeatherIcon( fIcon, WEATHER_IMAGE_PATH_PREFIX + 
-	            		WeatherLionMain.iconSet + "/weather_" + fConditionIcon, 40, 40 );
-	            fIcon.setToolTipText( UtilityMethod.toProperCase( fCondition ) );
+	            loadWeatherIcon( ( (JLabel) getComponentByName( "lblDay"+ i +"Image" ) ), 
+            		WEATHER_IMAGE_PATH_PREFIX +	WeatherLionMain.iconSet + "/weather_" + fConditionIcon, 40, 40 );
+            	( (JLabel) getComponentByName( "lblDay"+ i +"Image" ) ).setToolTipText( UtilityMethod.toProperCase( fCondition ) );
 	            
 	            currentFiveDayForecast.add(
 	            		new FiveDayForecast( fxDate, String.valueOf( hl[ i - 1 ][ 0 ] ),
@@ -3967,7 +3843,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        catch ( ParseException e )
 	        {
 				UtilityMethod.logMessage( "severe", e.getMessage(), 
-					"WidgetUpdateService::loadYahooYdnWeather" );
+					TAG + "::loadYahooYdnWeather" );
 			}// end of catch block
 	        	        
 	        String currentConditionIcon = null;
@@ -4059,43 +3935,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        
 	        for ( int i = 0; i <= fdf.size(); i++ )
 	        {
-	            JLabel fDay = null;
-				JLabel fIcon = null;
-				
-				switch ( i + 1 )
-				{
-					case 1:
-						fDay = lblDay1Day;
-						fIcon = lblDay1Image;
-						
-						break;					
-					case 2:					
-						fDay = lblDay2Day;
-						fIcon = lblDay2Image;
-						
-						break;						
-					case 3:					
-						fDay = lblDay3Day;
-						fIcon = lblDay3Image;
-						
-						break;						
-					case 4:					
-						fDay = lblDay4Day;
-						fIcon = lblDay4Image;
-						
-						break;						
-					case 5:					
-						fDay = lblDay5Day;
-						fIcon = lblDay5Image;
-						
-						break;	
-					default:
-						break;
-				}// end of switch block
-
 				Date fDate = UtilityMethod.getDateTime( fdf.get( i ).getDate() );
-	            fDay.setText( fdf.get( i ).getDay() + " " + 
-	            		new SimpleDateFormat( "d" ).format( fDate ) );
+				( (JLabel) getComponentByName( "lblDay"+ (i + 1) +"Day" ) ).setText(
+            			new SimpleDateFormat( "E d" ).format( fDate ) );
 
 	            // Load current forecast condition weather image
 	            String fCondition =   UtilityMethod.yahooWeatherCodes[
@@ -4124,7 +3966,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	            	// sometimes the JSON data received is incomplete so this has to be taken into account 
 	            	for ( Entry<String, String> e : UtilityMethod.weatherImages.entrySet() )
 	            	{
-	            	    if ( e.getKey() .startsWith( fCondition.toLowerCase() ) ) 
+	            	    if ( e.getKey().startsWith( fCondition.toLowerCase() ) ) 
 	            	    {
 	            	    	fConditionIcon =  UtilityMethod.weatherImages.get( e.getKey() ); // use the closest match
 	            	    	fCondition = e.getKey();
@@ -4143,9 +3985,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	            	fConditionIcon = UtilityMethod.weatherImages.get( fCondition.toLowerCase() );
 	            }// end of if block
 	            
-	            loadWeatherIcon( fIcon, WEATHER_IMAGE_PATH_PREFIX + 
-	            		WeatherLionMain.iconSet + "/weather_" + fConditionIcon, 40, 40 );
-	            fIcon.setToolTipText( UtilityMethod.toProperCase( fCondition ) );
+	            loadWeatherIcon( ( (JLabel) getComponentByName( "lblDay"+ (i + 1) +"Image" ) ), WEATHER_IMAGE_PATH_PREFIX + 
+            			WeatherLionMain.iconSet + "/weather_" + fConditionIcon, 40, 40 );
+            	( (JLabel) getComponentByName( "lblDay"+ (i + 1) +"Image" ) ).setToolTipText( UtilityMethod.toProperCase( fCondition ) );
 	            
 	            Date forecastDate = UtilityMethod.getDateTime( fdf.get( i ).getDate() );
 	            
@@ -4160,15 +4002,16 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        
 	        // if the code gets to here then all was loaded successfully
             WeatherLionWidget.dataLoadedSuccessfully = true;
-            
-	        wXML = new WeatherDataXMLService( WeatherLionMain.YAHOO_WEATHER, new Date(), 
-	        		currentCity.toString(), currentCountry.toString(), currentCondition.toString(), 
-	        		currentTemp.toString().substring( 0, currentTemp.toString().indexOf( DEGREES ) ).trim(),
-	        		currentFeelsLikeTemp.toString(), currentHigh.toString(), currentLow.toString(),
-	        		currentWindSpeed.toString(), currentWindDirection.toString(), currentHumidity.toString(),
-	        		sunriseTime.toString(), sunsetTime.toString(), currentFiveDayForecast );
-	        
-	        wXML.execute();
+	       
+			wXML = new WeatherDataXMLService( WeatherLionMain.YAHOO_WEATHER, new Date(), 
+					currentCity.toString(), currentCountry.toString(), currentCondition.toString(), 
+					currentTemp.toString(),	currentFeelsLikeTemp.toString(), currentHigh.toString(),
+					currentLow.toString(),	currentWindSpeed.toString(), currentWindDirection.toString(),
+					currentHumidity.toString(),	sunriseTime.toString(),
+					sunsetTime.toString(), currentFiveDayForecast );
+			
+			wXML.execute();
+			
 	    }// end of method loadYahooYdnWeather
 	    
 	    @Deprecated
@@ -4252,7 +4095,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        catch ( ParseException e )
 	        {
 	        	UtilityMethod.logMessage( "severe" , e.getMessage(),
-					"WidgetUpdateService::loadYahooWeather [line: " +
+					TAG + "::loadYahooWeather [line: " +
 					e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
 	        	        
@@ -4346,42 +4189,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        
 	        for ( int i = 0; i <= fdf.size(); i++ )
 	        {
-	            JLabel fDay = null;
-				JLabel fIcon = null;
-				
-				switch ( i + 1 )
-				{
-					case 1:
-						fDay = lblDay1Day;
-						fIcon = lblDay1Image;
-						
-						break;					
-					case 2:					
-						fDay = lblDay2Day;
-						fIcon = lblDay2Image;
-						
-						break;						
-					case 3:					
-						fDay = lblDay3Day;
-						fIcon = lblDay3Image;
-						
-						break;						
-					case 4:					
-						fDay = lblDay4Day;
-						fIcon = lblDay4Image;
-						
-						break;						
-					case 5:					
-						fDay = lblDay5Day;
-						fIcon = lblDay5Image;
-						
-						break;	
-					default:
-						break;
-				}// end of switch block
-
-	            fDay.setText( fdf.get( i ).getDay() );
-
+	        	( (JLabel) getComponentByName( "lblDay"+ i +"Day" ) ).setText(
+            			new SimpleDateFormat( "E d" ).format( fdf.get( i ).getDay() ) );
+	        	
 	            // Load current forecast condition weather image
 	            String fCondition =   UtilityMethod.yahooWeatherCodes[
 	                    Integer.parseInt( fdf.get( i ).getCode() ) ];
@@ -4428,9 +4238,10 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	            	fConditionIcon = UtilityMethod.weatherImages.get( fCondition.toLowerCase() );
 	            }// end of if block
 	            
-	            loadWeatherIcon( fIcon, WEATHER_IMAGE_PATH_PREFIX + 
-	            		WeatherLionMain.iconSet + "/weather_" + fConditionIcon, 40, 40 );
-	            fIcon.setToolTipText( UtilityMethod.toProperCase( fCondition ) );
+	            loadWeatherIcon( ( (JLabel) getComponentByName( "lblDay"+ i +"Image" ) ),
+	            	WEATHER_IMAGE_PATH_PREFIX +	WeatherLionMain.iconSet + "/weather_" + fConditionIcon, 40, 40 );
+            	( (JLabel) getComponentByName( "lblDay"+ i +"Image" ) ).setToolTipText( 
+            		UtilityMethod.toProperCase( fCondition ) );
 	            
 	            Date forecastDate = null;
 	            
@@ -4441,7 +4252,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				catch (ParseException e)
 				{
 					UtilityMethod.logMessage( "severe" , e.getMessage(),
-						"WidgetUpdateService::loadYahooWeather [line: " +
+						TAG + "::loadYahooWeather [line: " +
 						e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 				}// end of catch block
 	            
@@ -4484,9 +4295,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        currentHumidity.setLength( 0 );
 	        currentHumidity.append( currentHumidity != null ? currentHumidity : String.valueOf( 0 ) ); // use the humidity reading from previous providers
 	        
-		// append a zero if there is no humidity
+	        // append a zero if there is no humidity
 	        if( currentHumidity.length() == 0 ) currentHumidity.append( "0" );
-		
+	        
 	        currentLocation = currentCity;
 	        
 	        sunriseTime.setLength( 0 );
@@ -4546,7 +4357,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        catch ( ParseException e )
 	        {
 	        	UtilityMethod.logMessage( "severe" , e.getMessage(),
-					"WidgetUpdateService::loadHereMapsWeather [line: " +
+					TAG + "::loadHereMapsWeather [line: " +
 					e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
 	        	        
@@ -4639,46 +4450,15 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        
 	        for ( Forecast wxDailyForecast : fdf )
 			{
-	            JLabel fDay = null;
-				JLabel fIcon = null;
-				x++;
+	            x++;
 				
 				// the first time period is one that will be stored
                 if ( x == 1 )
                 {                	
-                	switch ( i )
-                	{
-	                	case 1:
-	                		fDay = lblDay1Day;
-	                		fIcon = lblDay1Image;
-	                		
-	                		break;					
-	                	case 2:					
-	                		fDay = lblDay2Day;
-	                		fIcon = lblDay2Image;
-	                		
-	                		break;						
-	                	case 3:					
-	                		fDay = lblDay3Day;
-	                		fIcon = lblDay3Image;
-	                		
-	                		break;						
-	                	case 4:					
-	                		fDay = lblDay4Day;
-	                		fIcon = lblDay4Image;
-	                		
-	                		break;						
-	                	case 5:					
-	                		fDay = lblDay5Day;
-	                		fIcon = lblDay5Image;
-	                		
-	                		break;	
-	                	default:
-	                		break;
-                	}// end of switch block
+                	Date forecastDate = wxDailyForecast.getTimeFrom();
                 	
-                	Date forecastDate = wxDailyForecast.getTimeFrom();	
-                	fDay.setText( new SimpleDateFormat( "E d" ).format( forecastDate ) );
+                	( (JLabel) getComponentByName( "lblDay"+ i +"Day" ) ).setText(
+                			new SimpleDateFormat( "E d" ).format( forecastDate ) );
                 	
                 	// Load current forecast condition weather image
                 	String fCondition =   wxDailyForecast.getSymbolName();
@@ -4723,11 +4503,11 @@ public class WeatherLionWidget extends JFrame implements Runnable
      	            else
      	            {
      	            	fConditionIcon = UtilityMethod.weatherImages.get( fCondition.toLowerCase() );
-     	            }// end of if block
-                	
-                	loadWeatherIcon( fIcon, WEATHER_IMAGE_PATH_PREFIX + 
+     	            }// end of if block               	
+     	                	           
+                	loadWeatherIcon( ( (JLabel) getComponentByName( "lblDay"+ i +"Image" ) ), WEATHER_IMAGE_PATH_PREFIX + 
                 			WeatherLionMain.iconSet + "/weather_" + fConditionIcon, 40, 40 );
-                	fIcon.setToolTipText( UtilityMethod.toProperCase( fCondition ) );
+                	( (JLabel) getComponentByName( "lblDay"+ i +"Image" ) ).setToolTipText( UtilityMethod.toProperCase( fCondition ) );
                 	
                 	currentFiveDayForecast.add(
                 			new FiveDayForecast( forecastDate,
@@ -4753,9 +4533,8 @@ public class WeatherLionWidget extends JFrame implements Runnable
             
 	        wXML = new WeatherDataXMLService( WeatherLionMain.YR_WEATHER, new Date(), 
 	        		currentCity.toString(), currentCountry.toString(), currentCondition.toString(), 
-	        		currentTemp.toString().substring( 0, currentTemp.toString().indexOf( DEGREES ) ).trim(),
-	        		currentFeelsLikeTemp.toString(), currentHigh.toString(), currentLow.toString(),
-	        		currentWindSpeed.toString(), currentWindDirection.toString(), currentHumidity.toString(),
+	        		currentTemp.toString(),	currentFeelsLikeTemp.toString(), currentHigh.toString(),
+	        		currentLow.toString(), currentWindSpeed.toString(), currentWindDirection.toString(), currentHumidity.toString(),
 	        		sunriseTime.toString(), sunsetTime.toString(), currentFiveDayForecast );
 	        
 	        wXML.execute();
@@ -4833,7 +4612,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        {
 							currentTemp.setLength( 0 );
 							currentTemp.append( String.valueOf( Math.round( 
-			        			UtilityMethod.fahrenheitToCelsius( darkSky.getCurrently().getTemperature() ) ) ) + tempUnits );
+			        			UtilityMethod.fahrenheitToCelsius( darkSky.getCurrently().getTemperature() ) ) ) );
 							
 							currentFeelsLikeTemp.setLength( 0 );
 							currentFeelsLikeTemp.append( String.valueOf( Math.round( 
@@ -4859,7 +4638,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        else
 				        {
 				        	currentTemp.setLength( 0 );
-				        	currentTemp.append( String.valueOf( Math.round( darkSky.getCurrently().getTemperature() ) ) + tempUnits );
+				        	currentTemp.append( String.valueOf( Math.round( darkSky.getCurrently().getTemperature() ) ) );
 				        	
 				        	currentFeelsLikeTemp.setLength( 0 );
 				        	currentFeelsLikeTemp.append( String.valueOf( Math.round( darkSky.getCurrently().getApparentTemperature() ) ) );
@@ -4880,7 +4659,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        }// end of else block
 				
 				        // Display weather data on widget
-				        lblCurrentTemperature.setText( currentTemp.toString() );
+				        lblCurrentTemperature.setText( currentTemp.toString() + tempUnits );
 				        lblFeelsLike.setText( FEELS_LIKE + " " + currentFeelsLikeTemp.toString() + DEGREES );
 				        lblDayHigh.setText( currentHigh + DEGREES );
 				        lblDayHigh.setToolTipText( "Current High Temp " + currentHigh + DEGREES + "F" );
@@ -4978,7 +4757,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 													.getObservation()
 													.get( 0 )
 													.getTemperature()				        					
-				        					) ) ) + tempUnits );
+				        					) ) ) );
 							
 							currentFeelsLikeTemp.setLength( 0 );
 							currentFeelsLikeTemp.append( 
@@ -5044,7 +4823,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 												.getObservation()
 												.get( 0 )
 												.getTemperature()				        					
-			        					) ) + tempUnits );
+			        					) ) );
 				        	
 				        	currentFeelsLikeTemp.setLength( 0 );
 							currentFeelsLikeTemp.append( 
@@ -5091,7 +4870,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        }// end of else block
 				
 				        // Display weather data on widget
-				        lblCurrentTemperature.setText( currentTemp.toString() );
+				        lblCurrentTemperature.setText( currentTemp.toString() + tempUnits );
 				        lblFeelsLike.setText( FEELS_LIKE + " " + currentFeelsLikeTemp + DEGREES );
 				        lblDayHigh.setText( currentHigh + DEGREES );
 				        lblDayHigh.setToolTipText( "Current High Temp " + currentLow + DEGREES + "F" );
@@ -5168,13 +4947,14 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        
 						break;
 					case WeatherLionMain.OPEN_WEATHER:
-						fl = UtilityMethod.heatIndex( openWeatherWx.getMain().getTemp(), openWeatherWx.getMain().getHumidity() );
+						fl = UtilityMethod.heatIndex( openWeatherWx.getMain().getTemp(), 
+								openWeatherWx.getMain().getHumidity() );
 						
 						if( WeatherLionMain.storedPreferences.getUseMetric() )
 				        {
 							currentTemp.setLength( 0 );
 							currentTemp.append( String.valueOf( Math.round( 
-				        			UtilityMethod.fahrenheitToCelsius( openWeatherWx.getMain().getTemp() ) ) ) + tempUnits );
+				        			UtilityMethod.fahrenheitToCelsius( openWeatherWx.getMain().getTemp() ) ) ) );
 							
 							currentFeelsLikeTemp.setLength( 0 );
 							currentFeelsLikeTemp.append( String.valueOf( Math.round( 
@@ -5200,7 +4980,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        else
 				        {
 				        	currentTemp.setLength( 0 );
-				        	currentTemp.append( String.valueOf( Math.round( openWeatherWx.getMain().getTemp() ) ) + tempUnits );
+				        	currentTemp.append( String.valueOf( Math.round( openWeatherWx.getMain().getTemp() ) ) );
 				        	
 				        	currentFeelsLikeTemp.setLength( 0 );
 				        	currentFeelsLikeTemp.append( String.valueOf( Math.round( (float) fl ) ) );
@@ -5221,7 +5001,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        }// end of else block
 				
 				        // Display weather data on widget
-				        lblCurrentTemperature.setText( currentTemp.toString() );
+				        lblCurrentTemperature.setText( currentTemp.toString() + tempUnits );
 				        lblFeelsLike.setText( FEELS_LIKE + " " + currentFeelsLikeTemp + DEGREES );
 				        lblDayHigh.setText( currentHigh + DEGREES );
 				        lblDayHigh.setToolTipText( "Current High Temp " + currentLow + DEGREES + "F");
@@ -5305,7 +5085,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        {
 							currentTemp.setLength( 0 );
 							currentTemp.append( String.valueOf( Math.round( 
-				        			UtilityMethod.fahrenheitToCelsius( (float) fl ) ) ) + tempUnits );
+				        			UtilityMethod.fahrenheitToCelsius( (float) fl ) ) ) );
 							
 							currentFeelsLikeTemp.setLength( 0 );
 							currentFeelsLikeTemp.append( String.valueOf( Math.round( 
@@ -5326,13 +5106,13 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        else
 				        {
 				        	currentTemp.setLength( 0 );
-				        	currentTemp.append( String.valueOf( Math.round( (float) weatherBitWx.getData().get( 0 ).getTemp() ) ) + tempUnits );
+				        	currentTemp.append( String.valueOf( Math.round( (float) weatherBitWx.getData().get( 0 ).getTemp() ) ) );
 				        	
 				        	currentHigh.setLength( 0 );
-				        	currentHigh.append( String.valueOf( Math.round( 0 ) ) + DEGREES ); // not supplied by provider
+				        	currentHigh.append( String.valueOf( Math.round( 0 ) ) ); // not supplied by provider
 				        	
 				        	currentLow.setLength( 0 );
-				            currentLow.append(  String.valueOf( Math.round( 0 ) ) + DEGREES ); // not supplied by provider
+				            currentLow.append(  String.valueOf( Math.round( 0 ) ) ); // not supplied by provider
 				
 				            currentWindSpeed.setLength( 0 );
 				            currentWindSpeed.append( String.valueOf(
@@ -5340,7 +5120,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        }// end of else block
 				
 						// Display weather data on widget
-				        lblCurrentTemperature.setText( currentTemp.toString() );
+				        lblCurrentTemperature.setText( currentTemp.toString() + tempUnits );
 				        lblFeelsLike.setText( FEELS_LIKE + " " + currentFeelsLikeTemp + DEGREES );
 				        lblDayHigh.setText( currentHigh + DEGREES );
 				        lblDayHigh.setToolTipText( "Current High Temp " + currentLow + DEGREES + "F");
@@ -5371,12 +5151,12 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        	
 				        	try 
 				        	{
-				        		fxDate = df.format(  df.parse( dt ) );
+				        		fxDate = df.format( df.parse( dt ) );
 							}// end of try block
 				        	catch ( ParseException e )
 				        	{
 				        		UtilityMethod.logMessage( "severe" , e.getMessage(),
-									"WidgetUpdateService::updateTemps [line: " +
+									TAG + "::updateTemps [line: " +
 									e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 							}// end of catch block
 				        	
@@ -5470,7 +5250,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        {
 				        	currentTemp.setLength( 0 );
 				        	currentTemp.append( String.valueOf( 
-			        			Math.round( UtilityMethod.fahrenheitToCelsius( ct ) ) ) + tempUnits );
+			        			Math.round( UtilityMethod.fahrenheitToCelsius( ct ) ) ) );
 				            
 				            if( underground.getCurrent_observation().getHeat_index_f().equalsIgnoreCase( "NA" )
 				            		|| underground.getCurrent_observation().getHeat_index_f() == null )
@@ -5504,7 +5284,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        else
 				        {
 				        	currentTemp.setLength( 0 );
-				            currentTemp.append( String.valueOf( Math.round( ct ) ) + tempUnits );
+				            currentTemp.append( String.valueOf( Math.round( ct ) ) );
 				            
 				            if( underground.getCurrent_observation().getHeat_index_f().equalsIgnoreCase( "NA" )
 				            		|| underground.getCurrent_observation().getHeat_index_f() == null )
@@ -5532,7 +5312,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        }// end of else block
 				
 				        // Display weather data on widget
-				        lblCurrentTemperature.setText( currentTemp.toString() );
+				        lblCurrentTemperature.setText( currentTemp.toString() + tempUnits );
 				        lblFeelsLike.setText( FEELS_LIKE + " " + currentFeelsLikeTemp.toString() + DEGREES );
 				        lblDayHigh.setText( currentHigh + DEGREES );
 				        lblDayHigh.setToolTipText( "Current High Temp " + currentLow.toString() + DEGREES + "F" );
@@ -5632,7 +5412,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        {
 							currentTemp.setLength( 0 );
 							currentTemp.append( String.valueOf( Math.round( UtilityMethod.fahrenheitToCelsius( 
-			            		(float) yahoo19.getCurrentObservation().getCondition().getTemperature() ) ) ) + tempUnits );
+			            		(float) yahoo19.getCurrentObservation().getCondition().getTemperature() ) ) ) );
 				            
 							currentFeelsLikeTemp.setLength( 0 );
 							currentFeelsLikeTemp.append( String.valueOf( Math.round( 
@@ -5646,7 +5426,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        {
 				        	currentTemp.setLength( 0 );
 				        	currentTemp.append( Math.round(
-			                    yahoo19.getCurrentObservation().getCondition().getTemperature() ) + tempUnits );
+			                    yahoo19.getCurrentObservation().getCondition().getTemperature() ) );
 				            
 				        	currentFeelsLikeTemp.setLength( 0 );
 				        	currentFeelsLikeTemp.append( String.valueOf( Math.round( fl ) ) );
@@ -5656,7 +5436,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        }// end of else block
 
 				        // Display weather data on widget
-				        lblCurrentTemperature.setText( currentTemp.toString() );			        
+				        lblCurrentTemperature.setText( currentTemp.toString() + tempUnits );			        
 				        lblFeelsLike.setText( FEELS_LIKE + " " + currentFeelsLikeTemp + DEGREES );
 				        lblWindReading.setText( currentWindDirection +
 			                " " + currentWindSpeed + ( WeatherLionMain.storedPreferences.getUseMetric() ? " km/h" : " mph" ) );
@@ -5751,7 +5531,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 						if( WeatherLionMain.storedPreferences.getUseMetric() )
 						{
 							currentTemp.setLength( 0 );
-							currentTemp.append( String.valueOf( yr.getForecast().get( 0 ).getTemperatureValue() ) + tempUnits );
+							currentTemp.append( String.valueOf( yr.getForecast().get( 0 ).getTemperatureValue() ) );
 							
 							currentFeelsLikeTemp.setLength( 0 );
 							currentFeelsLikeTemp.append( String.valueOf( yr.getForecast().get( 0 ).getTemperatureValue() ) );
@@ -5766,7 +5546,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 							currentTemp.setLength( 0 );
 							currentTemp.append( Math.round(
 					            UtilityMethod.celsiusToFahrenheit(
-					            	yr.getForecast().get( 0 ).getTemperatureValue() ) ) + tempUnits );
+					            	yr.getForecast().get( 0 ).getTemperatureValue() ) ) );
 							
 							currentFeelsLikeTemp.setLength( 0 );
 						    currentFeelsLikeTemp.append( String.valueOf( Math.round(
@@ -5781,7 +5561,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 						}// end of else block
 						
 						// Display weather data on widget
-						lblCurrentTemperature.setText( currentTemp.toString() );			        
+						lblCurrentTemperature.setText( currentTemp.toString() + tempUnits );			        
 						lblFeelsLike.setText( FEELS_LIKE + " " + currentFeelsLikeTemp + DEGREES );
 						lblWindReading.setText( currentWindDirection +
 						        " " + currentWindSpeed + ( WeatherLionMain.storedPreferences.getUseMetric() ? " km/h" : " mph" ) );
@@ -5950,7 +5730,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 		        {
 		            currentTemp.setLength( 0 );
 		            currentTemp.append( String.valueOf( Math.round( UtilityMethod.fahrenheitToCelsius(
-		            		Float.parseFloat( xmlCurrent.getChildText( "Temperature" ) ) ) ) ) + tempUnits );
+		            		Float.parseFloat( xmlCurrent.getChildText( "Temperature" ) ) ) ) ) );
 		            
 		            currentFeelsLikeTemp.setLength( 0 );
 		            currentFeelsLikeTemp.append( String.valueOf( Math.round( UtilityMethod.fahrenheitToCelsius(
@@ -5958,11 +5738,11 @@ public class WeatherLionWidget extends JFrame implements Runnable
 		            
 		            currentHigh.setLength( 0 );
 		            currentHigh.append( String.valueOf( Math.round( UtilityMethod.fahrenheitToCelsius(
-		            		Float.parseFloat( xmlCurrent.getChildText( "HighTemperature" ) ) ) ) ) + DEGREES ); 
+		            		Float.parseFloat( xmlCurrent.getChildText( "HighTemperature" ) ) ) ) ) ); 
 		            
 		            currentLow.setLength( 0 );
                 	currentLow.append( String.valueOf( Math.round( UtilityMethod.fahrenheitToCelsius(
-		            		Float.parseFloat( xmlCurrent.getChildText( "LowTemperature" ) ) ) ) ) + DEGREES );
+		            		Float.parseFloat( xmlCurrent.getChildText( "LowTemperature" ) ) ) ) ) );
                 	
                 	currentWindSpeed.setLength( 0 );
 		            currentWindSpeed.append( String.valueOf(
@@ -5972,7 +5752,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 		        {
 		        	currentTemp.setLength( 0 );
 		        	currentTemp.append( Math.round(
-		                    Float.parseFloat( xmlCurrent.getChildText( "Temperature" ) ) ) + tempUnits );
+		                    Float.parseFloat( xmlCurrent.getChildText( "Temperature" ) ) ) );
 		            
 		        	currentFeelsLikeTemp.setLength( 0 );
 		            currentFeelsLikeTemp.append( String.valueOf( Math.round( 
@@ -5980,21 +5760,22 @@ public class WeatherLionWidget extends JFrame implements Runnable
 		            
 		            currentHigh.setLength( 0 );
 		            currentHigh.append( Math.round(
-		                    Float.parseFloat( xmlCurrent.getChildText( "HighTemperature" ) ) ) + DEGREES );
+		                    Float.parseFloat( xmlCurrent.getChildText( "HighTemperature" ) ) ) );
 		            
 		            currentLow.setLength( 0 );
 		            currentLow.append( Math.round(
-		                    Float.parseFloat( xmlCurrent.getChildText( "LowTemperature" ) ) ) + DEGREES );
+		                    Float.parseFloat( xmlCurrent.getChildText( "LowTemperature" ) ) ) );
 		            
 		            currentWindSpeed.setLength( 0 );
-		            currentWindSpeed.append( xmlWind.getChildText( "WindSpeed" ) );
+		            currentWindSpeed.append( Math.round(
+		                    Float.parseFloat( xmlWind.getChildText( "WindSpeed" ) ) ) );
 		        }// end of else block
 
 		        // Display weather data on widget
-		        lblCurrentTemperature.setText( currentTemp.toString() );		        
+		        lblCurrentTemperature.setText( currentTemp.toString() + tempUnits );		        
 		        lblFeelsLike.setText( FEELS_LIKE + " " + currentFeelsLikeTemp + DEGREES );		        
-		        lblDayHigh.setText( currentHigh.toString() );
-                lblDayLow.setText( currentLow.toString() );
+		        lblDayHigh.setText( currentHigh.toString() + DEGREES );
+                lblDayLow.setText( currentLow.toString() + DEGREES );
 		        lblWindReading.setText( currentWindDirection +
 		                " " + currentWindSpeed + ( WeatherLionMain.storedPreferences.getUseMetric() ? " km/h" : " mph" ) );
 		        			        
