@@ -298,6 +298,13 @@ public class PreferenceForm
 		if( searchCity.toString().trim().length() > 0 &&
 				!UtilityMethod.isKnownCity( searchCity.toString() ) )
 		{
+			// ignore anything that comes after a comma
+			if (searchCity.toString().contains(","))
+            {                       
+				searchCity.delete(searchCity.toString().indexOf(","), 
+                    searchCity.length());
+            }// end of if block
+			
 			UtilityMethod.findGeoNamesCity( searchCity.toString() );
 		}// end of if block
 	}// end of method btnSearch_Click
@@ -567,19 +574,19 @@ public class PreferenceForm
 		btnOk = new JButton( OK );
 		btnOk.setFont( new Font( "Arial", Font.PLAIN, 13 ) );
 		btnOk.setToolTipText( "Complete transaction." );
-		btnOk.setBounds( 314, 660, 116, 28 );
+		btnOk.setBounds( 302, 656, 116, 28 );
 		btnOk.setMnemonic( KeyEvent.VK_K );		
 		
 		btnCancel = new JButton( CANCEL );
 		btnCancel.setFont( new Font( "Arial", Font.PLAIN, 13 ) );
 		btnCancel.setToolTipText( "Ignore any changes made." );
-		btnCancel.setBounds( 436, 660, 116, 28 );
+		btnCancel.setBounds( 424, 656, 116, 28 );
 		btnCancel.setMnemonic( KeyEvent.VK_C );		
 		
 		btnApply = new JButton( APPLY );
 		btnApply.setFont( new Font( "Arial", Font.PLAIN, 13 ) );
 		btnApply.setToolTipText( "Apply all changes made." );
-		btnApply.setBounds( 558, 660, 116, 28 );
+		btnApply.setBounds( 546, 656, 116, 28 );
 		btnApply.setMnemonic( KeyEvent.VK_A );		
 	}// end of method createFormButtons
 	
@@ -1058,7 +1065,7 @@ public class PreferenceForm
 		int thisYear = Calendar.getInstance().get( Calendar.YEAR );
 		String message = "<html><center><b>Weather Lion</b>"
 				+ "<br />Author: Paul O. Patterson<br />"
-				+ "BushBungalo Productions� 2017 - " + thisYear + "<br />"
+				+ "BushBungalo Productions™ 2017 - " + thisYear + "<br />"
 				+ "Version: 1.0<br />"
 				+ "&copy All rights reserved</center>"
 				+ "<br /><br />"+ ABOUT_PROGRAM  + "</html>";
@@ -1112,7 +1119,7 @@ public class PreferenceForm
 			
 			JPanel iconSelectionContainer = new JPanel();
 			iconSelectionContainer.setOpaque( false );
-			iconSelectionContainer.setPreferredSize( new Dimension( 140, 140 ) );
+			iconSelectionContainer.setPreferredSize( new Dimension( 140,158 ) );
 			iconSelectionContainer.setLayout( new BorderLayout() );
 			iconSelectionContainer.add( packTitle, "North" );
 			iconSelectionContainer.add( packDefaultImage, "Center" );
@@ -1204,7 +1211,7 @@ public class PreferenceForm
 	{
 		tpPreferences = new JTabbedPane();
 		tpPreferences.setBackground( Color.GRAY );
-		tpPreferences.setBounds( 5, 10, 672, 640 );		
+		tpPreferences.setBounds( 5, 10, 658, 640 );		
 		
 		// track which tab is currently in focus
 		tpPreferences.addChangeListener( new ChangeListener()
