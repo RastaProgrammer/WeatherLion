@@ -119,12 +119,12 @@ import com.google.gson.Gson;
  * 		<li>
  * 			1/29/19 
  * 				<ol>
- * 					<li>Added method {@code updateIconSet} for the ability to select different weather icons.</li>
- * 					<li>Added methods {@code createComponentMap}, {@code getComponentByName} and {@code getAllComponents} </li>
+ * 					<li>Added method {@link #updateIconSet} for the ability to select different weather icons.</li>
+ * 					<li>Added methods {@link #createComponentMap}, {@link #getComponentByName} and {@link #getAllComponents} </li>
  * 				</ol>
  * 		</li>
  * 		<li>02/05/19 - Moved assets out of the jar file to eliminate path headaches.</li>
- * 		<li>05/04/19 - Method {@code checkAstronomy} no longer calls the widget service.</li>
+ * 		<li>05/04/19 - Method {@link #checkAstronomy} no longer calls the widget service.</li>
  * 		<li>05/11/19 - Added field {@code dataLoadedSuccessfully} to track loading success.</li>
  * 		<li>07/03/19 - Updated preference saving method.</li>
  * </ul>
@@ -339,6 +339,13 @@ public class WeatherLionWidget extends JFrame implements Runnable
                 }// end of if block
                 else
                 {
+                	// Yahoo has a habit of having sunny nights
+                	if( WidgetUpdateService.currentCondition.toString().equalsIgnoreCase( "sunny" ) )
+					{
+                		WidgetUpdateService.currentCondition.setLength( 0 );
+                		WidgetUpdateService.currentCondition.append( "Clear" );
+					}// end of if block
+                	
                     if( UtilityMethod.weatherImages.containsKey( 
                 		WidgetUpdateService.currentCondition.toString().toLowerCase() + " (night)" ) )
                     {
@@ -1378,8 +1385,8 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	 *  		03/23/19
 	 *  		<ol>
 	 *  			<li>Updated service with addition weather provider, Here Maps Weather</li>
-	 *  			<li>Added method {@code loadHereMapsWeather} as new data provider</li>
-	 *  			<li>Added method {@code astronomyCheck} for code refactoring</li>
+	 *  			<li>Added method {@link #loadHereMapsWeather} as new data provider</li>
+	 *  			<li>Added method {@link #astronomyCheck} for code refactoring</li>
 	 *  			<li>Modified {@code class WidgetUpdateService} access to public</li>
 	 *  		</ol>
 	 *  	</li>
@@ -2060,7 +2067,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	    				toUpperCase() ); 
 	    	
 	        updateTemps( true ); // call update temps here
-	        astronomyCheck();
+	        formatWeatherCondition();
 	
 	        lblWeatherCondition.setText( UtilityMethod.toProperCase( currentCondition.toString() ) );
 	
@@ -2179,10 +2186,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        		WeatherLionMain.iconSet + "/weather_" + currentConditionIcon, 140, 140 );
 	
 	        lblCurrentConditionImage.setToolTipText( UtilityMethod.toProperCase( currentCondition.toString() ) );
-	        
-	    	// call update temps here
-	        updateTemps( true );
-	    		    	
+	        	    		    	
 	    	 // Five Day Forecast
             int i = 1;
             currentFiveDayForecast.clear(); // ensure that this list is clean
@@ -2287,11 +2291,10 @@ public class WeatherLionWidget extends JFrame implements Runnable
             
             wXML = new WeatherDataXMLService( WeatherLionMain.DARK_SKY, new Date(), 
 	        		currentCity.toString(), currentCountry.toString(), currentCondition.toString(),
-	        		currentFeelsLikeTemp.toString(), 
 	        		currentTemp.toString().substring( 0, currentTemp.toString().indexOf( DEGREES ) ).trim(),
-	        		currentHigh.toString(), currentLow.toString(), currentWindSpeed.toString(), 
-	        		currentWindDirection.toString(), currentHumidity.toString(), sunriseTime.toString(),
-	        		sunsetTime.toString(), currentFiveDayForecast );	
+	        		currentFeelsLikeTemp.toString(), currentHigh.toString(), currentLow.toString(),
+	        		currentWindSpeed.toString(), currentWindDirection.toString(), currentHumidity.toString(),
+	        		sunriseTime.toString(),	sunsetTime.toString(), currentFiveDayForecast );	
 	        
 	        wXML.execute();
 	    	
@@ -2332,7 +2335,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	    			hereWeatherFx.getDailyForecasts().getForecastLocation().getForecast();
 	    	
 	    	updateTemps( true ); // call update temps here
-	        astronomyCheck();
+	        formatWeatherCondition();
 	        
 	        lblWeatherCondition.setText( UtilityMethod.toProperCase( currentCondition.toString() ) );
 	
@@ -2628,7 +2631,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	    	List< OpenWeatherMapWeatherDataItem.ForecastData.Data > fdf = openWeatherFx.getList();
 	    	
 	        updateTemps( true ); // call update temps here
-	        astronomyCheck();
+	        formatWeatherCondition();
 	        
 	        lblWeatherCondition.setText( UtilityMethod.toProperCase( currentCondition.toString() ) );
 	
@@ -2894,8 +2897,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			if( previousWeatherData.exists() ) 
 			{
 				SAXBuilder builder = new SAXBuilder();
-				Document weatherXML = null;
-				
+								
 				try 
 		    	{
 		    		// just in case the document contains unnecessary white spaces
@@ -2914,8 +2916,8 @@ public class WeatherLionWidget extends JFrame implements Runnable
 		    		xmlWind = rootNode.getChild( "Wind" );
 		    		xmlAstronomy = rootNode.getChild( "Astronomy" );
 		    		xmlCurrent = rootNode.getChild( "Current" );		    		
-		    		xmlForecast = rootNode.getChild( "ForecastList" );
-		    		xmlForecastList = rootNode.getChildren( "ForecastList" );
+		    		xmlForecast = rootNode.getChild( "DailyForecast" );
+		    		xmlForecastList = rootNode.getChild( "DailyForecast" ).getChildren( "DayForecast" );
 		    			
 		            currentCity.setLength( 0 );
 		            currentCity.append( xmlLocation.getChildText( "City" ) );
@@ -2957,7 +2959,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			}// end of if block    	
 	        
 			updateTemps( false ); // call update temps here
-	        astronomyCheck();
+	        formatWeatherCondition();
 	        	       
 	        // Some providers like Yahoo! loves to omit a zero on the hour mark example: 7:0 am
 	        if( sunriseTime.length() == 6 )
@@ -3080,7 +3082,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        for ( int i = 0; i < xmlForecastList.size(); i++ )
 			{
 	            x++;				
-				Element wxDailyForecast = xmlForecastList.get( i ).getChild( "ForecastData" );                	
+				Element wxDailyForecast = xmlForecastList.get( i );                	
             	Date forecastDate = null;
             	
 				try
@@ -3188,7 +3190,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	    	// call update temps here
 	        updateTemps( true );
 	        
-	        astronomyCheck();
+	        formatWeatherCondition();
 	        
 	        lblWeatherCondition.setText( UtilityMethod.toProperCase( currentCondition.toString() ) );
 	        lblWindReading.setText( currentWindDirection +
@@ -3497,7 +3499,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	                underground.getForecast().getSimpleforecast().getForecastday();
 		
 	        updateTemps( true ); // call update temps here
-	        astronomyCheck();
+	        formatWeatherCondition();
 	        
 	        lblWeatherCondition.setText( UtilityMethod.toProperCase( currentCondition.toString() ) );
 	
@@ -3793,7 +3795,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        sunsetTime.append(  yahoo19.getCurrentObservation().getAstronomy().getSunset().toUpperCase() );
 	        
 	        updateTemps( true ); // call update temps here
-	        astronomyCheck();
+	        formatWeatherCondition();
 	        
 	        lblWeatherCondition.setText( UtilityMethod.toProperCase( currentCondition.toString() ) );
 	        
@@ -4046,7 +4048,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        sunsetTime.append( yahoo.getQuery().getResults().getChannel().getAstronomy().getSunset().toUpperCase() );
 	        
 	        updateTemps( true ); // call update temps here
-	        astronomyCheck();
+	        formatWeatherCondition();
 	        
 	        lblWeatherCondition.setText( UtilityMethod.toProperCase( currentCondition.toString() ) );
 	        lblWindReading.setText( currentWindDirection +
@@ -4309,7 +4311,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        // call update temps here
 	        updateTemps( true );
 	        
-	        astronomyCheck();
+	        formatWeatherCondition();
 	
 	        lblWeatherCondition.setText( UtilityMethod.toProperCase( currentCondition.toString() ) );
 	        lblHumidity.setText( !currentHumidity.toString().contains( "%" ) ?  currentHumidity.toString() + "%" : currentHumidity.toString() );
@@ -4543,7 +4545,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	    /***
 	     * Check the current time of day
 	     */
-		private void astronomyCheck()
+		private void formatWeatherCondition()
 		{
 			String tc = currentCondition.toString();
 			
@@ -4608,55 +4610,51 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	    		switch( WeatherLionMain.storedPreferences.getProvider() )
 				{
 					case WeatherLionMain.DARK_SKY:
-						if( WeatherLionMain.storedPreferences.getUseMetric() )
-				        {
-							currentTemp.setLength( 0 );
-							currentTemp.append( String.valueOf( Math.round( 
-			        			UtilityMethod.fahrenheitToCelsius( darkSky.getCurrently().getTemperature() ) ) ) );
-							
-							currentFeelsLikeTemp.setLength( 0 );
-							currentFeelsLikeTemp.append( String.valueOf( Math.round( 
-			        			UtilityMethod.fahrenheitToCelsius( darkSky.getCurrently().getApparentTemperature() ) ) ) );
-				            
-							currentHigh.setLength( 0 );
-							currentHigh.append( String.valueOf(
-			                    Math.round( 
-		                    		UtilityMethod.fahrenheitToCelsius( 
-	                    				darkSky.getDaily().getData().get( 0 ).getTemperatureMax() ) ) ) );
-							
-							currentHigh.setLength( 0 );
-				            currentHigh.append( String.valueOf(
-		            			Math.round( 
-		                    		UtilityMethod.celsiusToFahrenheit( 
-	                    				darkSky.getDaily().getData().get( 0 ).getTemperatureMin() ) ) ) );
-				
-				            currentWindSpeed.setLength( 0 );
-				            currentWindSpeed.append( String.valueOf(
-			            		String.valueOf( Math.round( 
-		            				UtilityMethod.mphToKmh( darkSky.getCurrently().getWindSpeed() ) ) ) ) );
-				        }// end of if block
-				        else
-				        {
-				        	currentTemp.setLength( 0 );
-				        	currentTemp.append( String.valueOf( Math.round( darkSky.getCurrently().getTemperature() ) ) );
-				        	
-				        	currentFeelsLikeTemp.setLength( 0 );
-				        	currentFeelsLikeTemp.append( String.valueOf( Math.round( darkSky.getCurrently().getApparentTemperature() ) ) );
-				        	
-				        	currentHigh.setLength( 0 );
-				            currentHigh.append( String.valueOf(
-			                    Math.round( darkSky.getDaily().getData().get( 0 ).getTemperatureMax() )
-				            ) );
-				            
-				            currentLow.setLength( 0 );
-				            currentLow.append(  String.valueOf(
-			                    Math.round( darkSky.getDaily().getData().get( 0 ).getTemperatureMin() )
-				            ) );
-				
-				            currentWindSpeed.setLength( 0 );
-				            currentWindSpeed.append( String.valueOf(
-			            		String.valueOf( Math.round( darkSky.getCurrently().getWindSpeed() ) ) ) );
-				        }// end of else block
+	                    if( WeatherLionMain.storedPreferences.getUseMetric() )
+	                    {
+	                        currentTemp.setLength( 0 );
+	                        currentTemp.append( Math.round(
+	                                UtilityMethod.fahrenheitToCelsius( darkSky.getCurrently().getTemperature() ) ) );
+	
+	                        currentFeelsLikeTemp.setLength( 0 );
+	                        currentFeelsLikeTemp.append( Math.round(
+	                                UtilityMethod.fahrenheitToCelsius( darkSky.getCurrently().getApparentTemperature() ) ) );
+	
+	                        currentHigh.setLength( 0 );
+	                        currentHigh.append(
+	                            Math.round( UtilityMethod.fahrenheitToCelsius(
+	                                darkSky.getDaily().getData().get( 0 ).getTemperatureMax() ) ) );
+	
+	                        currentHigh.setLength( 0 );
+	                        currentHigh.append(
+	                                Math.round(
+	                                        UtilityMethod.celsiusToFahrenheit(
+	                                                darkSky.getDaily().getData().get( 0 ).getTemperatureMin() ) ) );
+	
+	                        currentWindSpeed.setLength( 0 );
+	                        currentWindSpeed.append( Math.round(
+	                            UtilityMethod.mphToKmh( darkSky.getCurrently().getWindSpeed() ) ) );
+	                    }// end of if block
+	                    else
+	                    {
+	                        currentTemp.setLength( 0 );
+	                        currentTemp.append( Math.round( darkSky.getCurrently().getTemperature() ) );
+	
+	                        currentFeelsLikeTemp.setLength( 0 );
+	                        currentFeelsLikeTemp.append( Math.round( darkSky.getCurrently().getApparentTemperature() ) );
+	
+	                        currentHigh.setLength( 0 );
+	                        currentHigh.append(
+	                            Math.round( darkSky.getDaily().getData().get( 0 ).getTemperatureMax() ) );
+	
+	                        currentLow.setLength( 0 );
+	                        currentLow.append(
+	                            Math.round( darkSky.getDaily().getData().get( 0 ).getTemperatureMin() ) );
+	
+	                        currentWindSpeed.setLength( 0 );
+	                        currentWindSpeed.append(
+	                                Math.round( darkSky.getCurrently().getWindSpeed() ) );
+	                    }// end of else block
 				
 				        // Display weather data on widget
 				        lblCurrentTemperature.setText( currentTemp.toString() + tempUnits );
@@ -4694,36 +4692,13 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				            }// end of else block
 				
 				            String temps = String.format( "%s° %s°", fLow, fHigh );
+				            JLabel dayTemps = (JLabel) getComponentByName( "lblDay" + (i) + "Temps" );
 				            
 				            hl[ i - 1 ][ 0 ] = Integer.parseInt( fHigh );
 				            hl[ i - 1 ][ 1 ] = Integer.parseInt( fLow );
-				            			            
-				            switch ( i )
-				            {
-								case 1:
-						            lblDay1Temps.setText( temps ); 
-						            
-									break;					
-								case 2:					
-						            lblDay2Temps.setText( temps ); 
-						            
-									break;						
-								case 3:					
-						            lblDay3Temps.setText( temps ); 
-						            
-									break;						
-								case 4:					
-						            lblDay4Temps.setText( temps );
-						            
-									break;						
-								case 5:					
-						            lblDay5Temps.setText( temps ); 
-						            
-									break;	
-								default:
-									break;
-							}// end of switch block			
-				
+				            
+				            dayTemps.setText( temps );
+				            
 				            if ( i == 5 )
 				            {
 				                break;
@@ -4734,140 +4709,126 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        
 						break;
 					case WeatherLionMain.HERE_MAPS:
-						double fl = 
-									hereWeatherWx
-									.getObservations()
-									.getLocation()
-									.get( 0 )
-									.getObservation()
-									.get( 0 )
-									.getComfort();
-						
-						if( WeatherLionMain.storedPreferences.getUseMetric() )
-				        {
-							currentTemp.setLength( 0 );
-							currentTemp.append( 
-									String.valueOf( 
-										Math.round(
-											UtilityMethod.fahrenheitToCelsius(
-												hereWeatherWx
-													.getObservations()
-													.getLocation()
-													.get( 0 )
-													.getObservation()
-													.get( 0 )
-													.getTemperature()				        					
-				        					) ) ) );
-							
-							currentFeelsLikeTemp.setLength( 0 );
-							currentFeelsLikeTemp.append( 
-									String.valueOf( 
-										Math.round( 
-											UtilityMethod.fahrenheitToCelsius( 
-												(float) fl )
-											)
-										) );
-							
-							currentHigh.setLength( 0 );
-				            currentHigh.append( 
-				            		String.valueOf(
-				            			Math.round( 
-				                    		UtilityMethod.fahrenheitToCelsius( 
-				                    				hereWeatherWx
-				                    				.getObservations()
-													.getLocation()
-													.get( 0 )
-													.getObservation()
-													.get( 0 )
-													.getHighTemperature()
-									) ) ) );
-				            
-				            currentLow.setLength( 0 );
-				            currentLow.append( 
-				            		String.valueOf(
-				            			Math.round( 
-				                    		UtilityMethod.fahrenheitToCelsius( 
-				                    				hereWeatherWx
-				                    				.getObservations()
-													.getLocation()
-													.get( 0 )
-													.getObservation()
-													.get( 0 )
-													.getLowTemperature()
-									) ) ) );
-				
-				            currentWindSpeed.setLength( 0 );
-				            currentWindSpeed.append( 
-				            		String.valueOf(
-				            			Math.round( 
-				                    		UtilityMethod.fahrenheitToCelsius( 
-				                    				hereWeatherWx
-				                    				.getObservations()
-													.getLocation()
-													.get( 0 )
-													.getObservation()
-													.get( 0 )
-													.getWindSpeed()
-									) ) ) );
-				        }// end of if block
-				        else
-				        {
-				        	currentTemp.setLength( 0 );
-				        	currentTemp.append( 
-									String.valueOf( 
-										Math.round(
-											hereWeatherWx
-												.getObservations()
-												.getLocation()
-												.get( 0 )
-												.getObservation()
-												.get( 0 )
-												.getTemperature()				        					
-			        					) ) );
-				        	
-				        	currentFeelsLikeTemp.setLength( 0 );
-							currentFeelsLikeTemp.append( 
-									String.valueOf(	Math.round( (float) fl ) ) );
-				            
-							currentHigh.setLength( 0 );
-							currentHigh.append( 
-				            		String.valueOf(
-				            			Math.round( 
-		                    				hereWeatherWx
-			                    				.getObservations()
-												.getLocation()
-												.get( 0 )
-												.getObservation()
-												.get( 0 )
-												.getHighTemperature()
-									) ) );
-							
-							currentLow.setLength( 0 );
-				            currentLow.append( 
-				            		String.valueOf(
-				            			Math.round( 
-		                    				hereWeatherWx
-			                    				.getObservations()
-												.getLocation()
-												.get( 0 )
-												.getObservation()
-												.get( 0 )
-												.getLowTemperature()
-									) ) );
-				
-				            currentWindSpeed.setLength( 0 );
-				            currentWindSpeed.append( 
-				            		String.valueOf(
-				            			Math.round( 
-		                    				hereWeatherWx
-			                    				.getObservations()
-												.getLocation()
-												.get( 0 )
-												.getObservation()
-												.get( 0 )
-												.getWindSpeed()
-									) ) );
-				        }// end of else block
+	                    double fl =
+	                            hereWeatherWx
+                                    .getObservations()
+                                    .getLocation()
+                                    .get( 0 )
+                                    .getObservation()
+                                    .get( 0 )
+                                    .getComfort();
+
+	                    if( WeatherLionMain.storedPreferences.getUseMetric() )
+	                    {
+	                        currentTemp.setLength( 0 );
+	                        currentTemp.append(
+	                            Math.round(
+                                    UtilityMethod.fahrenheitToCelsius(
+                                        hereWeatherWx
+                                            .getObservations()
+                                            .getLocation()
+                                            .get( 0 )
+                                            .getObservation()
+                                            .get( 0 )
+                                            .getTemperature()
+                                    ) ) );
+
+	                        currentFeelsLikeTemp.setLength( 0 );
+	                        currentFeelsLikeTemp.append(
+	                            Math.round( UtilityMethod.fahrenheitToCelsius( (float) fl ) ) );
+
+	                        currentHigh.setLength( 0 );
+	                        currentHigh.append(
+	                            Math.round(
+	                                UtilityMethod.fahrenheitToCelsius(
+                                        hereWeatherWx
+                                            .getObservations()
+                                            .getLocation()
+                                            .get( 0 )
+                                            .getObservation()
+                                            .get( 0 )
+                                            .getHighTemperature()
+	                                ) ) );
+
+	                        currentLow.setLength( 0 );
+	                        currentLow.append(
+	                            Math.round(
+	                                UtilityMethod.fahrenheitToCelsius(
+	                                    hereWeatherWx
+	                                        .getObservations()
+	                                        .getLocation()
+	                                        .get( 0 )
+	                                        .getObservation()
+	                                        .get( 0 )
+	                                        .getLowTemperature()
+	                                ) ) );
+
+	                        currentWindSpeed.setLength( 0 );
+	                        currentWindSpeed.append(
+	                            Math.round(
+	                                UtilityMethod.fahrenheitToCelsius(
+	                                    hereWeatherWx
+	                                        .getObservations()
+	                                        .getLocation()
+	                                        .get( 0 )
+	                                        .getObservation()
+	                                        .get( 0 )
+	                                        .getWindSpeed()
+	                                ) ) );
+	                    }// end of if block
+	                    else
+	                    {
+	                        currentTemp.setLength( 0 );
+	                        currentTemp.append(
+	                            Math.round(
+	                                hereWeatherWx
+	                                    .getObservations()
+	                                    .getLocation()
+	                                    .get( 0 )
+	                                    .getObservation()
+	                                    .get( 0 )
+	                                    .getTemperature()
+	                            ) );
+
+	                        currentFeelsLikeTemp.setLength( 0 );
+	                        currentFeelsLikeTemp.append( Math.round( (float) fl ) );
+
+	                        currentHigh.setLength( 0 );
+	                        currentHigh.append(
+	                            Math.round(
+	                                hereWeatherWx
+	                                    .getObservations()
+	                                    .getLocation()
+	                                    .get( 0 )
+	                                    .getObservation()
+	                                    .get( 0 )
+	                                    .getHighTemperature()
+	                            ) );
+
+	                        currentLow.setLength( 0 );
+	                        currentLow.append(
+	                            Math.round(
+	                                hereWeatherWx
+	                                    .getObservations()
+	                                    .getLocation()
+	                                    .get( 0 )
+	                                    .getObservation()
+	                                    .get( 0 )
+	                                    .getLowTemperature()
+	                            ) );
+
+	                        currentWindSpeed.setLength( 0 );
+	                        currentWindSpeed.append(
+	                            Math.round(
+	                                hereWeatherWx
+	                                    .getObservations()
+	                                    .getLocation()
+	                                    .get( 0 )
+	                                    .getObservation()
+	                                    .get( 0 )
+	                                    .getWindSpeed()
+	                            ) );
+	                    }// end of else block
 				
 				        // Display weather data on widget
 				        lblCurrentTemperature.setText( currentTemp.toString() + tempUnits );
@@ -4907,35 +4868,12 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				            }// end of else block
 				
 				            String temps = String.format( "%s° %s°", fLow, fHigh );
+				            JLabel dayTemps = (JLabel) getComponentByName( "lblDay" + (i) + "Temps" );
 				            
 				            hl[ i - 1 ][ 0 ] = Integer.parseInt( fHigh );
 				            hl[ i - 1 ][ 1 ] = Integer.parseInt( fLow );
 				            			            
-				            switch ( i )
-				            {
-								case 1:
-						            lblDay1Temps.setText( temps ); 
-						            
-									break;					
-								case 2:					
-						            lblDay2Temps.setText( temps ); 
-						            
-									break;						
-								case 3:					
-						            lblDay3Temps.setText( temps ); 
-						            
-									break;						
-								case 4:					
-						            lblDay4Temps.setText( temps );
-						            
-									break;						
-								case 5:					
-						            lblDay5Temps.setText( temps ); 
-						            
-									break;	
-								default:
-									break;
-							}// end of switch block			
+				            dayTemps.setText( temps );		
 				
 				            if ( i == 5 )
 				            {
@@ -4947,58 +4885,52 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        
 						break;
 					case WeatherLionMain.OPEN_WEATHER:
-						fl = UtilityMethod.heatIndex( openWeatherWx.getMain().getTemp(), 
-								openWeatherWx.getMain().getHumidity() );
-						
-						if( WeatherLionMain.storedPreferences.getUseMetric() )
-				        {
-							currentTemp.setLength( 0 );
-							currentTemp.append( String.valueOf( Math.round( 
-				        			UtilityMethod.fahrenheitToCelsius( openWeatherWx.getMain().getTemp() ) ) ) );
-							
-							currentFeelsLikeTemp.setLength( 0 );
-							currentFeelsLikeTemp.append( String.valueOf( Math.round( 
-				        			UtilityMethod.fahrenheitToCelsius( (float) fl ) ) ) );
-							
-							currentHigh.setLength( 0 );
-				            currentHigh.append( String.valueOf(
-				                    Math.round( 
-				                    		UtilityMethod.fahrenheitToCelsius( 
-				                    				openWeatherFx.getList().get( 0 ).getTemp().getMax() ) ) ) );
-				            
-				            currentHigh.setLength( 0 );
-				            currentLow.append( String.valueOf(
-				                    Math.round( 
-				                    		UtilityMethod.celsiusToFahrenheit( 
-				                    				openWeatherFx.getList().get( 0 ).getTemp().getMin() ) ) ) );
-				           
-				            currentWindSpeed.setLength( 0 );
-				            currentWindSpeed.append( String.valueOf(
-				            		String.valueOf( Math.round( 
-				            				UtilityMethod.mphToKmh( openWeatherWx.getWind().getSpeed() ) ) ) ) );
-				        }// end of if block
-				        else
-				        {
-				        	currentTemp.setLength( 0 );
-				        	currentTemp.append( String.valueOf( Math.round( openWeatherWx.getMain().getTemp() ) ) );
-				        	
-				        	currentFeelsLikeTemp.setLength( 0 );
-				        	currentFeelsLikeTemp.append( String.valueOf( Math.round( (float) fl ) ) );
+	                    fl = UtilityMethod.heatIndex( openWeatherWx.getMain().getTemp(),
+	                            openWeatherWx.getMain().getHumidity() );
 
-				        	currentHigh.setLength( 0 );
-				        	currentHigh.append( String.valueOf(
-				                    Math.round( openWeatherFx.getList().get( 0 ).getTemp().getMax() )
-				            ) );
-				        	
-				        	currentLow.setLength( 0 );
-				            currentLow.append( String.valueOf(
-				                    Math.round( openWeatherFx.getList().get( 0 ).getTemp().getMin() )
-				            ) );
-				
-				            currentWindSpeed.setLength( 0 );
-				            currentWindSpeed.append( String.valueOf(
-				            		String.valueOf( Math.round( openWeatherWx.getWind().getSpeed() ) ) ) );
-				        }// end of else block
+	                    if( WeatherLionMain.storedPreferences.getUseMetric() )
+	                    {
+	                        currentTemp.setLength( 0 );
+	                        currentTemp.append( Math.round(
+	                            UtilityMethod.fahrenheitToCelsius( openWeatherWx.getMain().getTemp() ) ) );
+
+	                        currentFeelsLikeTemp.setLength( 0 );
+	                        currentFeelsLikeTemp.append( Math.round(
+	                            UtilityMethod.fahrenheitToCelsius( (float) fl ) ) );
+
+	                        currentHigh.setLength( 0 );
+	                        currentHigh.append(
+	                            Math.round(
+	                                UtilityMethod.fahrenheitToCelsius(
+	                                    openWeatherFx.getList().get( 0 ).getTemp().getMax() ) ) );
+
+	                        currentHigh.setLength( 0 );
+	                        currentLow.append(
+	                            Math.round(
+	                                UtilityMethod.celsiusToFahrenheit(
+	                                    openWeatherFx.getList().get( 0 ).getTemp().getMin() ) ) );
+
+	                        currentWindSpeed.setLength( 0 );
+	                        currentWindSpeed.append(
+	                            Math.round( UtilityMethod.mphToKmh( openWeatherWx.getWind().getSpeed() ) ) );
+	                    }// end of if block
+	                    else
+	                    {
+	                        currentTemp.setLength( 0 );
+	                        currentTemp.append( Math.round( openWeatherWx.getMain().getTemp() ) );
+
+	                        currentFeelsLikeTemp.setLength( 0 );
+	                        currentFeelsLikeTemp.append( Math.round( (float) fl ) );
+
+	                        currentHigh.setLength( 0 );
+	                        currentHigh.append( Math.round( openWeatherFx.getList().get( 0 ).getTemp().getMax() ) );
+
+	                        currentLow.setLength( 0 );
+	                        currentLow.append( Math.round( openWeatherFx.getList().get( 0 ).getTemp().getMin() ) );
+
+	                        currentWindSpeed.setLength( 0 );
+	                        currentWindSpeed.append( Math.round( openWeatherWx.getWind().getSpeed() ) );
+	                    }// end of else block
 				
 				        // Display weather data on widget
 				        lblCurrentTemperature.setText( currentTemp.toString() + tempUnits );
@@ -5037,35 +4969,12 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				            }// end of else block
 				
 				            String temps = String.format( "%s° %s°", fLow, fHigh );
+				            JLabel dayTemps = (JLabel) getComponentByName( "lblDay" + (i) + "Temps" );
 				            
 				            hl[ i - 1 ][ 0 ] = Integer.parseInt( fHigh );
 				            hl[ i - 1 ][ 1 ] = Integer.parseInt( fLow );
 				            			            
-				            switch ( i )
-				            {
-								case 1:
-						            lblDay1Temps.setText( temps ); 
-						            
-									break;					
-								case 2:					
-						            lblDay2Temps.setText( temps ); 
-						            
-									break;						
-								case 3:					
-						            lblDay3Temps.setText( temps ); 
-						            
-									break;						
-								case 4:					
-						            lblDay4Temps.setText( temps );
-						            
-									break;						
-								case 5:					
-						            lblDay5Temps.setText( temps ); 
-						            
-									break;	
-								default:
-									break;
-							}// end of switch block			
+				            dayTemps.setText( temps );		
 				
 				            if ( i == 5 )
 				            {
@@ -5077,47 +4986,41 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        
 						break;
 					case WeatherLionMain.WEATHER_BIT:
-						fl = weatherBitWx.getData().get( 0 ).getAppTemp() == 0 
-							?  weatherBitWx.getData().get( 0 ).getTemp() 
-							: weatherBitWx.getData().get( 0 ).getAppTemp();
-						
-						if( WeatherLionMain.storedPreferences.getUseMetric() )
-				        {
-							currentTemp.setLength( 0 );
-							currentTemp.append( String.valueOf( Math.round( 
-				        			UtilityMethod.fahrenheitToCelsius( (float) fl ) ) ) );
-							
-							currentFeelsLikeTemp.setLength( 0 );
-							currentFeelsLikeTemp.append( String.valueOf( Math.round( 
-				        			UtilityMethod.fahrenheitToCelsius( (float) weatherBitWx.getData().get( 0 ).getAppTemp() ) ) ) );
-							
-							// not supplied by provider
-							currentHigh.setLength( 0 );
-							currentHigh.append( String.valueOf(
-				                    Math.round( 
-				                    		UtilityMethod.fahrenheitToCelsius( 
-				                    				0 ) ) )  + DEGREES );
-							
-							currentWindSpeed.setLength( 0 );
-							currentWindSpeed.append( String.valueOf(
-				            		String.valueOf( Math.round( 
-				            				UtilityMethod.mphToKmh( weatherBitWx.getData().get( 0 ).getWindSpeed() ) ) ) ) );
-				        }// end of if block
-				        else
-				        {
-				        	currentTemp.setLength( 0 );
-				        	currentTemp.append( String.valueOf( Math.round( (float) weatherBitWx.getData().get( 0 ).getTemp() ) ) );
-				        	
-				        	currentHigh.setLength( 0 );
-				        	currentHigh.append( String.valueOf( Math.round( 0 ) ) ); // not supplied by provider
-				        	
-				        	currentLow.setLength( 0 );
-				            currentLow.append(  String.valueOf( Math.round( 0 ) ) ); // not supplied by provider
-				
-				            currentWindSpeed.setLength( 0 );
-				            currentWindSpeed.append( String.valueOf(
-				            		String.valueOf( Math.round( weatherBitWx.getData().get( 0 ).getWindSpeed() ) ) ) );
-				        }// end of else block
+	                    fl = weatherBitWx.getData().get( 0 ).getAppTemp() == 0
+	                            ?  weatherBitWx.getData().get( 0 ).getTemp()
+	                            : weatherBitWx.getData().get( 0 ).getAppTemp();
+
+	                    if( WeatherLionMain.storedPreferences.getUseMetric() )
+	                    {
+	                        currentTemp.setLength( 0 );
+	                        currentTemp.append( Math.round( UtilityMethod.fahrenheitToCelsius( (float) fl ) ) );
+
+	                        currentFeelsLikeTemp.setLength( 0 );
+	                        currentFeelsLikeTemp.append( Math.round(
+	                            UtilityMethod.fahrenheitToCelsius( (float) weatherBitWx.getData().get( 0 ).getAppTemp() ) ) );
+
+	                        // not supplied by provider
+	                        currentHigh.setLength( 0 );
+	                        currentHigh.append( 0  + DEGREES );
+
+	                        currentWindSpeed.setLength( 0 );
+	                        currentWindSpeed.append(
+	                            Math.round( UtilityMethod.mphToKmh( weatherBitWx.getData().get( 0 ).getWindSpeed() ) ) );
+	                    }// end of if block
+	                    else
+	                    {
+	                        currentTemp.setLength( 0 );
+	                        currentTemp.append( Math.round( (float) weatherBitWx.getData().get( 0 ).getTemp() ) );
+
+	                        currentHigh.setLength( 0 );
+	                        currentHigh.append( Math.round( 0 ) ); // not supplied by provider
+
+	                        currentLow.setLength( 0 );
+	                        currentLow.append( 0 ); // not supplied by provider
+
+	                        currentWindSpeed.setLength( 0 );
+	                        currentWindSpeed.append( Math.round( weatherBitWx.getData().get( 0 ).getWindSpeed() ) );
+	                    }// end of else block
 				
 						// Display weather data on widget
 				        lblCurrentTemperature.setText( currentTemp.toString() + tempUnits );
@@ -5163,10 +5066,10 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        	if( fxDate.equals( today ) )
 			                {
 			                	currentHigh.setLength( 0 );
-			                	currentHigh.append( String.valueOf( Math.round( wFdf.get( i ).getMaxTemp() ) ) );
+			                	currentHigh.append( Math.round( wFdf.get( i ).getMaxTemp() ) );
 			                	
 			                	currentLow.setLength( 0 );
-			                	currentLow.append( String.valueOf( Math.round( wFdf.get( i ).getMinTemp() ) ) );
+			                	currentLow.append( Math.round( wFdf.get( i ).getMinTemp() ) );
 			                	
 			                	lblDayHigh.setText( 
 			                			( Integer.parseInt( currentHigh.toString() ) > Integer.parseInt( currentTemp.toString().replace( "°F" , "" ) ) 
@@ -5203,32 +5106,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				            String fHigh = String.valueOf(  (int) highTemp );
 				            String fLow = String.valueOf(  (int) lowTemp );				
 				            String temps = String.format( "%s° %s°", fLow, fHigh );
+				            JLabel dayTemps = (JLabel) getComponentByName( "lblDay" + (i) + "Temps" );
 					            			            
-				            switch ( i )
-				            {
-								case 1:
-						            lblDay1Temps.setText( temps ); 
-						            
-									break;					
-								case 2:					
-						            lblDay2Temps.setText( temps ); 
-						            
-									break;						
-								case 3:					
-						            lblDay3Temps.setText( temps ); 
-						            
-									break;						
-								case 4:					
-						            lblDay4Temps.setText( temps );
-						            
-									break;						
-								case 5:					
-						            lblDay5Temps.setText( temps ); 
-						            
-									break;	
-								default:
-									break;
-							}// end of switch block	
+				            dayTemps.setText( temps );
 					            
 		                    if( i == 5 ) 
 		                    {
@@ -5249,66 +5129,61 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        if( WeatherLionMain.storedPreferences.getUseMetric() )
 				        {
 				        	currentTemp.setLength( 0 );
-				        	currentTemp.append( String.valueOf( 
-			        			Math.round( UtilityMethod.fahrenheitToCelsius( ct ) ) ) );
+				        	currentTemp.append( Math.round( UtilityMethod.fahrenheitToCelsius( ct ) ) );
 				            
 				            if( underground.getCurrent_observation().getHeat_index_f().equalsIgnoreCase( "NA" )
 				            		|| underground.getCurrent_observation().getHeat_index_f() == null )
 				            {
 				            	currentFeelsLikeTemp.setLength( 0 );
-				            	currentFeelsLikeTemp.append( String.valueOf( Math.round( UtilityMethod.fahrenheitToCelsius( 
+				            	currentFeelsLikeTemp.append( Math.round( UtilityMethod.fahrenheitToCelsius( 
 			            			(float) UtilityMethod.heatIndex( Double.parseDouble( currentTemp.toString() ),
-		            					ch ) ) ) ) );
+		            					ch ) ) ) );
 				            }// end of if block
 				            else
 				            {
 				            	currentFeelsLikeTemp.setLength( 0 );
-				            	currentFeelsLikeTemp.append( String.valueOf( 
-			            			Math.round( UtilityMethod.fahrenheitToCelsius( ct ) ) ) );
+				            	currentFeelsLikeTemp.append( Math.round( UtilityMethod.fahrenheitToCelsius( ct ) ) );
 				            }// end of else block
 				            
 				            currentHigh.setLength( 0 );
-				            currentHigh.append( String.valueOf(
-			                    Math.round( UtilityMethod.fahrenheitToCelsius( wuFdf.get(0).getHigh().getFahrenheit() ) )
-				            ) );
+				            currentHigh.append(
+			            		Math.round( UtilityMethod.fahrenheitToCelsius( wuFdf.get(0).getHigh().getFahrenheit() ) ) );
 				            
 				            currentLow.setLength( 0 );
-				            currentLow.append( String.valueOf(
-			                    Math.round( UtilityMethod.fahrenheitToCelsius( wuFdf.get(0).getLow().getFahrenheit() ) )
-				            ) );
+				            currentLow.append( 
+			                    Math.round( UtilityMethod.fahrenheitToCelsius( wuFdf.get(0).getLow().getFahrenheit() ) ) );
 				
 				            currentWindSpeed.setLength( 0 );
-				            currentWindSpeed.append( String.valueOf(
-			                    Math.round( UtilityMethod.mphToKmh( underground.getCurrent_observation().getWind_mph() ) ) ) );
+				            currentWindSpeed.append( Math.round( UtilityMethod.mphToKmh( underground.getCurrent_observation().getWind_mph() ) ) );
 				        }// end of if block
 				        else
 				        {
 				        	currentTemp.setLength( 0 );
-				            currentTemp.append( String.valueOf( Math.round( ct ) ) );
+				            currentTemp.append( Math.round( ct ) );
 				            
 				            if( underground.getCurrent_observation().getHeat_index_f().equalsIgnoreCase( "NA" )
 				            		|| underground.getCurrent_observation().getHeat_index_f() == null )
 				            {
 				            	currentFeelsLikeTemp.setLength( 0 );
-				            	currentFeelsLikeTemp.append( String.valueOf( Math.round( UtilityMethod.heatIndex(
-			            			 ct, ch ) ) ) );
+				            	currentFeelsLikeTemp.append( Math.round( UtilityMethod.heatIndex(
+			            			 ct, ch ) ) );
 				            }// end of if block
 				            else
 				            {
 				            	currentFeelsLikeTemp.setLength( 0 );
-				            	currentFeelsLikeTemp.append( String.valueOf( Math.round( ( Float.parseFloat(
-				                    underground.getCurrent_observation().getHeat_index_f() ) ) ) ) );
+				            	currentFeelsLikeTemp.append( Math.round( ( Float.parseFloat(
+				                    underground.getCurrent_observation().getHeat_index_f() ) ) ) );
 				            }// end of else block
 				            
 				            currentHigh.setLength( 0 );
-				            currentHigh.append( String.valueOf( wuFdf.get( 0 ).getHigh().getFahrenheit() ) );
+				            currentHigh.append( wuFdf.get( 0 ).getHigh().getFahrenheit() );
 
 				            currentLow.setLength( 0 );
-				            currentLow.append( String.valueOf( wuFdf.get( 0 ).getLow().getFahrenheit() ) );
+				            currentLow.append( wuFdf.get( 0 ).getLow().getFahrenheit() );
 				            
 				            currentWindSpeed.setLength( 0 );
-				            currentWindSpeed.append( String.valueOf( Math.round( 
-			            		underground.getCurrent_observation().getWind_mph() ) ) );
+				            currentWindSpeed.append( Math.round( 
+			            		underground.getCurrent_observation().getWind_mph() ) );
 				        }// end of else block
 				
 				        // Display weather data on widget
@@ -5358,35 +5233,12 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				            }// end of else block
 				
 				            String temps = String.format("%s° %s°", fLow, fh);
+				            JLabel dayTemps = (JLabel) getComponentByName( "lblDay" + (period) + "Temps" );
 				            
 				            hl[ period - 1 ][ 0 ] = Integer.parseInt( fh );
 				            hl[ period - 1 ][ 1 ] = Integer.parseInt( fLow );
 				            			            
-				            switch ( period )
-				            {
-								case 1:
-						            lblDay1Temps.setText( temps ); 
-						            
-									break;					
-								case 2:					
-						            lblDay2Temps.setText( temps ); 
-						            
-									break;						
-								case 3:					
-						            lblDay3Temps.setText( temps ); 
-						            
-									break;						
-								case 4:					
-						            lblDay4Temps.setText( temps );
-						            
-									break;						
-								case 5:					
-						            lblDay5Temps.setText( temps ); 
-						            
-									break;	
-								default:
-									break;
-							}// end of switch block			
+				            dayTemps.setText( temps );			
 				
 				            if ( period == 5 )
 				            {
@@ -5395,45 +5247,44 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        }// end of for each loop
 					
 				    	break;
-					case WeatherLionMain.YAHOO_WEATHER:
-						currentWindSpeed.setLength( 0 );
-						currentWindSpeed.append( String.valueOf( 
-								yahoo19.getCurrentObservation().getWind().getSpeed() ) );
-						
-						currentWindDirection.setLength( 0 );
-						currentWindDirection.append( UtilityMethod.compassDirection(
-				                yahoo19.getCurrentObservation().getWind().getDirection() ) );
-						
-						fl = UtilityMethod.heatIndex(
-								yahoo19.getCurrentObservation().getCondition().getTemperature(),
-								yahoo19.getCurrentObservation().getAtmosphere().getHumidity() );
-						
-						if( WeatherLionMain.storedPreferences.getUseMetric() )
-				        {
-							currentTemp.setLength( 0 );
-							currentTemp.append( String.valueOf( Math.round( UtilityMethod.fahrenheitToCelsius( 
-			            		(float) yahoo19.getCurrentObservation().getCondition().getTemperature() ) ) ) );
-				            
-							currentFeelsLikeTemp.setLength( 0 );
-							currentFeelsLikeTemp.append( String.valueOf( Math.round( 
-			        			UtilityMethod.fahrenheitToCelsius( (float) fl ) ) ) );
-							
-							currentWindSpeed.setLength( 0 );
-				            currentWindSpeed.append( String.valueOf(
-			                    Math.round(UtilityMethod.mphToKmh( yahoo19.getCurrentObservation().getWind().getSpeed() ) ) ) );
-				        }// end of if block
-				        else
-				        {
-				        	currentTemp.setLength( 0 );
-				        	currentTemp.append( Math.round(
-			                    yahoo19.getCurrentObservation().getCondition().getTemperature() ) );
-				            
-				        	currentFeelsLikeTemp.setLength( 0 );
-				        	currentFeelsLikeTemp.append( String.valueOf( Math.round( fl ) ) );
-				            
-				        	currentWindSpeed.setLength( 0 ); // reset
-				        	currentWindSpeed.append( String.valueOf( yahoo19.getCurrentObservation().getWind().getSpeed() ) );
-				        }// end of else block
+				    case WeatherLionMain.YAHOO_WEATHER:
+	                    currentWindSpeed.setLength( 0 );
+	                    currentWindSpeed.append( yahoo19.getCurrentObservation().getWind().getSpeed() );
+
+	                    currentWindDirection.setLength( 0 );
+	                    currentWindDirection.append( UtilityMethod.compassDirection(
+	                            yahoo19.getCurrentObservation().getWind().getDirection() ) );
+
+	                    fl = UtilityMethod.heatIndex(
+	                            yahoo19.getCurrentObservation().getCondition().getTemperature(),
+	                            yahoo19.getCurrentObservation().getAtmosphere().getHumidity() );
+
+	                    if( WeatherLionMain.storedPreferences.getUseMetric() )
+	                    {
+	                        currentTemp.setLength( 0 );
+	                        currentTemp.append( Math.round( UtilityMethod.fahrenheitToCelsius(
+	                                (float) yahoo19.getCurrentObservation().getCondition().getTemperature() ) ) );
+
+	                        currentFeelsLikeTemp.setLength( 0 );
+	                        currentFeelsLikeTemp.append( Math.round(
+	                            UtilityMethod.fahrenheitToCelsius( (float) fl ) ) );
+
+	                        currentWindSpeed.setLength( 0 );
+	                        currentWindSpeed.append( 
+	                            Math.round(UtilityMethod.mphToKmh( yahoo19.getCurrentObservation().getWind().getSpeed() ) ) );
+	                    }// end of if block
+	                    else
+	                    {
+	                        currentTemp.setLength( 0 );
+	                        currentTemp.append( Math.round(
+	                                yahoo19.getCurrentObservation().getCondition().getTemperature() ) );
+
+	                        currentFeelsLikeTemp.setLength( 0 );
+	                        currentFeelsLikeTemp.append( Math.round( fl ) );
+
+	                        currentWindSpeed.setLength( 0 ); // reset
+	                        currentWindSpeed.append( yahoo19.getCurrentObservation().getWind().getSpeed() );
+	                    }// end of else block
 
 				        // Display weather data on widget
 				        lblCurrentTemperature.setText( currentTemp.toString() + tempUnits );			        
@@ -5448,7 +5299,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        for ( i = 0; i <= yFdf.size() - 1; i++ )
 				        {
 				        	df = new SimpleDateFormat( "dd MMM yyyy" );
-				            String fDate = df.format( UtilityMethod.getDateTime( yFdf.get( i ).getDate() ) ).toString();
+				            String fDate = df.format( UtilityMethod.getDateTime( yFdf.get( i ).getDate() ) );
 				            today = df.format( new Date() );
 
 				            String temps;
@@ -5472,10 +5323,10 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				                if( fDate.equals( today ) )
 				                {
 				                	currentHigh.setLength( 0 );
-				                	currentHigh.append( String.valueOf( (int) yFdf.get( i ).getHigh() ) );
+				                	currentHigh.append( (int) yFdf.get( i ).getHigh() );
 				                	
 				                	currentLow.setLength( 0 );
-				                	currentLow.append( String.valueOf( (int) yFdf.get( i ).getLow() ) );
+				                	currentLow.append( (int) yFdf.get( i ).getLow() );
 				                	
 				                	lblDayHigh.setText( currentHigh + DEGREES );
 				                    lblDayLow.setText( currentLow + DEGREES );
@@ -5486,35 +5337,13 @@ public class WeatherLionWidget extends JFrame implements Runnable
 
 				                temps = String.format( "%s° %s°", fLow, fh );
 				            }// end of else block
+				            
+				            JLabel dayTemps = (JLabel) getComponentByName( "lblDay" + (i + 1) + "Temps" );
 				            			            
 				            hl[i][0] = Integer.parseInt( fh );
 				            hl[i][1] = Integer.parseInt( fLow );
 
-				            switch ( i + 1 )
-				            {
-								case 1:
-						            lblDay1Temps.setText( temps ); 
-						            
-									break;					
-								case 2:					
-						            lblDay2Temps.setText( temps ); 
-						            
-									break;						
-								case 3:					
-						            lblDay3Temps.setText( temps ); 
-						            
-									break;						
-								case 4:					
-						            lblDay4Temps.setText( temps );
-						            
-									break;						
-								case 5:					
-						            lblDay5Temps.setText( temps ); 
-						            
-									break;	
-								default:
-									break;
-							}// end of switch block	
+				            dayTemps.setText( temps );	
 
 				            if( i == 4 )
 				            {
@@ -5523,42 +5352,40 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				        }// end of for loop
 				
 				        break;
-					case WeatherLionMain.YR_WEATHER:
-						currentWindDirection.setLength( 0 );
-						currentWindDirection.append(
-							yr.getForecast().get( 0 ).getWindDirCode() );
-						
-						if( WeatherLionMain.storedPreferences.getUseMetric() )
-						{
-							currentTemp.setLength( 0 );
-							currentTemp.append( String.valueOf( yr.getForecast().get( 0 ).getTemperatureValue() ) );
-							
-							currentFeelsLikeTemp.setLength( 0 );
-							currentFeelsLikeTemp.append( String.valueOf( yr.getForecast().get( 0 ).getTemperatureValue() ) );
-						    
-							currentWindSpeed.setLength( 0 );
-							currentWindSpeed.append( String.valueOf(
-								Math.round( 
-									UtilityMethod.mpsToKmh( yr.getForecast().get( 0 ).getWindSpeedMps() ) ) ) );
-						}// end of if block
-						else
-						{
-							currentTemp.setLength( 0 );
-							currentTemp.append( Math.round(
-					            UtilityMethod.celsiusToFahrenheit(
-					            	yr.getForecast().get( 0 ).getTemperatureValue() ) ) );
-							
-							currentFeelsLikeTemp.setLength( 0 );
-						    currentFeelsLikeTemp.append( String.valueOf( Math.round(
-					            UtilityMethod.celsiusToFahrenheit(
-					            	yr.getForecast().get( 0 ).getTemperatureValue() ) ) ) );
-						    
-						    currentWindSpeed.setLength( 0 );
-						    currentWindSpeed.append( String.valueOf(
-								Math.round( 
-									UtilityMethod.mpsToMph( 
-										yr.getForecast().get( 0 ).getWindSpeedMps() ) ) ) );
-						}// end of else block
+				    case WeatherLionMain.YR_WEATHER:
+	                    currentWindDirection.setLength( 0 );
+	                    currentWindDirection.append(
+	                            yr.getForecast().get( 0 ).getWindDirCode() );
+
+	                    if( WeatherLionMain.storedPreferences.getUseMetric() )
+	                    {
+	                        currentTemp.setLength( 0 );
+	                        currentTemp.append( yr.getForecast().get( 0 ).getTemperatureValue() );
+
+	                        currentFeelsLikeTemp.setLength( 0 );
+	                        currentFeelsLikeTemp.append( yr.getForecast().get( 0 ).getTemperatureValue() );
+
+	                        currentWindSpeed.setLength( 0 );
+	                        currentWindSpeed.append( 
+	                            Math.round(
+	                                UtilityMethod.mpsToKmh( yr.getForecast().get( 0 ).getWindSpeedMps() ) ) );
+	                    }// end of if block
+	                    else
+	                    {
+	                        currentTemp.setLength( 0 );
+	                        currentTemp.append( Math.round(
+	                                UtilityMethod.celsiusToFahrenheit(
+	                                        yr.getForecast().get( 0 ).getTemperatureValue() ) ) );
+
+	                        currentFeelsLikeTemp.setLength( 0 );
+	                        currentFeelsLikeTemp.append( Math.round(
+	                                UtilityMethod.celsiusToFahrenheit(
+	                                        yr.getForecast().get( 0 ).getTemperatureValue() ) ) );
+
+	                        currentWindSpeed.setLength( 0 );
+	                        currentWindSpeed.append(
+	                            Math.round( UtilityMethod.mpsToMph( yr.getForecast().get( 0 ).getWindSpeedMps() ) ) );
+	                    }// end of else block
 						
 						// Display weather data on widget
 						lblCurrentTemperature.setText( currentTemp.toString() + tempUnits );			        
@@ -5649,10 +5476,10 @@ public class WeatherLionWidget extends JFrame implements Runnable
 								    if( fDate.equals( df.format( new Date() ) ) )
 								    {
 								    	currentHigh.setLength( 0 );
-								    	currentHigh.append( String.valueOf( (int) fHigh ) );
+								    	currentHigh.append( (int) fHigh );
 								    	
 								    	currentLow.setLength( 0 );
-								    	currentLow.append( String.valueOf( (int) fLow ) );
+								    	currentLow.append( (int) fLow );
 								    	
 								    	lblDayHigh.setText( currentHigh + DEGREES );
 								        lblDayLow.setText( currentLow + DEGREES );
@@ -5661,31 +5488,8 @@ public class WeatherLionWidget extends JFrame implements Runnable
 								    temps = String.format( "%s° %s°", (int) fLow, (int) fHigh );
 								}// end of else block
 								
-								switch ( i )
-								{
-									case 1:
-								        lblDay1Temps.setText( temps ); 
-								        
-										break;					
-									case 2:					
-								        lblDay2Temps.setText( temps ); 
-								        
-										break;						
-									case 3:					
-								        lblDay3Temps.setText( temps ); 
-								        
-										break;						
-									case 4:					
-								        lblDay4Temps.setText( temps );
-								        
-										break;						
-									case 5:					
-								        lblDay5Temps.setText( temps ); 
-								        
-										break;	
-									default:
-										break;
-								}// end of switch block
+								JLabel dayTemps = (JLabel) getComponentByName( "lblDay" + (i) + "Temps" );
+								dayTemps.setText( temps );								
 								
 								if ( i == 5 )
 								{
@@ -5710,66 +5514,66 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	    	else // if there is no Internet connection
 	    	{
 	    		tempUnits = WeatherLionMain.storedPreferences.getUseMetric() ? CELSIUS : FAHRENHEIT;
-	    		
-	    		// get the root node of the XML document
-	    		xmlCurrent = rootNode.getChild( "Current" );		    		
-	    		xmlForecast = rootNode.getChild( "ForecastList" );
-	    		xmlForecastList = rootNode.getChildren( "ForecastList" );
-	    		
-	    		// populate the global variables
-	    		currentWindDirection.setLength( 0 );
-	    		currentWindDirection.append( xmlWind.getChildText( "WindDirection" ) );
-	    		
-		        currentWindSpeed.setLength( 0 );
-		        currentWindSpeed.append( xmlWind.getChildText( "WindSpeed" ) );
-		        
-		        currentHumidity.setLength( 0 );
-		        currentHumidity.append( xmlAtmosphere.getChildText( "Humidity" ) );
-	                        											
-				if( WeatherLionMain.storedPreferences.getUseMetric() )
-		        {
-		            currentTemp.setLength( 0 );
-		            currentTemp.append( String.valueOf( Math.round( UtilityMethod.fahrenheitToCelsius(
-		            		Float.parseFloat( xmlCurrent.getChildText( "Temperature" ) ) ) ) ) );
-		            
-		            currentFeelsLikeTemp.setLength( 0 );
-		            currentFeelsLikeTemp.append( String.valueOf( Math.round( UtilityMethod.fahrenheitToCelsius(
-		            		Float.parseFloat( xmlCurrent.getChildText( "FeelsLike" ) ) ) ) ) );
-		            
-		            currentHigh.setLength( 0 );
-		            currentHigh.append( String.valueOf( Math.round( UtilityMethod.fahrenheitToCelsius(
-		            		Float.parseFloat( xmlCurrent.getChildText( "HighTemperature" ) ) ) ) ) ); 
-		            
-		            currentLow.setLength( 0 );
-                	currentLow.append( String.valueOf( Math.round( UtilityMethod.fahrenheitToCelsius(
-		            		Float.parseFloat( xmlCurrent.getChildText( "LowTemperature" ) ) ) ) ) );
-                	
-                	currentWindSpeed.setLength( 0 );
-		            currentWindSpeed.append( String.valueOf(
-		                    Math.round( UtilityMethod.mphToKmh( Float.parseFloat( xmlWind.getChildText( "WindSpeed" ) ) ) ) ) );
-		        }// end of if block
-		        else
-		        {
-		        	currentTemp.setLength( 0 );
-		        	currentTemp.append( Math.round(
-		                    Float.parseFloat( xmlCurrent.getChildText( "Temperature" ) ) ) );
-		            
-		        	currentFeelsLikeTemp.setLength( 0 );
-		            currentFeelsLikeTemp.append( String.valueOf( Math.round( 
-		            		Float.parseFloat( xmlCurrent.getChildText( "FeelsLike" ) ) ) ) );
-		            
-		            currentHigh.setLength( 0 );
-		            currentHigh.append( Math.round(
-		                    Float.parseFloat( xmlCurrent.getChildText( "HighTemperature" ) ) ) );
-		            
-		            currentLow.setLength( 0 );
-		            currentLow.append( Math.round(
-		                    Float.parseFloat( xmlCurrent.getChildText( "LowTemperature" ) ) ) );
-		            
-		            currentWindSpeed.setLength( 0 );
-		            currentWindSpeed.append( Math.round(
-		                    Float.parseFloat( xmlWind.getChildText( "WindSpeed" ) ) ) );
-		        }// end of else block
+
+	            // get the root node of the XML document
+	            xmlCurrent = rootNode.getChild( "Current" );
+	            xmlForecast = rootNode.getChild( "DailyForecast" );
+	            xmlForecastList = rootNode.getChild( "DailyForecast" ).getChildren( "DayForecast" );
+
+	            // populate the global variables
+	            currentWindDirection.setLength( 0 );
+	            currentWindDirection.append( xmlWind.getChildText( "WindDirection" ) );
+
+	            currentWindSpeed.setLength( 0 );
+	            currentWindSpeed.append( xmlWind.getChildText( "WindSpeed" ) );
+
+	            currentHumidity.setLength( 0 );
+	            currentHumidity.append( xmlAtmosphere.getChildText( "Humidity" ) );
+
+	            if( WeatherLionMain.storedPreferences.getUseMetric() )
+	            {
+	                currentTemp.setLength( 0 );
+	                currentTemp.append( Math.round( UtilityMethod.fahrenheitToCelsius(
+	                        Float.parseFloat( xmlCurrent.getChildText( "Temperature" ) ) ) ) );
+
+	                currentFeelsLikeTemp.setLength( 0 );
+	                currentFeelsLikeTemp.append( Math.round( UtilityMethod.fahrenheitToCelsius(
+	                        Float.parseFloat( xmlCurrent.getChildText( "FeelsLike" ) ) ) ) );
+
+	                currentHigh.setLength( 0 );
+	                currentHigh.append( Math.round( UtilityMethod.fahrenheitToCelsius(
+	                    Float.parseFloat( xmlCurrent.getChildText( "HighTemperature" ) ) ) ) );
+
+	                currentLow.setLength( 0 );
+	                currentLow.append( Math.round( UtilityMethod.fahrenheitToCelsius(
+	                    Float.parseFloat( xmlCurrent.getChildText( "LowTemperature" ) ) ) ) );
+
+	                currentWindSpeed.setLength( 0 );
+	                currentWindSpeed.append( 
+	                    Math.round( UtilityMethod.mphToKmh( Float.parseFloat( xmlWind.getChildText( "WindSpeed" ) ) ) ) );
+	            }// end of if block
+	            else
+	            {
+	                currentTemp.setLength( 0 );
+	                currentTemp.append( Math.round(
+	                        Float.parseFloat( xmlCurrent.getChildText( "Temperature" ) ) ) );
+
+	                currentFeelsLikeTemp.setLength( 0 );
+	                currentFeelsLikeTemp.append( Math.round(
+	                        Float.parseFloat( xmlCurrent.getChildText( "FeelsLike" ) ) ) );
+
+	                currentHigh.setLength( 0 );
+	                currentHigh.append( Math.round(
+	                        Float.parseFloat( xmlCurrent.getChildText( "HighTemperature" ) ) ) );
+
+	                currentLow.setLength( 0 );
+	                currentLow.append( Math.round(
+	                        Float.parseFloat( xmlCurrent.getChildText( "LowTemperature" ) ) ) );
+
+	                currentWindSpeed.setLength( 0 );
+	                currentWindSpeed.append( Math.round(
+	                        Float.parseFloat( xmlWind.getChildText( "WindSpeed" ) ) ) );
+	            }// end of else block
 
 		        // Display weather data on widget
 		        lblCurrentTemperature.setText( currentTemp.toString() + tempUnits );		        
@@ -5779,12 +5583,11 @@ public class WeatherLionWidget extends JFrame implements Runnable
 		        lblWindReading.setText( currentWindDirection +
 		                " " + currentWindSpeed + ( WeatherLionMain.storedPreferences.getUseMetric() ? " km/h" : " mph" ) );
 		        			        
-		        xmlForecastList = rootNode.getChildren( "ForecastList" );
 		        hl = new int[ 5 ][ 2 ];
 			        
 		        for ( i = 0; i <= xmlForecastList.size(); i++ )
 		        {
-		        	Element wxDailyForecast = xmlForecastList.get( i ).getChild( "ForecastData" );
+		        	Element wxDailyForecast = xmlForecastList.get( i );
 		        	Date forecastDate = null;
 		        	
 		        	try
@@ -5836,32 +5639,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			            			            
 		            hl[i][0] = ( int ) Float.parseFloat( fh );
 		            hl[i][1] = ( int ) Float.parseFloat( fLow );
-
-		            switch ( i + 1 )
-		            {
-						case 1:
-				            lblDay1Temps.setText( temps ); 
-				            
-							break;					
-						case 2:					
-				            lblDay2Temps.setText( temps ); 
-				            
-							break;						
-						case 3:					
-				            lblDay3Temps.setText( temps ); 
-				            
-							break;						
-						case 4:					
-				            lblDay4Temps.setText( temps );
-				            
-							break;						
-						case 5:					
-				            lblDay5Temps.setText( temps ); 
-				            
-							break;	
-						default:
-							break;
-					}// end of switch block	
+		            
+		            JLabel dayTemps = (JLabel) getComponentByName( "lblDay" + (i + 1) + "Temps" );
+		            dayTemps.setText( temps );	            
 
 		            if( i == 4 )
 		            {

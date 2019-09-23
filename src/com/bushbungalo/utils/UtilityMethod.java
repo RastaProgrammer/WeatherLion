@@ -83,21 +83,21 @@ import com.google.gson.reflect.TypeToken;
  * <br />
  * <b style="margin-left:-40px">Updates:</b><br />
  * <ul>
- * 		<li>10/18/18 - Added method {@code temperatureColor}</li>
- * 		<li>01/13/19 - Added method {@code calculateWindChill}</li>
- * 		<li>01/21/19 - Added {@code LinkedHashMap} weatherCountryCodes</li>
- * 		<li>01/22/19 - Updated {@code LinkedHashMap} weatherImages</li>
- * 		<li>02/06/19 - Added methods {@code getFileCount} and {@code getSubdirectories}</li>
- * 		<li>02/08/19 - Added method {@code logMessage}</li>
- *      <li>02/18/19 - Added methods {@code imageToBufferedImage} and {@code makeColorTransparent}</li>
+ * 		<li>10/18/18 - Added method {@link #temperatureColor}</li>
+ * 		<li>01/13/19 - Added method {@link #calculateWindChill}</li>
+ * 		<li>01/21/19 - Added {@link #LinkedHashMap} weatherCountryCodes</li>
+ * 		<li>01/22/19 - Updated {@link #LinkedHashMap} weatherImages</li>
+ * 		<li>02/06/19 - Added methods {@link #getFileCount} and {@link #getSubdirectories}</li>
+ * 		<li>02/08/19 - Added method {@link #logMessage}</li>
+ *      <li>02/18/19 - Added methods {@link #imageToBufferedImage} and {@link #makeColorTransparent}</li>
  *      <li>03/02/19
  *      	<ol>
  *      		<li>
  *      			API from {@link http://api.ipstack.com} not working so {@link http://ip-api.com/xml} will 
  *      			be used to obtain location using IP Address
  *      		</li>
- *      		<li>Added method {@code getSystemIpAddress}</li>
- *      		<li>Updated method {@code getSystemLocation}</li>
+ *      		<li>Added method {@link #getSystemIpAddress}</li>
+ *      		<li>Updated method {@link #getSystemLocation}</li>
  *      	</ol>
  *      </li>
  *      <li>03/12/19
@@ -106,25 +106,26 @@ import com.google.gson.reflect.TypeToken;
  *      			API from {@link http://api.ipstack.com} is now working so code will be reverted from {@link http://ip-api.com/xml} 
  *      			to obtain location using IP Address
  *      		</li>		
- *      		<li>Added methods {@code isWindows}, {@code isLinux}, and {@code isMac}</li>
- *      		<li>Updated method {@code getSystemIpAddress}</li>
+ *      		<li>Added methods {@link #isWindows}, {@link #isLinux}, and {@link #isMac}</li>
+ *      		<li>Updated method {@link #getSystemIpAddress}</li>
  *      	</ol>
  *      </li>
- *      <li>03/20/19 - Added method {@code createHereCityData}</li>
+ *      <li>03/20/19 - Added method {@link #createHereCityData}</li>
  *      <li>03/22/19
  *      	<ol>
- *      		<li>Added method {@code isNumeric}</li>		
- *      		<li>Updated method {@code get24HourTime} to inspect for a space within the {@code String} passed</li>
+ *      		<li>Added method {@link #isNumeric}</li>		
+ *      		<li>Updated method {@link #get24HourTime} to inspect for a space within the {@code String} passed</li>
  *      	</ol>
  *      </li>
- *      <li>04/11/19 - Added methods {@code replaceLast}, {@code numberOfCharacterOccurences}, {@code msgBox}, and {@code messagePrompt}</li>
- *      <li>05/02/19 - Added methods {@code confirmBox} and {@code size}</li>
- *      <li>05/06/19 - Added method {@code timeForConnectivityCheck}</li>
+ *      <li>04/11/19 - Added methods {@link #replaceLast}, {@link #numberOfCharacterOccurences}, {@link #msgBox}, and {@link #messagePrompt}</li>
+ *      <li>05/02/19 - Added methods {@link #confirmBox} and {@link #size}</li>
+ *      <li>05/06/19 - Added method {@link #timeForConnectivityCheck}</li>
  *      <li>05/11/19 - Removed printing stack trace errors to console for logging</li>
- *      <li>05/21/19 - Renamed method {@code makeColorTransparent} to {@code setImageOpacity}.</li>
- *      <li>06/13/19 - Added method {@code containsWholeWord}</li>
- *      <li>06/28/19 - Updated methods {@code isFoundInJSONStorage} and {@code isFoundInXMLStorage}</li>
- *      <li>07/04/19 - Added method {@code getExceptionLineNumber}</li>
+ *      <li>05/21/19 - Renamed method {@link #makeColorTransparent} to {@link #setImageOpacity}.</li>
+ *      <li>06/13/19 - Added method {@link #containsWholeWord}</li>
+ *      <li>06/28/19 - Updated methods {@link #isFoundInJSONStorage} and {@link #isFoundInXMLStorage}</li>
+ *      <li>07/04/19 - Added method {@link #getExceptionLineNumber}</li>
+ *      <li>07/25/19 - Added method {@link #retrieveGeoNamesGeoLocationUsingCoordinates}</li>
  * </ul>
  */
 
@@ -226,7 +227,7 @@ public abstract class UtilityMethod
         usStatesByCode.put("WV", "West Virginia");
         usStatesByCode.put("WI", "Wisconsin");
         usStatesByCode.put("WY", "Wyoming");
-    };
+    }
 
     // Maps a US state's full name to its two-letter code
     public static LinkedHashMap<String, String> usStatesByName;
@@ -284,7 +285,7 @@ public abstract class UtilityMethod
         usStatesByName.put("West Virginia", "WV");
         usStatesByName.put("Wisconsin", "WI");
         usStatesByName.put("Wyoming", "WY");
-    };
+    }
 
     // Maps a country's two-letter code to its full name
     public static LinkedHashMap<String, String> worldCountries;
@@ -344,11 +345,11 @@ public abstract class UtilityMethod
         worldCountries.put("CC", "Cocos (Keeling) Islands");
         worldCountries.put("CO", "Colombia");
         worldCountries.put("KM", "Comoros");
-        worldCountries.put("CG", "Congoï¿½(Brazzaville)");
+        worldCountries.put("CG", "Congo (Brazzaville)");
         worldCountries.put("CD", "Congo, (Kinshasa)");
         worldCountries.put("CK", "Cook Islands");
         worldCountries.put("CR", "Costa Rica");
-        worldCountries.put("CI", "Cï¿½te d'Ivoire");
+        worldCountries.put("CI", "Côte d'Ivoire");
         worldCountries.put("HR", "Croatia");
         worldCountries.put("CU", "Cuba");
         worldCountries.put("CY", "Cyprus");
@@ -604,11 +605,11 @@ public abstract class UtilityMethod
         worldCountryCodes.put( "Cocos Islands", "CC" );
         worldCountryCodes.put( "Colombia", "CO" );
         worldCountryCodes.put( "Comoros", "KM" );
-        worldCountryCodes.put( "Congoï¿½(Brazzaville)", "CG" );
+        worldCountryCodes.put( "Congo (Brazzaville)", "CG" );
         worldCountryCodes.put( "Congo (Kinshasa)", "CD" );
         worldCountryCodes.put( "Cook Islands", "CK" );
         worldCountryCodes.put( "Costa Rica", "CR" );
-        worldCountryCodes.put( "Cï¿½te d'Ivoire", "CI" );
+        worldCountryCodes.put( "Côte d'Ivoire", "CI" );
         worldCountryCodes.put( "Croatia", "HR" );
         worldCountryCodes.put( "Cuba", "CU" );
         worldCountryCodes.put( "Cyprus", "CY" );
@@ -672,9 +673,9 @@ public abstract class UtilityMethod
         worldCountryCodes.put( "Kazakhstan", "KZ" );
         worldCountryCodes.put( "Kenya", "KE" );
         worldCountryCodes.put( "Kiribati", "KI" );
-        worldCountryCodes.put( "Koreaï¿½(North)", "KP" );
+        worldCountryCodes.put( "Korea (North)", "KP" );
         worldCountryCodes.put( "North Korea", "KP" );
-        worldCountryCodes.put( "Koreaï¿½(South)", "KR" );
+        worldCountryCodes.put( "Korea (South)", "KR" );
         worldCountryCodes.put( "South Korea", "KR" );
         worldCountryCodes.put( "Kuwait", "KW" );
         worldCountryCodes.put( "Kyrgyzstan", "KG" );
@@ -744,7 +745,7 @@ public abstract class UtilityMethod
         worldCountryCodes.put( "Romania", "RO" );
         worldCountryCodes.put( "Russian Federation", "RU" );
         worldCountryCodes.put( "Rwanda", "RW" );
-        worldCountryCodes.put( "Saint Barthï¿½lemy", "BL" );
+        worldCountryCodes.put( "Saint Barthélemy", "BL" );
         worldCountryCodes.put( "Saint Helena", "SH" );
         worldCountryCodes.put( "Saint Kitts and Nevis", "KN" );
         worldCountryCodes.put( "Saint Kitts & Nevis", "KN" );
@@ -782,7 +783,7 @@ public abstract class UtilityMethod
         worldCountryCodes.put( "Swaziland", "SZ" );
         worldCountryCodes.put( "Sweden", "SE" );
         worldCountryCodes.put( "Switzerland", "CH" );
-        worldCountryCodes.put( "Syrian Arab Republicï¿½(Syria)", "SY" );
+        worldCountryCodes.put( "Syrian Arab Republic (Syria)", "SY" );
         worldCountryCodes.put( "Syria", "SY" );
         worldCountryCodes.put( "Taiwan, Republic of China", "TW" );
         worldCountryCodes.put( "Taiwan", "TW" );
@@ -811,7 +812,7 @@ public abstract class UtilityMethod
         worldCountryCodes.put( "Uruguay", "UY" );
         worldCountryCodes.put( "Uzbekistan", "UZ" );
         worldCountryCodes.put( "Vanuatu", "VU" );
-        worldCountryCodes.put( "Venezuelaï¿½(Bolidouble ian Republic)", "VE" );
+        worldCountryCodes.put( "Venezuela (Bolidouble ian Republic)", "VE" );
         worldCountryCodes.put( "Venezuela", "VE" );
         worldCountryCodes.put( "Viet Nam", "VN" );
         worldCountryCodes.put( "Virgin Islands, US", "VI" );
@@ -820,7 +821,7 @@ public abstract class UtilityMethod
         worldCountryCodes.put( "Yemen", "YE" );
         worldCountryCodes.put( "Zambia", "ZM" );
         worldCountryCodes.put( "Zimbabwe", "ZW" );
-    };
+    }
     
     public static LinkedHashMap<String, String> worldCountriesByName;
     static
@@ -883,7 +884,7 @@ public abstract class UtilityMethod
             worldCountriesByName.put( "Congo", "CD" );
             worldCountriesByName.put( "Cook Islands", "CK" );
             worldCountriesByName.put( "Costa Rica", "CR" );
-            worldCountriesByName.put( "Cï¿½te d'Ivoire", "CI" );
+            worldCountriesByName.put( "Côte d'Ivoire", "CI" );
             worldCountriesByName.put( "Croatia", "HR" );
             worldCountriesByName.put( "Cuba", "CU" );
             worldCountriesByName.put( "Cyprus", "CY" );
@@ -1007,11 +1008,11 @@ public abstract class UtilityMethod
             worldCountriesByName.put( "Portugal", "PT" );
             worldCountriesByName.put( "Puerto Rico", "PR" );
             worldCountriesByName.put( "Qatar", "QA" );
-            worldCountriesByName.put( "Rï¿½union", "RE" );
+            worldCountriesByName.put( "Réunion", "RE" );
             worldCountriesByName.put( "Romania", "RO" );
             worldCountriesByName.put( "Russian Federation", "RU" );
             worldCountriesByName.put( "Rwanda", "RW" );
-            worldCountriesByName.put( "Saint-Barthï¿½lemy", "BL" );
+            worldCountriesByName.put( "Saint-Barthélemy", "BL" );
             worldCountriesByName.put( "Saint Helena", "SH" );
             worldCountriesByName.put( "Saint Kitts and Nevis", "KN" );
             worldCountriesByName.put( "Saint Lucia", "LC" );
@@ -1076,13 +1077,13 @@ public abstract class UtilityMethod
             worldCountriesByName.put( "Yemen", "YE" );
             worldCountriesByName.put( "Zambia", "ZM" );
             worldCountriesByName.put( "Zimbabwe", "ZW" );
-	};
+	}
 	
     // Maps a weather reading to a specific asset icon file
     public static LinkedHashMap<String, String> weatherImages;
     static
     {
-        weatherImages = new LinkedHashMap<String, String>();
+        weatherImages = new LinkedHashMap<>();
 
         weatherImages.put("tornado", "0.png");
         weatherImages.put("tropical storm", "1.png");
@@ -1091,6 +1092,7 @@ public abstract class UtilityMethod
         weatherImages.put("severe thunderstorms", "1.png");
         weatherImages.put("thunderstorm", "1.png");
         weatherImages.put("thunderstorms", "1.png");
+        weatherImages.put("tstorms", "1.png");
         weatherImages.put("t-storms", "1.png");        
         weatherImages.put("freezing rain", "2.png");
         weatherImages.put("mixed rain and hail", "2.png");
@@ -1160,14 +1162,11 @@ public abstract class UtilityMethod
         weatherImages.put("scattered thunderstorms", "16.png");
         weatherImages.put("scattered t-storms", "16.png");
         weatherImages.put("scattered tstorms", "16.png");
-        weatherImages.put("thundershowers", "16.png");
-        weatherImages.put("tstorms", "16.png");
-        weatherImages.put("t-storms", "16.png");
+        weatherImages.put("thundershowers", "16.png");        
         weatherImages.put("thunderstorm with rain", "16.png");
         weatherImages.put("scattered showers", "17.png");
         weatherImages.put("isolated showers", "17.png");
-        weatherImages.put("chance of rain", "17.png");
-        weatherImages.put("light rain", "17.png");
+        weatherImages.put("chance of rain", "17.png");        
         weatherImages.put("light rain showers", "17.png");
         weatherImages.put("light shower rain", "17.png");
         weatherImages.put("chance of a thunderstorm (night)", "18.png");
@@ -1195,20 +1194,19 @@ public abstract class UtilityMethod
         weatherImages.put("wind", "21.png");
         weatherImages.put("windy", "21.png");
         weatherImages.put("not available", "na.png");
-    };
+    }
 
     public static Date lastUpdated;
     public static boolean refreshRequested;
     public static boolean weatherWidgetEnabled = true;   
-    public static File fileName = new File( "current_city.xml" );
 
-	public static ArrayList<String> subDirectoriesFound = new ArrayList<String>();
+	public static ArrayList<String> subDirectoriesFound = new ArrayList<>();
 	private static File[] files;
 
 	/** Weather Calculations **/
 	
     /***
-     * Calculate the wind chill for temperatures at or below 50ï¿½ F and wind speeds above 3 mph
+     * Calculate the wind chill for temperatures at or below 50° F and wind speeds above 3 mph
      * 
      * @param fTemp A temperature measured in Fahrenheit
      * @param mphWind A wind speed measure in miles per hour (mph)
@@ -1216,7 +1214,7 @@ public abstract class UtilityMethod
      */
     public static int calculateWindChill( int fTemp, int mphWind ) 
     {
-    	// The wind chill calculator only works for temperatures at or below 50 ï¿½ F
+    	// The wind chill calculator only works for temperatures at or below 50 ° F
     	// and wind speeds above 3 mph.
     	if( fTemp > 50 || mphWind < 3 )
     	{
@@ -1236,8 +1234,7 @@ public abstract class UtilityMethod
      * @param relativeHumidity The current relative humidity reading
      * @return A {@code double} representing the heat index value 
      * @author Kevin Sharp and Mark Klein
-     * <br />
-     * {@link https://www.wpc.ncep.noaa.gov/html/heatindex.shtml}
+     * @see <a href='https://www.wpc.ncep.noaa.gov/html/heatindex.shtml' target='_top'>Noaa.gov</a>
      */
     public static double heatIndex( double airTemp, double relativeHumidity )
     {
@@ -1328,10 +1325,9 @@ public abstract class UtilityMethod
      * 
      * @param airTemp	The current air temperature reading
      * @param dewPoint The current dew point reading
-     * @return A {@double} representing the heat index value 
+     * @return A {@code double} representing the heat index value 
      * @author Kevin Sharp and Mark Klein
-     * <br />
-     * {@link https://www.wpc.ncep.noaa.gov/html/heatindex.shtml}
+     * @see <a href='https://www.wpc.ncep.noaa.gov/html/heatindex.shtml' target='_top'>Noaa.gov</a>
      */    
     public static double heatIndexDew( double airTemp, double dewPoint )
     {
@@ -1417,10 +1413,9 @@ public abstract class UtilityMethod
      * 
      * @param airTempCelsius	The current air temperature reading
      * @param relativeHumidity The current relative humidity reading
-     * @return A {@double} representing the heat index value 
+     * @return A {@code double} representing the heat index value 
      * @author Kevin Sharp and Mark Klein
-     * <br />
-     * {@link https://www.wpc.ncep.noaa.gov/html/heatindex.shtml}
+     * @see <a href='https://www.wpc.ncep.noaa.gov/html/heatindex.shtml' target='_top'>Noaa.gov</a>
      */
     public static double heatIndexCelsius( double airTempCelsius, double relativeHumidity )
     {
@@ -1511,10 +1506,9 @@ public abstract class UtilityMethod
      * 
      * @param airTempCelsius	The current air temperature reading
      * @param dewPointCelsius The current dew point reading
-     * @return A {@double} representing the heat index value 
+     * @return A {@code double} representing the heat index value 
      * @author Kevin Sharp and Mark Klein
-     * <br />
-     * {@link https://www.wpc.ncep.noaa.gov/html/heatindex.shtml}
+     * @see <a href='https://www.wpc.ncep.noaa.gov/html/heatindex.shtml' target='_top'>Noaa.gov</a>
      */    
     public static double heatIndexDewCelsius( double airTempCelsius, double dewPointCelsius )
     {
@@ -1752,7 +1746,7 @@ public abstract class UtilityMethod
      * Accepts a numeric value of type float that represents
      * a rate of speed in Mps (Meters per second) and converts it to Mph (Miles per hour).
      *
-     * @param mps  The rate of speed in Mps (Miles per second).
+     * @param mps  The rate of speed in Mps (Meters per second).
      * @return  The converted rate of speed value in Mph (Miles per hour).
      */
     public static float mpsToMph( float mps )
@@ -1761,6 +1755,21 @@ public abstract class UtilityMethod
 
         return Float.parseFloat( new DecimalFormat( "##.00" ).format( mph ) );
     }// end of method mpsToMph
+    
+    /**
+     * Accepts a numeric value of type float that represents
+     * a rate of speed in Mph (Miles per hour) and converts it to Mph (Meters per seconds).
+     *
+     * @param mph  The rate of speed in Mph (Miles per hour).
+     * @return  The converted rate of speed value in Mph (Meters per seconds).
+     */
+    public static float mphToMps( float mph )
+    {
+        float mps = Math.round( mph * 0.44704 );
+
+        return Float.parseFloat( new DecimalFormat( "##.00" ).format( mps ) );
+    }// end of method mphToMps
+    
 
     /** Miscellaneous Methods **/
     
@@ -1832,8 +1841,7 @@ public abstract class UtilityMethod
      *
      * @param hour  The 24hr clock hour time value
      * @param minute  The minute time value
-     * @return  Formatted 12hr time.
-     * @example  00:00 file return 12:00 AM.
+     * @return  Formatted 12hr time. Example  00:00 file return 12:00 AM.
      */
     public static String get12HourTime( int hour, int minute )
     {
@@ -1841,13 +1849,11 @@ public abstract class UtilityMethod
     	// offset is subtracted from 00 or 24hrs
         if( hour < 0 ) hour = 24 + hour;
     	
-    	String t = String.format("%d:%s %s",
+        return String.format( "%d:%s %s",
                 ( hour > 12 ? hour - 12 : ( hour == 0 ? 12 : hour ) ),
-                ( minute < 10 ? minute == 0 ? "00" :( "0" + String.valueOf( minute ) )
-                : String.valueOf( minute ) ),
-                (hour > 12 ? "PM" : "AM"));
-
-        return t;
+                ( minute < 10 ? minute == 0 ? "00" :( "0" + minute )
+                        : String.valueOf( minute ) ),
+                (hour > 12 ? "PM" : "AM") );
     }// end of method get12HourTime
     
     /**
@@ -1870,14 +1876,14 @@ public abstract class UtilityMethod
     	
     	int hour = Integer.parseInt( realTime.toString().split( ":" )[ 0 ].trim() );
     	int minute = Integer.parseInt( realTime.toString().split( ":" )[ 1 ].trim().split( " " )[ 0 ].trim() );
-    	String meridiem = realTime.toString().split( " " )[ 1 ].trim();
+    	String meridian = realTime.toString().split( " " )[ 1 ].trim();
     	String t = null;
     	
-        if( meridiem.equalsIgnoreCase( "am" ) ) 
+        if( meridian.equalsIgnoreCase( "am" ) ) 
         {
         	t = String.format("%s:%d", hour < 10 ? "0" + hour : hour == 12 ? "00" : hour, minute );
         }// end of if block
-        else if( meridiem.equalsIgnoreCase( "pm" ) ) 
+        else if( meridian.equalsIgnoreCase( "pm" ) ) 
         {
         	t = String.format("%s:%d", hour < 12 ? 12 + hour : hour, minute );
         }// end of else if block
@@ -1893,12 +1899,7 @@ public abstract class UtilityMethod
      */
     public static boolean isValidCityName( String cityName )
     {
-        if ( !cityName.contains( "," ) )
-        {
-            return false;
-        }// end of if block
-
-        return true;
+    	return cityName.contains( "," );
     }// end of method isValidCityName
     
     /***
@@ -1943,10 +1944,9 @@ public abstract class UtilityMethod
      * Converts an image to a {@code BufferedImage}
      * 
      * @param image The image to be converted
-     * @return A {@code BufferedImage} of the original image
+     * @return A {@code BufferedImage} of the original image     
      * @author corgrath
-     * <br />
-     * {@link https://stackoverflow.com/questions/665406/how-to-make-a-color-transparent-in-a-bufferedimage-and-save-as-png#665428}
+     * @see <a href='https://stackoverflow.com/questions/665406/how-to-make-a-color-transparent-in-a-bufferedimage-and-save-as-png#665428' target='_top'>Stack Overflow</a>
      */
     public static BufferedImage imageToBufferedImage( Image image ) 
     {
@@ -1967,8 +1967,7 @@ public abstract class UtilityMethod
      * @param color The color to be made transparent
      * @return A {@code Image} with transparency added
      * @author corgrath
-     * <br />
-     * {@link https://stackoverflow.com/questions/665406/how-to-make-a-color-transparent-in-a-bufferedimage-and-save-as-png#665428}
+     * @see <a href='https://stackoverflow.com/questions/665406/how-to-make-a-color-transparent-in-a-bufferedimage-and-save-as-png#665428' target='_top'>Stack Overflow</a>
      */
      public static Image setImageOpacity( BufferedImage im, final Color color ) 
      {
@@ -2065,7 +2064,8 @@ public abstract class UtilityMethod
     }// end of method properCase
     
     /**
-     * Checks if a string contains a whole word on its own
+     * Checks if a string contains a whole word on its own.
+     * 
      * @param input	A search {@code String}
      * @param word	A {@code String} being searched for
      * @return	True if the whole word is found, otherwise False.
@@ -2087,7 +2087,7 @@ public abstract class UtilityMethod
   	}// end of method ImageIcon createImage
   	
     /**
-     * Format a Uri so that is is compatible with a valid standard {@code Uri} {@code String}
+     * Format a Uri so that is is compatible with a valid standard {@code Uri} {@code String}.
      * 
      * @param uri The {@code Uri} {@code String} to be formatted
      * @return  A valid formatted {@code Uri} {@code String}
@@ -2110,7 +2110,7 @@ public abstract class UtilityMethod
     }// end of method escapeUriString
 
     /**
-     * Determine if the device is connected to the Internet
+     * Determine if the device is connected to the Internet.
      * 
      * @param context The calling context.
      * @return True/False depending on the connection state.
@@ -2121,9 +2121,9 @@ public abstract class UtilityMethod
     }// end of method hasInternetConnection
 
     /**
-     * Determines if a city was previously stored to the local storage
+     * Determines if a city was previously stored to the local storage.
      * 
-     * @param cityName	The name of the city
+     * @param cityName	The name of the city.
      * @return	True/False dependent on the outcome of the check.
      */
     public static boolean isKnownCity( String cityName )
@@ -2146,7 +2146,6 @@ public abstract class UtilityMethod
      */
 	public static boolean isFoundInXMLStorage( String cityName )
 	{
-		String[] city = cityName.split( "," );
 		boolean found = false;
 		
 		if( new File( XMLHelper.PREVIOUSLY_FOUND_CITIES_XML ).exists() ) 
@@ -2169,17 +2168,20 @@ public abstract class UtilityMethod
 	    		
 	    		for ( int i = 0; i < list.size(); i++ )
 	    		{
-	    			Element node = (Element) list.get(i);    			
-	    			
-	    			if( node.getChildText( "CityName" ).equalsIgnoreCase( city[ 0 ].trim().toLowerCase() ) &&
-	    					node.getChildText( "RegionName" ).equalsIgnoreCase( city[ 1 ].trim() ) &&
-	    					!UtilityMethod.isNumeric( node.getChildText( "RegionCode" ) ) ||
-	    					node.getChildText( "CountryName" ).equalsIgnoreCase( city[ 1 ].trim() ) ) 
-	            	{
-	    				logMessage( "info",  cityName + " was found in the XML storage.",
-    						TAG + "::isFoundInXMLStorage" );
-	            		found = true;
-	            	}// end of if block
+	    			Element node = list.get( i );
+					String cCityName = node.getChildText( "CityName" );
+					String cRegionName = node.getChildText( "RegionName" );
+					String cRegionCode = node.getChildText( "RegionCode" );
+					String cCountryName = node.getChildText( "CountryName" );
+					boolean containsNumber = isNumeric( cRegionCode );
+					
+					if( cityName.equalsIgnoreCase( cCityName + ", " + cCountryName ) ||
+				        !containsNumber && cityName.equalsIgnoreCase( cCityName + ", " + cRegionCode ) )
+					{
+					    found = true;
+					    logMessage( "info",  cityName + " was found in the XML storage.",
+					            TAG + "::isFoundInXMLStorage" );
+					}// end of if block
 	    		}// end of for loop    		 		
 	    		
 	    	}// end of try block 
@@ -2237,17 +2239,21 @@ public abstract class UtilityMethod
 		        List< CityData > cityDataList = gson.fromJson( jsonString, new TypeToken< List<CityData > >() {}.getType() );
 		        
 		        for ( CityData c : cityDataList )
-		        {
-		        	if( c.getCityName().equalsIgnoreCase( city[ 0 ].trim().toLowerCase() ) &&
-		        			c.getRegionCode().equalsIgnoreCase( city[ 1 ].trim() ) &&
-		        			!UtilityMethod.isNumeric( c.getRegionCode() )  ||
-		        			c.getCountryName().equalsIgnoreCase( city[ 1 ].trim() ) ) 
-		        	{
-		        		logMessage( "info",  cityName + " was found in the JSON storage.",
-	    					TAG + "::isFoundInJSONStorage" );
-		        		found = true;
-		        	}// end of if block
-				}// end of for each loop
+                {
+                    String cCityName = c.getCityName();
+                    String cRegionName = c.getRegionName();
+                    String cRegionCode = c.getRegionCode();
+                    String cCountryName = c.getCountryName();
+                    boolean containsNumber = isNumeric( cRegionCode );
+
+                    if( cityName.equalsIgnoreCase( cCityName + ", " + cCountryName ) ||
+                        !containsNumber && cityName.equalsIgnoreCase( cCityName + ", " + cRegionCode ) )
+                    {
+                        found = true;
+                        logMessage( "info",  cityName + " was found in the JSON storage.",
+                                TAG + "::isFoundInJSONStorage" );
+                    }// end of if block
+                }// end of for each loop
             }// end of if block
         }// end of if block       
         
@@ -2322,9 +2328,7 @@ public abstract class UtilityMethod
 	 */
 	public static boolean isNumeric( String value ) 
 	{
-		Boolean result = value != null && value.matches( "[-+]?\\d*\\.?\\d+" );
-	    
-	    return result;
+		return value != null && value.matches( "[-+]?\\d*\\.?\\d+" );
 	}// end of method isNumeric
 	
 	/***
@@ -2371,13 +2375,13 @@ public abstract class UtilityMethod
     	// All spaces must be replaced with the + symbols for the HERE Maps web service
         if( cityName.contains( " " ) )
         {
-        	cityName.replace( " ", "+" );
+        	cityName = cityName.replace( " ", "+" );
         }// end of if block
         
         // All commas must be replaced with the + symbols for the HERE Maps web service
         if( cityName.contains( "," ) )
         {
-        	cityName.replace( ",", "+" );
+        	cityName = cityName.replace( ",", "+" );
         }// end of if block
         
         String cityUrl =
@@ -2411,13 +2415,13 @@ public abstract class UtilityMethod
         // All spaces must be replaced with the + symbols for the HERE Maps web service
         if( cityName.contains( " " ) )
         {
-        	cityName.replace( " ", "+" );
+        	cityName = cityName.replace( " ", "+" );
         }// end of if block
         
         // All commas must be replaced with the + symbols for the HERE Maps web service
         if( cityName.contains( "," ) )
         {
-        	cityName.replace( ",", "+" );
+        	cityName = cityName.replace( ",", "+" );
         }// end of if block
     	
         String cityUrl =
@@ -2481,13 +2485,13 @@ public abstract class UtilityMethod
     	// All spaces must be replaced with the + symbols for the HERE Maps web service
         if( wxLocation.contains( " " ) )
         {
-        	 wxLocation.replace( " ", "+" );
+        	wxLocation = wxLocation.replace( " ", "+" );
         }// end of if block
         
         // All commas must be replaced with the + symbols for the HERE Maps web service
         if( wxLocation.contains( "," ) )
         {
-        	 wxLocation.replace( ",", "+" );
+        	wxLocation = wxLocation.replace( ",", "+" );
         }// end of if block
     	
     	String strJSON = null;
@@ -2573,13 +2577,13 @@ public abstract class UtilityMethod
     	// All spaces must be replaced with the + symbols for the HERE Maps web service
         if( wxLocation.contains( " " ) )
         {
-        	 wxLocation.replace( " ", "+" );
+        	wxLocation = wxLocation.replace( " ", "+" );
         }// end of if block
         
         // All commas must be replaced with the + symbols for the HERE Maps web service
         if( wxLocation.contains( "," ) )
         {
-        	 wxLocation.replace( ",", "+" );
+        	wxLocation = wxLocation.replace( ",", "+" );
         }// end of if block
     	
     	String strJSON = null;
@@ -2655,7 +2659,49 @@ public abstract class UtilityMethod
         return strJSON;
 
     }// end of method retrieveGoogleGeoLocationUsingAddress
+    
+    /**
+     * Uses the Geonames web service to return the geographical location of a city using it's coordinates.
+     *
+     * @param lat   The line of latitude that the city is located
+     * @param lng   The line of longitude that the city is located
+     * @return  A {@code String} representation of a JSON {@code Object} returned from the web service.
+     */
+    public static String retrieveGeoNamesGeoLocationUsingCoordinates( float lat, float lng )
+    {
+        String strJSON = null;
+        String geoUrl =
+                "http://api.geonames.org/findNearbyPlaceNameJSON?" +
+                "lat=" + lat +
+                "&lng=" + lng +
+                "&username=" + WidgetUpdateService.geoNameAccount;
 
+        if ( UtilityMethod.hasInternetConnection() )
+        {
+            try
+            {
+                strJSON = HttpHelper.downloadUrl( geoUrl );
+            }// end of try block
+            catch (IOException e)
+            {
+            	logMessage( "severe", e.getMessage(),
+    		        TAG + "::RetrieveGeoNamesGeoLocationUsingCoordinates [line: " +
+    		        getExceptionLineNumber( e ) + "]" );            	
+            }// end of catch block
+
+        }// end of if block
+        else
+        {
+        	JOptionPane.showMessageDialog( null, "No Internet Connection.",
+    				WeatherLionMain.PROGRAM_NAME, JOptionPane.ERROR_MESSAGE );
+
+        }// end of else block
+
+        // Return the data from specified URL
+        return strJSON;
+
+    }// end of method RetrieveGeoNamesGeoLocationUsingCoordinates
+    
     /**
      * Uses the Google web service to return the geographical location of a city using its coordinates.
      *
@@ -2778,6 +2824,72 @@ public abstract class UtilityMethod
     	return c;
     }// end of method temperatureColor
     
+    /**
+     * Get the duration of time that has elapsed since a certain date.
+     *
+     * @param pastDate The date in the past to be compared to.
+     * @return  A {@code String} representing the time frame that has passed.
+     */
+    public static String getTimeSince( Date pastDate )
+    {
+        //milliseconds
+        long difference = new Date().getTime() - pastDate.getTime();
+
+        long secondsInMilli = 1000;
+        long minutesInMilli = secondsInMilli * 60;
+
+        long elapsedMinutes = difference / minutesInMilli;
+        String timeElapsed;
+
+        if( elapsedMinutes >= 60 )
+        {
+            // an hour or more
+            int hours = (int) elapsedMinutes / 60;
+            timeElapsed = hours > 1 ? hours + " hours ago" : hours + " hour ago";
+        }// end of if block
+        else if( elapsedMinutes >= 1440 )
+        {
+            // a day or more
+            int days = (int) elapsedMinutes / 1440;
+            timeElapsed = days > 1 ? days + " days ago" : days + " day ago";
+        }// end of if block
+        else if( elapsedMinutes >= 10080 )
+        {
+            // a week or more
+            int weeks = (int) elapsedMinutes / 10080;
+            timeElapsed = weeks > 1 ? weeks + " weeks ago" : weeks + " week ago";
+        }// end of if block
+        else if( elapsedMinutes >= 43830 )
+        {
+            // a month or more
+            int months = (int) elapsedMinutes / 1440;
+            timeElapsed = months > 1 ? months + " months ago" : months + " month ago";
+        }// end of if block
+        else if( elapsedMinutes >= 525960 )
+        {
+            // a year or more
+            int years = (int) elapsedMinutes / 525960;
+            timeElapsed = years > 1 ? years + " years ago" : years + " year ago";
+        }// end of if block
+        else
+        {
+            int seconds = (int) elapsedMinutes / 60;
+
+            if( elapsedMinutes < 1 )
+            {
+                // time in seconds
+                timeElapsed = seconds > 1 ? seconds + " seconds ago" : seconds + " second ago";
+            }// end of if block
+            else
+            {
+                // time in minutes
+                timeElapsed = elapsedMinutes > 1 ? elapsedMinutes + " minutes ago" : elapsedMinutes + " minute ago";
+            }// end of else block
+        }// end of else block
+
+        return timeElapsed;
+    }// end of method getTimeSince
+    
     /***
      * Determines whether or not a connectivity check needs to be performed
      * 
@@ -2789,7 +2901,7 @@ public abstract class UtilityMethod
     	long minutesToGo = millisecondsToMinutes( interval );
     	boolean ready = false;
     	
-    	if( lastUpdated != null && !updatedRequired() )
+    	if( lastUpdated != null && !updateRequired() )
     	{
     		Calendar cal = Calendar.getInstance();
     		cal.setTime( lastUpdated );
@@ -2805,7 +2917,7 @@ public abstract class UtilityMethod
             
             ready = minutesToGo <= 1;
          }// end of if block
-    	else if( updatedRequired() || lastUpdated != null )
+    	else if( updateRequired() || lastUpdated != null )
     	{
     		ready = true;
     	}// end of else if block
@@ -2818,7 +2930,7 @@ public abstract class UtilityMethod
      *
      * @return  True/False depending on the result of the check.
      */
-    public static boolean updatedRequired()
+    public static boolean updateRequired()
     {
         if( lastUpdated == null )
         {
@@ -3484,6 +3596,9 @@ public abstract class UtilityMethod
 	        }// end of try block
 			catch ( SQLException e )
 			{
+				logMessage( "severe", e.getMessage(),
+				        TAG + "::checkIfTableExists [line: " + getExceptionLineNumber( e ) + "]" );
+				
 				// sometimes the execute update statement returns a result set so it will be handled here
 				if( e.getMessage().toLowerCase().equals( "query returns results" ) )
 				{
@@ -3505,6 +3620,8 @@ public abstract class UtilityMethod
 					catch ( SQLException ee )
 					{
 						affected_rows = 0;
+						logMessage( "severe", ee.getMessage(),
+						        TAG + "::checkIfTableExists [line: " + getExceptionLineNumber( ee ) + "]" );
 					}// end of catch block
 				}// end of 
 			}// end of catch block
@@ -3538,6 +3655,8 @@ public abstract class UtilityMethod
 			catch( SQLException e )
 			{
 				success = 0;
+				logMessage( "severe", e.getMessage(),
+				        TAG + "::createWSADatabase [line: " + getExceptionLineNumber( e ) + "]" );
 			}// end of catch block
 		}// end of if block
 		
@@ -3570,6 +3689,8 @@ public abstract class UtilityMethod
 	 		catch( SQLException e )
 	 		{
 	 			success = 0;
+	 			logMessage( "severe", e.getMessage(),
+				        TAG + "::createWorldCitiesDatabase [line: " + getExceptionLineNumber( e ) + "]" );
 	 		}// end of catch block
 		}// end of if block
 		
@@ -3616,6 +3737,8 @@ public abstract class UtilityMethod
         }// end of try block
 		catch ( SQLException e )
 		{
+			logMessage( "severe", e.getMessage(),
+			        TAG + "::addCityToDatabase [line: " + getExceptionLineNumber( e ) + "]" );
 			return 0;
 		}// end of catch block
 	}// end of method addCityToDatabase
@@ -3703,9 +3826,11 @@ public abstract class UtilityMethod
 	    }// end of try block
 		catch( SQLException e )
 		{
+			logMessage( "severe", e.getMessage(),
+			        TAG + "::getCityDataFromDatabase [line: " + getExceptionLineNumber( e ) + "]" );
 			return null;
 		}// end of catch block
-	}// end of method getCityData
+	}// end of method getCityDataFromDatabase
 	
 	/**
 	 * Custom response dialog box.
@@ -3794,7 +3919,7 @@ public abstract class UtilityMethod
 	 * @param checkString 	The {@code String} that contains the specified {@code char}
 	 * @return				An {@code int} representing the number of occurrences of the search character
 	 */
-	public static int numberOfCharacterOccurences( char c, String checkString )
+	public static int numberOfCharacterOccurrences( char c, String checkString )
 	{
 		int cn = 0;
 		
@@ -3807,7 +3932,7 @@ public abstract class UtilityMethod
         }// end of for each loop
         
         return cn;
-	}// end of method numberOfCharacterOccurences
+	}// end of method numberOfCharacterOccurrences
 	
 	/**
 	 * Return the name of the SQLite database file currently in use.
@@ -3926,7 +4051,7 @@ public abstract class UtilityMethod
 	{
 		// prompt the user
 		JOptionPane.showMessageDialog( null, "There are missing files or information that are neccessary for"
-				+ " the program to run and\ntherefore renders the program currupt and unable to launch!",
+				+ " the program to run and\ntherefore renders the program corrupt and unable to launch!",
     			WeatherLionMain.PROGRAM_NAME + " (" + asset + ")", JOptionPane.ERROR_MESSAGE  );
 		
 		// log message
@@ -3941,12 +4066,10 @@ public abstract class UtilityMethod
 	 * <p>
 	 * Since the operation is non-atomic, the returned value may be inaccurate.
 	 * However, this method is quick and does its best.
-	 * </p>
-	 * @author Aksel Willgert {@link https://stackoverflow.com/users/1418643/aksel-willgert}
-	 * <br />
-	 * <b style="margin-left:-40px">Retrieved from:</b><br />
-	 * <a href='https://stackoverflow.com/questions/2149785/get-size-of-folder-or-file'>Stack Overflow</a>
+	 * </p>		 
 	 * @return	A {@code long} representing the size of the file in bytes
+	 * @author <a href="https://stackoverflow.com/users/1418643/aksel-willgert" target="_top">Aksel Willgert</a>
+	 * @see <a href='https://stackoverflow.com/questions/2149785/get-size-of-folder-or-file' target="_top">Stack Overflow</a>
 	 */
 	public static long size( Path path )
 	{
@@ -3984,6 +4107,9 @@ public abstract class UtilityMethod
 	    }// end of try block 
 	    catch ( IOException e )
 	    {
+	    	logMessage( "severe", e.getMessage(),
+			        TAG + "::size [line: " + getExceptionLineNumber( e ) + "]" );
+	    	
 	        throw new AssertionError( "walkFileTree will not throw IOException if the FileVisitor does not" );
 	    }// end of catch block
 

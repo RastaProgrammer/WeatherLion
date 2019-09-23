@@ -21,7 +21,6 @@ import com.google.gson.reflect.TypeToken;
  * 01/21/19
  */
 
-@SuppressWarnings("unused")
 public class HereGeoLocation
 {
     public static HereGeoLocation cityGeographicalData;
@@ -36,8 +35,6 @@ public class HereGeoLocation
     {
         this.response = response;
     }// end of method setResponse
-
-    private Response Response;
 
     //no-argument constructor
     public HereGeoLocation()

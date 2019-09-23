@@ -49,7 +49,7 @@ public class IconUpdateService implements Runnable
 				{
 					// if there was no previous Internet connection, check for a return in connectivity
 					// and refresh the widget
-					if( WeatherLionWidget.usingPreviousData && UtilityMethod.updatedRequired() )
+					if( WeatherLionWidget.usingPreviousData && UtilityMethod.updateRequired() )
 					{    			
 						// run the weather service
 						WeatherLionWidget.ws = new WidgetUpdateService( false );

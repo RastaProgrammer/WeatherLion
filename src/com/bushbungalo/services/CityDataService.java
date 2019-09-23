@@ -43,7 +43,7 @@ import com.google.gson.GsonBuilder;
  * <b style="margin-left:-40px">Updates:</b><br />
  * <ul>
  * 		<li>01/21/19 - Added param {@code service} to default constructor</li>
- * 		<li>03/23/19 - Added method {@code getHereSuggestions} for Here Maps data</li>
+ * 		<li>03/23/19 - Added method {@link #getHereSuggestions} for Here Maps data</li>
  * </ul>
  */
 
@@ -60,9 +60,10 @@ public class CityDataService extends SwingWorker< String, Object >
 	private static String regionName = null;
 	private static String regionCode = null;
 	private static String Latitude = null;
-	private static String Longitude = null;	
+	private static String Longitude = null;		
 	
-	public static CityData cityData;
+	private int matchCount;
+	
 	public static boolean serviceRequest = false;
 
 	public CityDataService( String url, String service )
@@ -78,7 +79,7 @@ public class CityDataService extends SwingWorker< String, Object >
 
 	public void setService( String m_service )
 	{
-		this.m_url = m_service;
+		this.m_service = m_service;
 	}
 	
 	public String getUrl() 
@@ -201,7 +202,7 @@ public class CityDataService extends SwingWorker< String, Object >
 				JSONObject geoNamesJSON = new JSONObject( response );
 				// Get the JSONObject "geonames"
 				JSONArray geoNames = geoNamesJSON.optJSONArray( "geonames" );
-				int matchCount = geoNamesJSON.getInt( "totalResultsCount" );
+				matchCount = geoNamesJSON.getInt( "totalResultsCount" );
 
 				// if the place array only contains one object, then only one
 				// match was found
@@ -356,7 +357,7 @@ public class CityDataService extends SwingWorker< String, Object >
 				JSONObject hResponse = reader.getJSONObject( "Response" );
 				JSONObject view = hResponse.getJSONArray( "View" ).getJSONObject( 0 );
 				JSONArray places = view.optJSONArray( "Result" );
-				int matchCount = places.length();
+				matchCount = places.length();
 
 				// if the place array only contains one object, then only one
 				// match was found

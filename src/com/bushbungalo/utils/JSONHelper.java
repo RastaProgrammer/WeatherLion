@@ -26,9 +26,9 @@ import com.google.gson.reflect.TypeToken;
  * <br />
  * <b style="margin-left:-40px">Updates:</b><br />
  * <ul>
- * 		<li>06/27/19 - Added method {@code saveToJSONFile}.</li>
- * 		<li>06/28/19 - Added method {@code jsonPrettify}.</li>
- * 		<li>06/29/19 - Added methods {@code toJSONArray} and {@code toJSONObject}.</li>
+ * 		<li>06/27/19 - Added method {@link #saveToJSONFile}.</li>
+ * 		<li>06/28/19 - Added method {@link #jsonPrettify}.</li>
+ * 		<li>06/29/19 - Added methods {@link #toJSONArray} and {@link #toJSONObject}.</li>
  * </ul>
  */
 
@@ -246,7 +246,8 @@ public class JSONHelper
     }// end of method toJSONObject
 
     /**
-     * Attempt to convert a string to a {@code JsonObject}. 
+     * Attempt to convert a string to a {@code JsonObject}.
+     *  
      * @param strJSON	A string representation of JSON data.
      * @return	A {@code JsonArray} or {@code null} if unsuccessful
      */
@@ -270,14 +271,33 @@ public class JSONHelper
     }// end of method toJSONArray
     
     /**
-     * Returns JSON data to in a formatted (pretty) structure
-     * @param jsonString	JSON data formatted as a {@code String}.
-     * * </p>
-	 * @author kencoder {@link https://coderwall.com/kenlakoo}
-	 * <br />
-	 * <b style="margin-left:-40px">Retrieved from:</b><br />
-	 * <a href='https://coderwall.com/p/ab5qha/convert-json-string-to-pretty-print-java-gson'>Stack Overflow</a>
-     * @return
+     * Converts a {@code JsonArray} to a {@code List}.
+     *
+     * @param array The {@code JsonArray} to be converted
+     * @return  The {@code List} representing the extracted JSON data.
+     */
+    public static ArrayList< String > toList( JsonArray array )
+    {
+        ArrayList< String > returnList = new ArrayList<>();
+
+        if ( array != null )
+        {
+            for( int i = 0; i < array.size(); i++ )
+            {
+                returnList.add( array.get(i).getAsString() );
+            }// end of for loop
+        }// end of if block
+
+        return returnList;
+    }// end of method toList
+    
+    /**
+     * Returns JSON data to in a formatted (pretty) structure.
+     * 
+     * @param jsonString	JSON data formatted as a {@code String}.    
+     * @return A formatted JSON {@code String}.
+     * @author <a href="https://coderwall.com/kenlakoo" target="_top">kencoder</a>
+     * @see <a href='https://coderwall.com/p/ab5qha/convert-json-string-to-pretty-print-java-gson' target="_top">Stack Overflow</a>
      */
     public static String jsonPrettify( String jsonString ) 
     {

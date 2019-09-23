@@ -413,6 +413,6 @@ public class YahooWeatherYdnDataItem
         {
             return true;
         }// end of else block
-    }// end of method DeserializeJSON
+    }// end of method DeserializeYahooJSON
 	
 }// end of class YahooWeatherYdnDataItem

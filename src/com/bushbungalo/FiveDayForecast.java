@@ -35,7 +35,7 @@ public class FiveDayForecast
         this.forecastHighTemp = forecastHighTemp;
         this.forecastLowTemp = forecastLowTemp;
         this.forecastCondition = forecastCondition;
-    }
+    }// end of four-argument constructor
 
     public Date getForecastDate()
     {

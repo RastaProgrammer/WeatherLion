@@ -51,7 +51,7 @@ import com.bushbungalo.utils.XMLHelper;
  *       <li>02/05/19 - Moved assets out of the jar file to eliminate path headaches.</li>
  *       <li>02/06/19 - Added method {@code healthCheck} to ensure that required files are
  *                        found before program launch.</li>
- *       <li>03/02/19 - Added method {@code locationCheck()}.</li>
+ *       <li>03/02/19 - Added method {@link #locationCheck()}.</li>
  *       <li>05/04/19 - Added field {@code connectedToInternet} for monitoring Internet connectivity.</li>
  * </ul>
  */
@@ -86,7 +86,7 @@ public abstract class WeatherLionMain
 	public static final String OPEN_WEATHER = "Open Weather Map";
 	public static final String WEATHER_BIT = "Weather Bit";
 	public static final String YAHOO_WEATHER = "Yahoo! Weather";
-	public static final String YR_WEATHER = "Yr.no (Norwegian Metrological Institute)";
+	public static final String YR_WEATHER = "Yr.no (Norwegian Meteorological Institute)";
 	@Deprecated
 	public static final String WEATHER_UNDERGROUND = "Weather Underground";
 	public static String[] providerNames = new String[] { 
@@ -180,7 +180,7 @@ public abstract class WeatherLionMain
 		Collections.sort( wxOnly );	// sort the list
 		
 		// GeoNames is not a weather provider so it cannot be select here
-		if( wxOnly.contains( "GeoNames" ) ) wxOnly.remove( "GeoNames" );
+		wxOnly.remove( "GeoNames" );
 		
 		authorizedProviders = wxOnly.toArray( new String[ 0 ] );
 		
@@ -392,13 +392,28 @@ public abstract class WeatherLionMain
 		if( !storageDirectory.exists() ) 
 		{
 			storageDirectory.mkdirs();
+			
+			// build all required sub-files			
+			try
+			{
+				mainStorageFile.createNewFile();
+				cityStorageFile.createNewFile();
+				wakStorageFile.createNewFile();
+			}// end of try black 
+			catch ( IOException e )
+			{
+				UtilityMethod.logMessage( "severe", e.getMessage(),
+			        TAG + "::buildRequiredDatabases [line: " +
+			        UtilityMethod.getExceptionLineNumber( e )  + "]" );				
+			}// end of catch block
+			
 		}// end of if block
 		
 		if( !mainStorageFile.exists() )
 		{
 			try
 			{
-				mainStorageFile.createNewFile();
+				mainStorageFile.createNewFile();				
 			}// end of try black 
 			catch ( IOException e )
 			{
@@ -407,6 +422,34 @@ public abstract class WeatherLionMain
 			        UtilityMethod.getExceptionLineNumber( e )  + "]" );				
 			}// end of catch block
 		}// end of if block	
+		
+		if( !cityStorageFile.exists() )
+		{
+			try
+			{
+				cityStorageFile.createNewFile();				
+			}// end of try black 
+			catch ( IOException e )
+			{
+				UtilityMethod.logMessage( "severe", e.getMessage(),
+			        TAG + "::buildRequiredDatabases [line: " +
+			        UtilityMethod.getExceptionLineNumber( e )  + "]" );				
+			}// end of catch block
+		}// end of if block
+		
+		if( !wakStorageFile.exists() )
+		{
+			try
+			{
+				wakStorageFile.createNewFile();				
+			}// end of try black 
+			catch ( IOException e )
+			{
+				UtilityMethod.logMessage( "severe", e.getMessage(),
+			        TAG + "::buildRequiredDatabases [line: " +
+			        UtilityMethod.getExceptionLineNumber( e )  + "]" );				
+			}// end of catch block
+		}// end of if block
 		
 		if ( mainStorageFile.exists() && cityStorageFile.exists() && wakStorageFile.exists())
         {

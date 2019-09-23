@@ -87,9 +87,9 @@ public class LionSecurityManager
 	public static String databasePath = "res/storage/";
 	public static File databaseDirectory = new File( databasePath );
 	public static File databaseFile = new File( databasePath + WeatherLionMain.WAK_DATABASE_NAME );
-	public static String announcement = "<html>Weather Lion can consume data from webservices such as:<br />"
+	public static String announcement = "<html>Weather Lion is designed to consume data from web services such as:<br />"
 			+ "Dark Sky Weather, Here Maps, Yahoo! Weather, Open Weather Map,<br />Weather Bit, Weather Underground,"
-			+ " and Geonames.<br />In order for the program to us any of these providers, you must aquire key from each<br />"
+			+ " and Geonames.<br />In order for the program to us any of these providers, you must acquire key from each<br />"
 			+ "services provider.<br /><br />The following URLs can be used to obtain access to the websites:<br />"
 			+ "<ol><li><b>Dark Sky:</b> <a href=\"https://darksky.net/dev/\">https://darksky.net/dev</a></li>" 
 			+ "<li>Geonames: <a href=\"http://www.geonames.org/\">http://www.geonames.org/</a><br /></li>"
@@ -97,9 +97,9 @@ public class LionSecurityManager
 			+ "<li>Open Weather Map: <a href=\"https://openweathermap.org/api\">https://openweathermap.org/api</a></li>"
 			+ "<li>Weather Bit: <a href=\"https://www.weatherbit.io/api\">https://www.weatherbit.io/api</a></li>"
 			+ "<li>Yahoo Weather: <a href=\"https://developer.yahoo.com/weather/\">https://developer.yahoo.com/weather/</a></li></ol>"
-			+ "<br />The program will be able to display weather from Yr.no (Norwegian Metrological Institute)<br /> as they don't require a key.<br />"
-			+ "<br /><p style='color: red;'><b>**Access must be supplied for any the specified weather providers and a username to use "
-			+ "<br />the geonames website (<a href=\"http://www.geonames.org/\">http://www.geonames.org/</a>) for city search.</b></p></html>";
+			+ "<br />The program will be able to display weather from Yr.no (Norwegian Meteorological Institute)<br /> as they don't require a key.<br />"
+			+ "<br /><p style='color: red;'><b>**Access must be supplied for any the specified weather providers and a username for use "
+			+ "<br /> with the geonames website (<a href=\"http://www.geonames.org/\">http://www.geonames.org/</a>) for city search.</b></p></html>";
 	
 	private static Cipher ecipher;
 	private static Cipher dcipher;
@@ -291,6 +291,7 @@ public class LionSecurityManager
  	/**
  	 * Checks to see if any provider stored in the database is missing a key 
  	 * that is required.
+ 	 * 
  	 * @return An {@code int} representing the dialog reponse 
  	 */
  	private static int checkForMissingKeys() 
@@ -298,11 +299,11 @@ public class LionSecurityManager
 		String mks = keysMissing.toString().replaceAll( "[\\[\\](){}]", "" );
 		String fMks = null;
 		
-		if( UtilityMethod.numberOfCharacterOccurences( ',', mks ) > 1 )
+		if( UtilityMethod.numberOfCharacterOccurrences( ',', mks ) > 1 )
 		{
 			fMks = UtilityMethod.replaceLast( ",", ", and", mks );
 		}// end of if block
-		else if( UtilityMethod.numberOfCharacterOccurences( ',', mks ) == 1 )
+		else if( UtilityMethod.numberOfCharacterOccurrences( ',', mks ) == 1 )
 		{
 			fMks = mks.replace( ",", " and" );
 		}// end of else block
@@ -589,7 +590,7 @@ public class LionSecurityManager
 				{
 					 // confirm that user really wishes to delete the key
 					String prompt = "Are you sure that you wish to delete the " +
-									txtKeyName.getText() + "\nkey assinged by " + 
+									txtKeyName.getText() + "\nkey assigned by " + 
 									cboAccessProvider.getSelectedItem() + "?\n" +
 									"This cannot be undone!";
 					int result = UtilityMethod.responseBox( prompt, WeatherLionMain.PROGRAM_NAME + " Delete Key", 
@@ -686,11 +687,11 @@ public class LionSecurityManager
 									String hKeys = missingHereKeys.toString().replaceAll( "[\\[\\](){}]", "" );
 									String fs = null;
 									
-									if( UtilityMethod.numberOfCharacterOccurences( ',', hKeys ) > 1 )
+									if( UtilityMethod.numberOfCharacterOccurrences( ',', hKeys ) > 1 )
 									{
 										fs = UtilityMethod.replaceLast( ",", ", and", hKeys );
 									}// end of if block
-									else if( UtilityMethod.numberOfCharacterOccurences( ',', hKeys ) == 1 )
+									else if( UtilityMethod.numberOfCharacterOccurrences( ',', hKeys ) == 1 )
 									{
 										fs = hKeys.replace( ",", " and" );
 									}// end of else block
@@ -713,11 +714,11 @@ public class LionSecurityManager
 									String hKeys = missingYahooKeys.toString().replaceAll( "[\\[\\](){}]", "" );
 									String fs = null;
 									
-									if( UtilityMethod.numberOfCharacterOccurences( ',', hKeys ) > 1 )
+									if( UtilityMethod.numberOfCharacterOccurrences( ',', hKeys ) > 1 )
 									{
 										fs = UtilityMethod.replaceLast( ",", ", and", hKeys );
 									}// end of if block
-									else if( UtilityMethod.numberOfCharacterOccurences( ',', hKeys ) == 1 )
+									else if( UtilityMethod.numberOfCharacterOccurrences( ',', hKeys ) == 1 )
 									{
 										fs = hKeys.replace( ",", " and" );
 									}// end of else block
@@ -773,9 +774,8 @@ public class LionSecurityManager
 		
 		Collections.sort( wxOnly );	// sort the list
 		
-		// GeoNames is not a weather provider so it cannot be select here
-		if( wxOnly.contains( "Yr.no (Norwegian Metrological Institute)" ) )
-			wxOnly.remove( "Yr.no (Norwegian Metrological Institute)" );
+		// Yr.no (Norwegian Meteorological Institute) does not require an access key at the moment
+		wxOnly.remove(  WeatherLionMain.YR_WEATHER );
 		
 		String[] accessNeededProviders = wxOnly.toArray( new String[ 0 ] );
 		weatherProviders = new DefaultComboBoxModel< String >( accessNeededProviders );
@@ -1215,11 +1215,11 @@ public class LionSecurityManager
 			String s = webAccessGranted.toString().replaceAll( "[\\[\\](){}]", "" );
 			String fs = null;
 			
-			if( UtilityMethod.numberOfCharacterOccurences( ',', s ) > 1 )
+			if( UtilityMethod.numberOfCharacterOccurrences( ',', s ) > 1 )
 			{
 				fs = UtilityMethod.replaceLast( ",", ", and", s );
 			}// end of if block
-			else if( UtilityMethod.numberOfCharacterOccurences( ',', s ) == 1 )
+			else if( UtilityMethod.numberOfCharacterOccurrences( ',', s ) == 1 )
 			{
 				fs = s.replace( ",", " and" );
 			}// end of else block
@@ -1235,12 +1235,12 @@ public class LionSecurityManager
 		else 
 		{
 			UtilityMethod.logMessage( "info", 
-				"No valid access privelages were stored in the database!", "LionSecurityManager::loadAccessProviders" );
+				"No valid access privileges were stored in the database!", "LionSecurityManager::loadAccessProviders" );
 		}// end of else block
 		
 		if( webAccessGranted.size() == 0 )
 		{
-			if( noAccessPrivialgesStored() == JOptionPane.YES_OPTION )
+			if( noAccessPrivilegesStored() == JOptionPane.YES_OPTION )
 			{
 				if( !frmKeys.isVisible() )
 				{
@@ -1311,7 +1311,7 @@ public class LionSecurityManager
 	 * 
 	 * @return		An {@code int} value representing the user's response
 	 */
-	private static int noAccessPrivialgesStored() 
+	private static int noAccessPrivilegesStored() 
 	{
 		// check if the user wishes to provide some accounts for access
 		// to weather services.
@@ -1532,9 +1532,7 @@ public class LionSecurityManager
             		deleteItem.setEnabled( false );
             	}// end of else block
             	
-            	popRightClick.show( me.getComponent(),
-			               me.getX(), me.getY()
-			              );
+            	popRightClick.show( me.getComponent(), me.getX(), me.getY() );
             }// end of if block
         }// end of method showPopup
     }// end of inner class PopupMenuListener

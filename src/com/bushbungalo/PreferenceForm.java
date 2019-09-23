@@ -81,7 +81,7 @@ import com.bushbungalo.utils.UtilityMethod;
  * <b style="margin-left:-40px">Updates:</b><br />
  * <ul>
  * 		<li>01/21/19 - Removed Yahoo! Weather as an option</li>
- * 		<li>01/13/19 - Added method {@code calculateWindChill}</li>
+ * 		<li>01/13/19 - Added method {@link #calculateWindChill}</li>
  * 		<li>01/24/19 - Reinstated Yahoo! Weather as an option</li>
  * 		<li>01/28/19 - Icon set panel added</li>
  * 		<li>
@@ -93,7 +93,7 @@ import com.bushbungalo.utils.UtilityMethod;
  * 				</ol>
  * 		</li>
  * 		<li>
- * 			02/04/19 - Added methods {@code loadInstalledIconPacks} and {@code getInstalledIconPacks} to
+ * 			02/04/19 - Added methods {@link #loadInstalledIconPacks} and {@link #getInstalledIconPacks} to
  * 					   support dynamic loading of available icon packs.
  * 		</li>
  * 		<li>02/05/19 - Moved assets out of the jar file to eliminate path headaches.</li>
@@ -104,7 +104,7 @@ import com.bushbungalo.utils.UtilityMethod;
  * 				<li>05/11/19 - Removed printing stack trace errors to console for logging</li>
  * 			</ol>
  * 		</li>
- * 		<li>06/28/19 - Added method {@code storeNewLocationLocally}</li>
+ * 		<li>06/28/19 - Added method {@link #storeNewLocationLocally}</li>
  *      <li>07/03/19 - Updated preference saving method.</li>
  * </ul>
  */
@@ -185,7 +185,7 @@ public class PreferenceForm
 	protected int m_current_tab;	
  	
  	// constants
- 	private static final String LOCATION_DATA_TEXT = "Type the city name for which the weather is required . Example Pine Hills or Kingston. After entering the city name, press the search button to locate the city then select on from the drop down list.";
+ 	private static final String LOCATION_DATA_TEXT = "Type the city name for which the weather is required. Example Pine Hills or Kingston. After entering the city name, press the search button to locate the city then select the city from the drop down list when displayed.";
  	private static final String WEATHER_DATA_TEXT = "Weather providers get weather data from different internet sources. They can differ by number of locations and provide different data.";
  	
  	private static final String ABOUT_PROGRAM = "Weather Lion is an ongoing effort to create a desktop weather widget"
@@ -1065,7 +1065,7 @@ public class PreferenceForm
 		int thisYear = Calendar.getInstance().get( Calendar.YEAR );
 		String message = "<html><center><b>Weather Lion</b>"
 				+ "<br />Author: Paul O. Patterson<br />"
-				+ "BushBungalo Productionsâ„¢ 2017 - " + thisYear + "<br />"
+				+ "BushBungalo Productions™ 2005 - " + thisYear + "<br />"
 				+ "Version: 1.0<br />"
 				+ "&copy All rights reserved</center>"
 				+ "<br /><br />"+ ABOUT_PROGRAM  + "</html>";

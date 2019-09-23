@@ -301,12 +301,14 @@ public class WeatherDataXMLService  extends SwingWorker< String, Object >
 			 current.addContent( new Element( "HighTemperature" ).setText( String.valueOf( currentHigh ) ) ); 
 			 current.addContent( new Element( "LowTemperature" ).setText( String.valueOf( currentLow ) ) ); 
 			 doc.getRootElement().addContent( current );
+			 
+			 // list of forecast data
+			 Element forecastDataList = new Element( "DailyForecast" );
         				 
 			 // Five Day Forecast                
 			 for ( FiveDayForecast forecast : fiveDayForecast )
-			 {
-				 Element forecastList = new Element( "ForecastList" );
-				 Element forecastData = new Element( "ForecastData" );
+			 {				 
+				 Element forecastData = new Element( "DayForecast" );
 	    	
 				 forecastData.addContent( new Element( "Date" ).setText( forecast.getForecastDate().toString() ) ); 
 				 forecastData.addContent( new Element( "Condition" ).setText( UtilityMethod.toProperCase( 
@@ -314,9 +316,10 @@ public class WeatherDataXMLService  extends SwingWorker< String, Object >
 				 forecastData.addContent( new Element( "LowTemperature" ).setText( forecast.getForecastLowTemp() ) );
 				 forecastData.addContent( new Element( "HighTemperature" ).setText( forecast.getForecastHighTemp() ) ); 
     		
-				 forecastList.addContent( forecastData );
-				 doc.getRootElement().addContent( forecastList );
-			 }// end of for each loop    	    	
+				 forecastDataList.addContent( forecastData );				 
+			 }// end of for each loop
+			 
+			 doc.getRootElement().addContent( forecastDataList );
     	
 			 // new XMLOutputter().output(doc, System.out);
 			 XMLOutputter xmlOutput = new XMLOutputter();
