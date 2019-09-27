@@ -1615,6 +1615,17 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	            						UtilityMethod.escapeUriString( currentCity.toString() ) +
 	            							"&units=I&key=" + weatherBitApiKey );
 		            		break;
+		            	case WeatherLionMain.YAHOO_WEATHER:
+		            		try 
+				        	{
+				        		strJSON.add( getYahooWeatherData( WeatherLionMain.storedPreferences.getLocation().toLowerCase() ) );
+							}// end of try block
+				        	catch ( Exception e )
+				        	{
+				        		strJSON = null;
+							}// end of catch block
+		            		
+		            		break;
 		                case WeatherLionMain.YR_WEATHER:
 		                	json =
         						UtilityMethod.retrieveGeoNamesGeoLocationUsingAddress( currentCity.toString() );
@@ -1636,27 +1647,13 @@ public class WeatherLionWidget extends JFrame implements Runnable
             				
             				wxUrl.setLength( 0 );
 	    					wxUrl.append( "https://www.yr.no/place/" +
-	    		    				 countryName + "/" + regionName + "/" + cityName + "/forecast.xml" );
-		            		break;
-		                default:
-		                	strJSON.add( "Invalid Provider" );
+	    		    				 countryName + "/" + regionName + "/" + cityName + "/forecast.xml" );	            			               
 		                	
 		                    break;
 		            }// end of switch block
 		        }// end of if block	
 		        
-		        if( wxDataPrivider.equals( WeatherLionMain.YAHOO_WEATHER ) )
-		        {
-		        	try 
-		        	{
-		        		strJSON.add( getYahooWeatherData( WeatherLionMain.storedPreferences.getLocation().toLowerCase() ) );
-					}// end of try block
-		        	catch ( Exception e )
-		        	{
-		        		strJSON = null;
-					}// end of catch block
-		        }// end of if block
-		        else 
+		        if( !wxDataPrivider.equals( WeatherLionMain.YAHOO_WEATHER ) )
 		        {
 		        	if( wxUrl.length() != 0 && fxUrl.length() != 0 && axUrl.length() != 0 ) 
 			        {
@@ -1681,7 +1678,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			        {
 			        	strJSON.add( UtilityMethod.retrieveWeatherData( axUrl.toString() ) );	        			
 			        }// end of else if block
-		        }// end of else block
+		        }// end of if block		        
 			}// end of if block				
 			
 			return strJSON;
