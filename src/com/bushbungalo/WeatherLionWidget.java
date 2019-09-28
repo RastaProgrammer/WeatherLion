@@ -344,6 +344,8 @@ public class WeatherLionWidget extends JFrame implements Runnable
 					{
                 		WidgetUpdateService.currentCondition.setLength( 0 );
                 		WidgetUpdateService.currentCondition.append( "Clear" );
+                		lblWeatherCondition.setText( UtilityMethod.toProperCase( 
+                				WidgetUpdateService.currentCondition.toString() ) );
 					}// end of if block
                 	
                     if( UtilityMethod.weatherImages.containsKey( 
