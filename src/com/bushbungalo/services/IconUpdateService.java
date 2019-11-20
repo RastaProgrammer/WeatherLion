@@ -70,7 +70,7 @@ public class IconUpdateService implements Runnable
 			}// end of try block 
 			catch ( InterruptedException e ) 
 			{
-				 UtilityMethod.logMessage( "severe", e.getMessage(),
+				 UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 			        TAG + "::run [line: " +
 			        UtilityMethod.getExceptionLineNumber( e )  + "]" );		
 			}// end of catch block

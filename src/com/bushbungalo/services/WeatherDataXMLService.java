@@ -329,19 +329,19 @@ public class WeatherDataXMLService  extends SwingWorker< String, Object >
 			 xmlOutput.output( doc, new FileWriter( WeatherLionMain.DATA_DIRECTORY_PATH +
 				 WeatherLionMain.WEATHER_DATA_XML ) );
 			 
-			 UtilityMethod.logMessage( "info", providerName + "'s weather data was stored locally!",
+			 UtilityMethod.logMessage( UtilityMethod.LogLevel.INFO, providerName + "'s weather data was stored locally!",
 					 TAG + "::saveCurrentWeatherXML" );
 	    				
 		 }// end of try block
 		 catch ( FileNotFoundException e )
 		 {
-			 UtilityMethod.logMessage( "severe", e.getMessage(),
+			 UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::saveCurrentWeatherXML [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		 }// end of catch block
 		 catch ( IOException e )
 		 {
-			 UtilityMethod.logMessage( "severe", e.getMessage(),
+			 UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::saveCurrentWeatherXML [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		 }// end of catch block

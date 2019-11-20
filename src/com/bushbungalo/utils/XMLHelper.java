@@ -101,17 +101,17 @@ public class XMLHelper
 			}// end of try block
 	        catch ( FileNotFoundException e )
 	        {
-	        	 UtilityMethod.logMessage( "severe", e.getMessage(),
+	        	 UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
     		        TAG + "::exportToXML [line: " + UtilityMethod.getExceptionLineNumber(e)  + "]" );
 			}// end of catch block
 	        catch ( IOException e )
 	        {
-	        	 UtilityMethod.logMessage( "severe", e.getMessage(),
+	        	 UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
      		        TAG + "::exportToXML [line: " + UtilityMethod.getExceptionLineNumber(e)  + "]" );
 			}// end of catch block
 		    catch ( JDOMException e )
 		    {
-		    	 UtilityMethod.logMessage( "severe", e.getMessage(),
+		    	 UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
     		        TAG + "::exportToXML [line: " + UtilityMethod.getExceptionLineNumber(e)  + "]" );				
 			}// end of catch block
         }// end of if block	    
@@ -159,13 +159,13 @@ public class XMLHelper
     	{
     		cd = null;
     	    
-    		UtilityMethod.logMessage( "severe", io.getMessage(),
+    		UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, io.getMessage(),
  		        TAG + "::importFromXML [line: " + UtilityMethod.getExceptionLineNumber(io)  + "]" );
     	}// end of catch block 
     	catch ( JDOMException jdomex )
     	{
     		cd = null;
-    		UtilityMethod.logMessage( "severe", jdomex.getMessage(),
+    		UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, jdomex.getMessage(),
  		        TAG + "::importFromXML [line: " + UtilityMethod.getExceptionLineNumber(jdomex)  + "]" );
     	}// end of catch block
 		

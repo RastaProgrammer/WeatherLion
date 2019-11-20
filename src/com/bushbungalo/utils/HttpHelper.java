@@ -58,7 +58,7 @@ public class HttpHelper
         }// end of try block
         catch ( IOException e )
         {
-        	UtilityMethod.logMessage( "severe", e.getMessage(),
+        	UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::downloadUrl [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );   	
         }// end of catch block
@@ -103,7 +103,7 @@ public class HttpHelper
         }// end of try block
         catch ( IOException e )
         {
-        	UtilityMethod.logMessage( "severe", e.getMessage(),
+        	UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::readStream [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
         	

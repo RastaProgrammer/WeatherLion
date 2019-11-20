@@ -1169,7 +1169,7 @@ public class PreferenceForm
 		}// end of for each loop
 		
 		WeatherLionMain.iconPacksLoaded = true;
-		UtilityMethod.logMessage( "info", "Icon Packs Installed: " + WeatherLionMain.iconPackList,
+		UtilityMethod.logMessage( UtilityMethod.LogLevel.INFO, "Icon Packs Installed: " + WeatherLionMain.iconPackList,
 				"PreferenceForm::loadInstalledIconPacks" );
 		
 	}// end of method  loadInstalledIconPacks
@@ -1361,7 +1361,7 @@ public class PreferenceForm
 			}// end of try block
 			catch ( BadLocationException e )
 			{
-				UtilityMethod.logMessage( "severe" , e.getMessage(),
+				UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE , e.getMessage(),
 					"PreferenceForm::insertUpdate [line: " 
 				    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block

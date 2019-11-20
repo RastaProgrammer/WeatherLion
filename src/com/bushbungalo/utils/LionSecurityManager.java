@@ -194,7 +194,7 @@ public class LionSecurityManager
 			}// end of try black 
 			catch ( IOException e )
 			{
-				UtilityMethod.logMessage( "severe", e.getMessage(),
+				UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 			        TAG + "::init [line: " +
 			        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 			}// end of catch block
@@ -210,7 +210,7 @@ public class LionSecurityManager
 			}// end of try block
 			catch ( IOException e )
 			{
-				UtilityMethod.logMessage( "severe", e.getMessage(),
+				UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 			        TAG + "::init [line: " +
 			        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 			}// end of catch block
@@ -254,7 +254,7 @@ public class LionSecurityManager
 			}// end of try block
 			catch( SQLException e )
 			{
-				UtilityMethod.logMessage( "severe", e.getMessage(),
+				UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 			        TAG + "::addSiteKeyToDatabase [line: " +
 			        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 			}// end of catch block
@@ -280,7 +280,7 @@ public class LionSecurityManager
         }// end of try block
 		catch ( SQLException e )
 		{
-			UtilityMethod.logMessage( "severe", e.getMessage(),
+			UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::addSiteKeyToDatabase [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 			
@@ -840,7 +840,7 @@ public class LionSecurityManager
         }// end of try block
 		catch ( SQLException e )
 		{
-			UtilityMethod.logMessage( "severe", e.getMessage(),
+			UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::deleteSiteKeyFromDatabase [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 			return 0;
@@ -880,7 +880,7 @@ public class LionSecurityManager
 		}// end of try block
 		catch( Exception e )
 		{
-			UtilityMethod.logMessage( "severe", e.getMessage(),
+			UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::encrypt [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		}// end of catch block
@@ -911,7 +911,7 @@ public class LionSecurityManager
 		}// end of try block
 	    catch( Exception e )
 		{
-	    	UtilityMethod.logMessage( "severe", e.getMessage(),
+	    	UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::decrypt [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		}// end of catch block
@@ -970,7 +970,7 @@ public class LionSecurityManager
 	    }// end of try block
 		catch( SQLException e )
 		{
-			UtilityMethod.logMessage( "severe", e.getMessage(),
+			UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::getSiteKeyFromDatabase [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 			
@@ -1009,7 +1009,7 @@ public class LionSecurityManager
 						if( WidgetUpdateService.darkSkyApiKey != null )
 						{
 							webAccessGranted.add( "Dark Sky Weather" );
-							UtilityMethod.logMessage( "info", 
+							UtilityMethod.logMessage( UtilityMethod.LogLevel.INFO, 
 									"Dark Sky key loaded!", "LionSecurityManager::loadAccessProviders" );
 						}// end of if block
 						
@@ -1031,7 +1031,7 @@ public class LionSecurityManager
 						{
 							webAccessGranted.add( "GeoNames" );
 							geoNamesAccountLoaded = true;
-							UtilityMethod.logMessage( "info", 
+							UtilityMethod.logMessage( UtilityMethod.LogLevel.INFO, 
 								"GeoNames user account loaded!", "LionSecurityManager::loadAccessProviders" );
 						}// end of if block
 						
@@ -1051,7 +1051,7 @@ public class LionSecurityManager
 						if( WidgetUpdateService.openWeatherMapApiKey != null )
 						{
 							webAccessGranted.add( "Open Weather Map" );
-							UtilityMethod.logMessage( "info", 
+							UtilityMethod.logMessage( UtilityMethod.LogLevel.INFO, 
 								"Open Weather Map key loaded!", "LionSecurityManager::loadAccessProviders" );
 						}// end of if block
 						
@@ -1071,7 +1071,7 @@ public class LionSecurityManager
 						if( WidgetUpdateService.weatherBitApiKey != null )
 						{
 							webAccessGranted.add( "Weather Bit" );
-							UtilityMethod.logMessage( "info", 
+							UtilityMethod.logMessage( UtilityMethod.LogLevel.INFO, 
 								"Weather Bit key loaded!", "LionSecurityManager::loadAccessProviders" );
 						}// end of if block
 						
@@ -1092,7 +1092,7 @@ public class LionSecurityManager
 						if( WidgetUpdateService.weatherUndergroundApiKey != null )
 						{
 							webAccessGranted.add( "Weather Underground" );
-							UtilityMethod.logMessage( "info", 
+							UtilityMethod.logMessage( UtilityMethod.LogLevel.INFO, 
 								"Weather Underground key loaded!", "LionSecurityManager::loadAccessProviders" );
 						}// end of if block
 						
@@ -1122,7 +1122,7 @@ public class LionSecurityManager
 						if( WidgetUpdateService.hereAppId != null && WidgetUpdateService.hereAppCode != null )
 						{
 							webAccessGranted.add( "Here Maps Weather" );
-							UtilityMethod.logMessage( "info", 
+							UtilityMethod.logMessage( UtilityMethod.LogLevel.INFO, 
 								"Here Maps Weather keys loaded!", "LionSecurityManager::loadAccessProviders" );
 						}// end of if block
 						else if( WidgetUpdateService.hereAppId != null && WidgetUpdateService.hereAppCode == null )
@@ -1173,7 +1173,7 @@ public class LionSecurityManager
 						if( keysMissing.size() == 0 )
 						{
 							webAccessGranted.add( "Yahoo! Weather" );
-							UtilityMethod.logMessage( "info", 
+							UtilityMethod.logMessage( UtilityMethod.LogLevel.INFO, 
 								"Yahoo! Weather keys loaded!", "LionSecurityManager::loadAccessProviders" );
 						}// end of if block
 						else 
@@ -1228,13 +1228,13 @@ public class LionSecurityManager
 				fs = s;
 			}// end of else block
 			
-			UtilityMethod.logMessage( "info", 
+			UtilityMethod.logMessage( UtilityMethod.LogLevel.INFO, 
 				"The following access providers were loaded:\n" + fs + ".", "LionSecurityManager::loadAccessProviders" );
 			
 		}// end of if block
 		else 
 		{
-			UtilityMethod.logMessage( "info", 
+			UtilityMethod.logMessage( UtilityMethod.LogLevel.INFO, 
 				"No valid access privileges were stored in the database!", "LionSecurityManager::loadAccessProviders" );
 		}// end of else block
 		
@@ -1261,7 +1261,7 @@ public class LionSecurityManager
 		if( webAccessGranted.size() >= 1 &&  !geoNamesAccountLoaded ) 
 		{
 			UtilityMethod.logMessage(
-				"severe", "GeoNames user name not found!", "LionSecurityManager::loadAccessProviders" );
+				UtilityMethod.LogLevel.SEVERE, "GeoNames user name not found!", "LionSecurityManager::loadAccessProviders" );
 			
 			// confirm that user has a GeoNames account and want's to store it
 			String prompt = "This program requires a geonames username\n" +

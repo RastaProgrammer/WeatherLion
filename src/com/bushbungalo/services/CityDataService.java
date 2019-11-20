@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Inherited;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -22,6 +23,7 @@ import org.json.JSONTokener;
 
 import com.bushbungalo.PreferenceForm;
 import com.bushbungalo.WeatherLionMain;
+import com.bushbungalo.WeatherLionWidget.WidgetUpdateService;
 import com.bushbungalo.model.CityData;
 import com.bushbungalo.model.GeoNamesGeoLocation;
 import com.bushbungalo.model.GeoNamesGeoLocation.GeoNames;
@@ -65,6 +67,10 @@ public class CityDataService extends SwingWorker< String, Object >
 	private int matchCount;
 	
 	public static boolean serviceRequest = false;
+	
+	private static final String QUERY_COMMAND = "name_equals";
+	private String dataURL = null;
+	private String response;
 
 	public CityDataService( String url, String service )
 	{
@@ -98,69 +104,229 @@ public class CityDataService extends SwingWorker< String, Object >
 	@Override
 	protected String doInBackground() throws Exception
 	{
-		File previousSearchesPath = new File( "res/storage/previous_searches/" ); 
 		String uri = getUrl();
-		int start = uri.indexOf( "q=" ) + 2;
-        int end = uri.indexOf( "&" );
-		String response = null;
-
-		if( uri.contains( "geonames" ) ) 
-		{
-			String cityName = URLDecoder.decode( uri.substring( start, end ).toLowerCase(), "UTF-8" );
-			
-			// just the city name is required and nothing else
-            if ( cityName.contains( "," ) )
+		dataURL = uri != null ? uri.toString() : null;		 		
+		
+		if ( dataURL != null )
+        {
+            if( dataURL.contains( "geonames" ) )
             {
-                cityName = cityName.substring( 0, cityName.indexOf( "," ) );
-            }// end of if block
-            
-			String ps = String.format( "%s%s%s", "gn_sd_", cityName.replaceAll( " ", "_" ), ".json" );
-            File previousCitySearchFile = new File( previousSearchesPath.getPath() + "/" +  ps );
-            StringBuilder fileData = new StringBuilder();
-            
-            if( previousCitySearchFile.exists() )
+                setService( "geo" );
+            }// end of if block'
+            else if( dataURL.contains( "api.here" ) )
             {
-            	try(
-            			FileReader fr = new FileReader( previousCitySearchFile );	// declare and initialize the file reader object
-            			BufferedReader br = new BufferedReader( fr ); 	// declare and initialize the buffered reader object
-            	)
-            	{
-            		String line;                                                 
-                    
-                    while((line = br.readLine()) != null) 
-                    {
-                        fileData.append( line );
-                    }// end of while loop
-                    
-            		response = fileData.toString();
-            	}// end of try block
-            	catch ( FileNotFoundException e )
-                {
-            		 UtilityMethod.logMessage( "severe", e.getMessage(),
-     			        TAG + "::doInBackground [line: " +
-     			        UtilityMethod.getExceptionLineNumber( e )  + "]" );
-                }// end of catch block
-            }// end of if block
-            else 
-            {
-            	try
-        		{
-        			response = HttpHelper.downloadUrl( uri.toString() );
-        			JSONHelper.saveToJSONFile( response, previousCitySearchFile.toString() );
-        		}// end of try block
-        		catch ( IOException e )
-        		{
-        			 UtilityMethod.logMessage( "severe", e.getMessage(),
-				        TAG + "::doInBackground [line: " +
-				        UtilityMethod.getExceptionLineNumber( e )  + "]" );
-        			 
-        			response = null;
-        		}// end of catch block
+                setService( "here" );
             }// end of else block
-		}// end of if block		
+        }// end of if block
+		
+		switch( getService() )
+        {
+        	case "geo":
+	            String cityName = null;
+	
+	            if( UtilityMethod.hasInternetConnection() )
+	            {
+	                // the means that we only have GPS coordinates
+	                if( dataURL.contains( "findNearbyPlaceNameJSON" ) )
+	                {
+	                    try
+	                    {
+	                        response = HttpHelper.downloadUrl( dataURL );
+	
+	                        String city;
+	                        String countryCode;
+	                        String countryName;
+	                        String regionCode;
+	                        String regionName;
+	                        String currentLocation = null;
+	
+	                        try
+	                        {
+	                            Object json = new JSONTokener( response ).nextValue();
+	
+	                            // Check if a JSON was returned from the web service
+	                            if ( json instanceof JSONObject)
+	                            {
+	                                // Get the full HTTP Data as JSONObject
+	                                JSONObject geoNamesJSON = new JSONObject( response );
+	                                // Get the JSONObject "geonames"
+	                                JSONArray geoNames = geoNamesJSON.optJSONArray( "geonames" );
+	
+	                                JSONObject place = geoNames.getJSONObject(0);
+	
+	                                city = place.getString( "name" );
+	                                countryCode = place.getString( "countryCode" );
+	                                countryName = place.getString( "countryName" );
+	                                regionCode = place.getString( "adminCode1" );
+	                                regionName = countryCode.equalsIgnoreCase( "US" ) ?
+	                                        UtilityMethod.usStatesByCode.get(regionCode) :
+	                                        null;
+	
+	                                if ( regionName != null )
+	                                {
+	                                    currentLocation = city + ", " + regionName + ", "
+	                                            + countryName;
+	                                }// end of if block
+	                                else
+	                                {
+	                                    currentLocation = city + ", " + countryName;
+	                                }// end of else block
+	                            }// end of if block
+	                            else
+	                            {
+	                                // this means that the user entered a city manually
+	                                currentLocation = response;
+	                            }// end of else block
+	                        }// end of try block
+	                        catch ( JSONException e )
+	                        {
+	                            UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
+	                                    TAG + "::handleWeatherData [line: " + UtilityMethod.getExceptionLineNumber( e ) + "]" );
+	                        }// end of catch block
+	
+	                        cityName = currentLocation;
+	                    }// end of try block
+	                    catch ( IOException e )
+	                    {
+	                        UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
+	                                TAG + "::handleWeatherData [line: " +
+	                                        UtilityMethod.getExceptionLineNumber( e )  + "]" );
+	
+	                        response = null;
+	                    }// end of catch block
+	                }// end of if block
+	                else // the URL contains the city name which can be extracted
+	                {
+	                    int start = dataURL.indexOf( QUERY_COMMAND ) + QUERY_COMMAND.length() + 1;
+	                    int end = dataURL.indexOf( "&" );
+	
+	                    try
+	                    {
+	                        cityName = URLDecoder.decode( dataURL.substring( start, end ).toLowerCase(), "UTF-8" );
+	                        cityName = cityName.replaceAll("\\W", " ");
+	                    }// end of try block
+	                    catch ( UnsupportedEncodingException e )
+	                    {
+	                        UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
+	                                TAG + "::handleWeatherData" );
+	                    }// end of else block
+	
+	                }// end of else block
+	
+	                // just the city name is required and nothing else
+	                if ( cityName != null && cityName.contains( "," ) )
+	                {
+	                    cityName = cityName.substring( 0, cityName.indexOf( ",") ).toLowerCase();
+	                }// end of if block // end of if block
+	
+	                String ps;
+	                StringBuilder fileData = new StringBuilder();
+	
+	                if ( cityName != null )
+	                {
+	                    ps = String.format( "%s%s%s", "gn_sd_", cityName.replaceAll( " ", "_" ), ".json" );
+	                    WeatherLionMain.previousCitySearchFile = new File(
+	                    		WeatherLionMain.previousSearchesPath.getPath() + "/" +  ps );
+	                }// end of if block
+	
+	                if( WeatherLionMain.previousCitySearchFile.exists() )
+	                {
+	                	try(
+	                			FileReader fr = new FileReader( WeatherLionMain.previousCitySearchFile );	// declare and initialize the file reader object
+	                			BufferedReader br = new BufferedReader( fr ); 	// declare and initialize the buffered reader object
+	                	)
+	                	{
+	                		String line;                                                 
+	                        
+	                        while( ( line = br.readLine() ) != null) 
+	                        {
+	                            fileData.append( line );
+	                        }// end of while loop
+	                        
+	                		response = fileData.toString();
+	                	}// end of try block
+	                	catch ( FileNotFoundException e )
+	                    {
+	                		 UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
+	         			        TAG + "::doInBackground [line: " +
+	         			        UtilityMethod.getExceptionLineNumber( e )  + "]" );
+	                    }// end of catch block
+	                }// end of if block
+	                else
+	                {
+	                    saveGeoNamesSearchResults( WeatherLionMain.previousCitySearchFile, cityName );
+	                }// end of else block
+	            }// end of if block
+	
+	            break;
+	        case "here":
+	            // I prefer to use the GeoNames search results as the Here results only returns a single city.
+	            // I might just add if in the future though.
+	            break;
+	        default:
+	            break;
+        }// end of switch block		
 
 		return response;
 	}// end of message doInBackground
+	
+	private void saveGeoNamesSearchResults( File previousCitySearchFile, String cityName )
+    {
+        String searchURL;
+
+        if( UtilityMethod.hasInternetConnection() )
+        {
+            // now that we have the name of the city, we need some search results from GeoNames
+            try
+            {
+                int maxRows = 100;
+
+                // All spaces must be replaced with the + symbols for the HERE Maps web service
+                if( cityName.contains( " " ) )
+                {
+                    cityName = cityName.replace( " ", "+" );
+                }// end of if block
+
+                searchURL = String.format(
+                		"http://api.geonames.org/searchJSON?%s=%s&maxRows=%s&username=%s",
+                        QUERY_COMMAND, 
+                        cityName.toLowerCase(),
+                        maxRows,
+                        WidgetUpdateService.geoNameAccount );
+
+                response = HttpHelper.downloadUrl( searchURL ); // get the search results from the GeoNames web service
+            }// end of try block
+            catch ( Exception e )
+            {
+                UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
+                        TAG + "::handleWeatherData [line: " +
+                                UtilityMethod.getExceptionLineNumber( e )  + "]" );
+
+                response = null;
+            }// end of catch block
+
+            // attempt to store the search results locally if this search was not performed before
+            if( !previousCitySearchFile.exists() )
+            {
+                if( response != null )
+                {
+                    try
+                    {
+                        if(  JSONHelper.saveToJSONFile( response, previousCitySearchFile.toString() ) )
+                        {
+                            UtilityMethod.logMessage( UtilityMethod.LogLevel.INFO, "JSON search data stored locally for " + cityName + ".",
+                                    TAG + "::saveGeoNamesSearchResults" );
+                        }// end of if block
+                    }// end of try block
+                    catch ( Exception e )
+                    {
+                        UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
+                                TAG + "::handleWeatherData [line: " + UtilityMethod.getExceptionLineNumber( e )  + "]" );
+                    }// end of catch block
+                }// end of if block
+            }// end of if block
+        }// end of if block
+    }// end of method saveGeoNamesSearchResults
 
 	/**
 	 * {@inheritDoc}
@@ -246,19 +412,19 @@ public class CityDataService extends SwingWorker< String, Object >
 		}// end of try block
 		catch ( InterruptedException e )
 		{
-			 UtilityMethod.logMessage( "severe", e.getMessage(),
+			 UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::getGeoNamesSuggestions [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		}// end of catch block
 		catch ( ExecutionException e )
 		{
-			 UtilityMethod.logMessage( "severe", e.getMessage(),
+			 UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::getGeoNamesSuggestions [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		}// end of catch block
 		catch ( JSONException e )
 		{
-			 UtilityMethod.logMessage( "severe", e.getMessage(),
+			 UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::getGeoNamesSuggestions [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		}// end of catch block
@@ -409,19 +575,19 @@ public class CityDataService extends SwingWorker< String, Object >
 		}// end of try block
 		catch ( InterruptedException e )
 		{
-			 UtilityMethod.logMessage( "severe", e.getMessage(),
+			 UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::getHereSuggestions [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		}// end of catch block
 		catch ( ExecutionException e )
 		{
-			UtilityMethod.logMessage( "severe", e.getMessage(),
+			UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::getHereSuggestions [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		}// end of catch block
 		catch ( JSONException e )
 		{
-			UtilityMethod.logMessage( "severe", e.getMessage(),
+			UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::getHereSuggestions [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		}// end of catch block
@@ -501,19 +667,19 @@ public class CityDataService extends SwingWorker< String, Object >
 		}// end of try block
 		catch ( InterruptedException e )
 		{
-			UtilityMethod.logMessage( "severe", e.getMessage(),
+			UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::getYahooSuggestions [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		}// end of catch block
 		catch ( ExecutionException e )
 		{
-			UtilityMethod.logMessage( "severe", e.getMessage(),
+			UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::getYahooSuggestions [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		}// end of catch block
 		catch ( JSONException e )
 		{
-			UtilityMethod.logMessage( "severe", e.getMessage(),
+			UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::getYahooSuggestions [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		}// end of catch block

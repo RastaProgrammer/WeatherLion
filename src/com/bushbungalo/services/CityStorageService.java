@@ -96,18 +96,18 @@ public class CityStorageService extends SwingWorker< String, Object >
 		 }// end of try block
 		 catch ( InterruptedException e )
 		 {
-			 UtilityMethod.logMessage( "severe", e.getMessage(),
+			 UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::done [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		 }// end of catch block
 		 catch ( ExecutionException e )
 		 {
-			 UtilityMethod.logMessage( "severe", e.getMessage(),
+			 UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::done [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		 }// end of catch block	
 		
-		UtilityMethod.logMessage( "info", log, "CityStorageService::done" );
+		UtilityMethod.logMessage( UtilityMethod.LogLevel.INFO, log, "CityStorageService::done" );
 	}// end of method done
 	
 	/***

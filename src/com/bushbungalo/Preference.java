@@ -188,18 +188,18 @@ public class Preference
 			}// end of try block
 			catch ( FileNotFoundException e )
 			{
-				UtilityMethod.logMessage( "severe", e.getMessage(),
+				UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 					"Preference::getSavedPreferences [line: " + e.getStackTrace()[1].getLineNumber()+ "]" );	
 			}// end of try block
 			catch ( IOException e )
 			{
-				UtilityMethod.logMessage( "severe", e.getMessage(),
+				UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 						"Preference::getSavedPreferences [line: " + e.getStackTrace()[1].getLineNumber()+ "]" );	
 			}// end of try block
 		}// end of try block
 		catch ( IOException ex )
 		{
-			UtilityMethod.logMessage( "severe", ex.getMessage(),
+			UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, ex.getMessage(),
 					"Preference::getSavedPreferences [line: " + ex.getStackTrace()[1].getLineNumber()+ "]" );	
 		}// end of try block
 			
@@ -260,7 +260,7 @@ public class Preference
 			}// end of try block
 			catch ( IOException e )
 			{
-				UtilityMethod.logMessage( "severe" , e.getMessage(),
+				UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE , e.getMessage(),
 					"Preference::createdefaultPreferencesPropertiesFile [line: " 
 					+ e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
@@ -285,13 +285,13 @@ public class Preference
 		}// end of try block
 		catch ( FileNotFoundException e )
 		{
-			UtilityMethod.logMessage("severe", e.getMessage(),
+			UtilityMethod.logMessage(UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::createDefaultPreferencesPropertiesFile [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]");
 		}// end of catch block
 		catch ( IOException e )
 		{
-			UtilityMethod.logMessage("severe", e.getMessage(),
+			UtilityMethod.logMessage(UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::createDefaultPreferencesPropertiesFile [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]");
 		}// end of catch block	
@@ -331,20 +331,20 @@ public class Preference
 			}// end of try block
 			catch ( FileNotFoundException e )
 			{
-				UtilityMethod.logMessage("severe", e.getMessage(),
+				UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 			        TAG + "::getPropValues [line: " +
 			        UtilityMethod.getExceptionLineNumber( e )  + "]");
 			}// end of try block
 			catch ( IOException e )
 			{
-				UtilityMethod.logMessage("severe", e.getMessage(),
+				UtilityMethod.logMessage(UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 			        TAG + "::getPropValues [line: " +
 			        UtilityMethod.getExceptionLineNumber( e )  + "]");
 			}// end of try block
 		}// end of try block
 		catch ( IOException ex )
 		{
-			UtilityMethod.logMessage("severe", ex.getMessage(),
+			UtilityMethod.logMessage(UtilityMethod.LogLevel.SEVERE, ex.getMessage(),
 		        TAG + "::getPropValues [line: " +
 		        UtilityMethod.getExceptionLineNumber( ex )  + "]");
 		}// end of try block
@@ -407,7 +407,7 @@ public class Preference
 		}// end of catch block
 		catch ( IOException ex )
 		{
-			UtilityMethod.logMessage("severe", ex.getMessage(),
+			UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, ex.getMessage(),
 		        TAG + "::setPropValues [line: " +
 		        UtilityMethod.getExceptionLineNumber( ex )  + "]");
 		}// end of catch block

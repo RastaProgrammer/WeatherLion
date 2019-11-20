@@ -90,7 +90,7 @@ public class JSONHelper
             }// end of try block
             catch ( IOException e )
             {
-            	UtilityMethod.logMessage( "severe", e.getMessage(),
+            	UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 			        TAG + "::exportToJSON [line: " +
 			        UtilityMethod.getExceptionLineNumber( e )  + "]" );            	
             }// end of catch block
@@ -105,7 +105,7 @@ public class JSONHelper
                     } // end of try block
                     catch ( IOException e )
                     {
-                    	UtilityMethod.logMessage( "severe", e.getMessage(),
+                    	UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
         			        TAG + "::exportToJSON [line: " +
         			        UtilityMethod.getExceptionLineNumber( e )  + "]" );   
                     }// end of catch block
@@ -139,13 +139,13 @@ public class JSONHelper
         }// end of try block
         catch ( FileNotFoundException e )
         {
-        	UtilityMethod.logMessage( "severe", e.getMessage(),
+        	UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::importFromJSON [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );        	
         }// end of catch block
         catch ( IOException e )
         {
-        	UtilityMethod.logMessage( "severe", e.getMessage(),
+        	UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::importFromJSON [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
         }// end of catch block 
@@ -188,7 +188,7 @@ public class JSONHelper
 	            catch ( IOException e )
 	            {
 	                fileSaved = false;
-	                UtilityMethod.logMessage( "severe", e.getMessage(),
+	                UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
                 		TAG + "::saveToJSONFile [line: " +
         		        UtilityMethod.getExceptionLineNumber( e )  + "]" );	                
 	            }// end of catch block
@@ -203,7 +203,7 @@ public class JSONHelper
 	                    } // end of try block
 	                    catch ( IOException e )
 	                    {
-	                    	UtilityMethod.logMessage( "severe", e.getMessage(),
+	                    	UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 	                    		TAG + "::saveToJSONFile [line: " +
 	            		        UtilityMethod.getExceptionLineNumber( e )  + "]" );	 
 	                    }// end of catch block
@@ -237,7 +237,7 @@ public class JSONHelper
         }// end of try block
         catch ( Exception e ) 
         {
-        	UtilityMethod.logMessage( "severe", e.getMessage(),
+        	UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
     			TAG + "::toJSONObject [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );	        	
         }// end of catch block       
@@ -262,7 +262,7 @@ public class JSONHelper
         }// end of try block
         catch ( Exception e ) 
         {
-        	UtilityMethod.logMessage( "severe", e.getMessage(),
+        	UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
     			TAG + "::toJSONArray [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );       	
         }// end of catch block       
@@ -316,7 +316,7 @@ public class JSONHelper
         }// end of else if block
         else 
         {
-        	UtilityMethod.logMessage( "severe", "The string passed is not valid JSON data.", 
+        	UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, "The string passed is not valid JSON data.", 
     			TAG + "::jsonPrettify" );
         }// end of else if block        
 

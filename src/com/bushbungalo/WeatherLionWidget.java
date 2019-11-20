@@ -324,7 +324,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
     		} // end of try block
             catch ( ParseException e )
             {
-    			UtilityMethod.logMessage( "severe" , e.getMessage(),
+    			UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE , e.getMessage(),
 					TAG + "::checkAstronomy [line: " + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
     		}// end of catch block
             	        
@@ -551,7 +551,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
         }// end of if block
         else
         {
-        	UtilityMethod.logMessage( "severe", "Component " + name + " is not among the loaded components!",
+        	UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, "Component " + name + " is not among the loaded components!",
     			thisClass.getEnclosingClass().getSimpleName() + "::getComponentByName" );
         	return null;
         }// end of else block
@@ -625,12 +625,12 @@ public class WeatherLionWidget extends JFrame implements Runnable
 		}// end of try block 
 		catch ( FontFormatException e )
 		{
-			UtilityMethod.logMessage( "severe",  "FontFormatException: " + e.getMessage(),
+			UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE,  "FontFormatException: " + e.getMessage(),
 				thisClass.getEnclosingClass().getSimpleName() + "::createUserForm" );
 		}// end of catch block
 		catch ( IOException e )
 		{
-			UtilityMethod.logMessage( "severe",  "IOException: " + e.getMessage(),
+			UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE,  "IOException: " + e.getMessage(),
 				thisClass.getEnclosingClass().getSimpleName() + "::createUserForm" );
 		}// end of catch block
 		
@@ -1703,12 +1703,12 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				 }// end of try block
 				 catch ( InterruptedException e )
 				 {
-					 UtilityMethod.logMessage( "severe", e.getMessage(),
+					 UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 							 TAG + "::done" );
 				 }// end of catch block
 				 catch ( ExecutionException e )
 				 {
-					 UtilityMethod.logMessage( "severe", e.getMessage(),
+					 UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 							 TAG + "::done" );
 				 }// end of catch block		
 				 
@@ -1769,7 +1769,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 									}// end of try block
 			        				catch ( JSONException e )
 			        				{
-										UtilityMethod.logMessage( "severe", "Bad Yahoo data: " + e.getMessage(),
+										UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, "Bad Yahoo data: " + e.getMessage(),
 												TAG + "::done" );
 									}// end of catch block
 			        				
@@ -1883,9 +1883,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 //			    		            @Override
 //			    		            public void run()
 //			    		            {
-//			    		            	UtilityMethod.logMessage( "info", "Waiting to retry service provider...",
+//			    		            	UtilityMethod.logMessage( UtilityMethod.LogLevel.INFO, "Waiting to retry service provider...",
 //					    						thisClass.getEnclosingClass().getSimpleName()+ "::run" );	
-//					    				UtilityMethod.logMessage( "info", "Retrying service provider...",
+//					    				UtilityMethod.logMessage( UtilityMethod.LogLevel.INFO, "Retrying service provider...",
 //					    						thisClass.getEnclosingClass().getSimpleName() + "::run" );
 //						    				
 //					    				reAttempted = true;
@@ -1901,7 +1901,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 //			    		if( usingPreviousData && reAttempted  )
 			    		if( usingPreviousData )
 			        	{			        		
-			        		UtilityMethod.logMessage( "severe", "Data service responded with: " + 
+			        		UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, "Data service responded with: " + 
 			        			strJSON.toString(),	"Get Data Retry" );
 			        		
 			        		// return to the previous data service
@@ -2031,7 +2031,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			}// end of try block 
 			catch ( NullPointerException e )
 			{
-				UtilityMethod.logMessage( "severe","Weather icon " + 
+				UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE,"Weather icon " + 
 					iconFile + " could not be loaded!",
 					thisClass.getEnclosingClass().getSimpleName() + "::loadWeatherIcon" );
 			}// end of catch block
@@ -2050,7 +2050,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	    	currentCondition.append( UtilityMethod.toProperCase( darkSky.getCurrently().getSummary() ) );
 	    	
 	    	currentWindDirection.setLength( 0 );
-	    	currentWindDirection.append( UtilityMethod.compassDirection(darkSky.getCurrently().getWindBearing() ) );
+	    	currentWindDirection.append( UtilityMethod.compassDirection( darkSky.getCurrently().getWindBearing() ) );
 	    	
 	    	currentHumidity.setLength( 0 );
 	    	currentHumidity.append( String.valueOf( Math.round( darkSky.getCurrently().getHumidity() * 100 ) ) );
@@ -2103,7 +2103,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			} // end of try block
 	        catch ( ParseException e )
 	        {
-	        	UtilityMethod.logMessage( "severe" , e.getMessage(),
+	        	UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE , e.getMessage(),
 	        	    TAG + "::loadDarkSkyWeather [line: "
 	        	    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
@@ -2193,55 +2193,13 @@ public class WeatherLionWidget extends JFrame implements Runnable
             for ( DarkSkyWeatherDataItem.Daily.Data wxForecast : darkSky.getDaily().getData() )
             {
 				Date fxDate = UtilityMethod.getDateTime( wxForecast.getTime() );
-				String fCondition = wxForecast.getSummary().toLowerCase();
-				
-				if ( fCondition.contains( "until" ) )
-                {
-                    fCondition = fCondition.substring( 0, fCondition.indexOf( "until" ) - 1 ).trim();
-                }// end of if block
-
-                if ( fCondition.contains( "starting" ) )
-                {
-                    fCondition = fCondition.substring( 0, fCondition.indexOf( "starting" ) - 1 ).trim();
-                }// end of if block
-
-                if ( fCondition.contains( "overnight" ) )
-                {
-                    fCondition = fCondition.substring( 0, fCondition.indexOf( "overnight" ) - 1 ).trim();
-                }// end of if block
-                
-                if ( fCondition.contains( "throughout" ) )
-                {
-                    fCondition = fCondition.substring( 0, fCondition.indexOf( "throughout" ) - 1 ).trim();
-                }// end of if block
-                
-                if ( fCondition.contains( " in " ) )
-                {
-                    fCondition = fCondition.substring( 0, fCondition.indexOf( " in " ) - 1 ).trim();
-                }// end of if block
-                
-                if( fCondition.toLowerCase().contains( "and" ) )
-    	        {
-    	            String[] conditions = fCondition.toLowerCase().split( "and" );
-    	                 	            
-    	            fCondition = conditions[ 0 ].trim();
-    	        }// end of if block
-
-                fCondition = UtilityMethod.toProperCase( fCondition );
-                
+				String fCondition =  UtilityMethod.toProperCase(
+                        validateCondition( wxForecast.getSummary().toLowerCase() ) );
+				               
                 ( (JLabel) getComponentByName( "lblDay"+ i +"Day" ) ).setText(
             			new SimpleDateFormat( "E d" ).format( fxDate ) );
 	
-	            // Load current forecast condition weather image
-	            if( fCondition.toLowerCase().contains( "(day)" ) )
-	            {
-	                fCondition = fCondition.replace( "(day)", "").trim();
-	            }// end of if block
-	            else if( fCondition.toLowerCase().contains( "(night)" ) )
-	            {
-	                fCondition = fCondition.replace( "(night)", "" ).trim();
-	            }// end of if block
-	
+	            // Load current forecast condition weather image	           	
 	            String fConditionIcon = null;
 	           	            
 	            if( UtilityMethod.weatherImages.get( fCondition.toLowerCase() ) == null )
@@ -2286,10 +2244,10 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			}// end of for each loop
             
             // if the code gets to here then all was loaded successfully
-            WeatherLionWidget.dataLoadedSuccessfully = true;
-            
+            WeatherLionWidget.dataLoadedSuccessfully = true;        
+                        
             wXML = new WeatherDataXMLService( WeatherLionMain.DARK_SKY, new Date(), 
-	        		currentCity.toString(), currentCountry.toString(), currentCondition.toString(),
+            		currentCity.toString(), currentCountry.toString(), currentCondition.toString(),
 	        		currentTemp.toString().substring( 0, currentTemp.toString().indexOf( DEGREES ) ).trim(),
 	        		currentFeelsLikeTemp.toString(), currentHigh.toString(), currentLow.toString(),
 	        		currentWindSpeed.toString(), currentWindDirection.toString(), currentHumidity.toString(),
@@ -2371,7 +2329,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			} // end of try block
 	        catch ( ParseException e )
 	        {
-	        	UtilityMethod.logMessage( "severe" , e.getMessage(),
+	        	UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE , e.getMessage(),
 					TAG + "::loadHereMapsWeather [line: " 
 	        	    + e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
@@ -2480,7 +2438,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				}// end of try block
             	catch ( ParseException pe )
             	{
-					UtilityMethod.logMessage( "severe" , pe.getMessage(),
+					UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE , pe.getMessage(),
 						TAG + "::loadHereMapsWeather [line: " +
 						pe.getStackTrace()[ 1 ].getLineNumber() + "]" );
 				}// end of catch block            	            	
@@ -2489,64 +2447,17 @@ public class WeatherLionWidget extends JFrame implements Runnable
                 {
             		lastDate = fxDate;
             		            		
-            		String fCondition =wxForecast.getIconName().contains( "_" ) ?
+            		String fCondition = wxForecast.getIconName().contains( "_" ) ?
     	    			UtilityMethod.toProperCase( wxForecast.getIconName().replaceAll( "_", " " ) ) :
     	    				UtilityMethod.toProperCase( wxForecast.getIconName().replaceAll( "_", " " ) );
+    	    			
+	    			fCondition = UtilityMethod.toProperCase( validateCondition( fCondition ) );
             		String fDay =  new SimpleDateFormat( "E d" ).format( fxDate );
-            		
-            		if ( fCondition.contains( "until" ) )
-                    {
-                        fCondition = fCondition.substring( 0, fCondition.indexOf( "until" ) - 1 ).trim();
-                    }// end of if block
-
-                    if ( fCondition.contains( "starting" ) )
-                    {
-                        fCondition = fCondition.substring( 0, fCondition.indexOf( "starting" ) - 1 ).trim();
-                    }// end of if block
-
-                    if ( fCondition.contains( "overnight" ) )
-                    {
-                        fCondition = fCondition.substring( 0, fCondition.indexOf( "overnight" ) - 1 ).trim();
-                    }// end of if block
-                    
-                    if ( fCondition.contains( "throughout" ) )
-                    {
-                        fCondition = fCondition.substring( 0, fCondition.indexOf( "throughout" ) - 1 ).trim();
-                    }// end of if block
-                    
-                    if ( fCondition.contains( "in " ) )
-                    {
-                        fCondition = fCondition.substring( 0, fCondition.indexOf( "in " ) - 1 ).trim();
-                    }// end of if block
-                    
-                    if ( fCondition.contains( "is " ) )
-                    {
-                        fCondition = fCondition.substring( fCondition.indexOf( "is " ) + 3,
-                    		fCondition.length() ).trim();
-                    }// end of if block
-                    
-                    if( fCondition.toLowerCase().contains( "and" ) )
-        	        {
-        	            String[] conditions = fCondition.toLowerCase().split( "and" );
-        	                 	            
-        	            fCondition = conditions[ 0 ].trim();
-        	        }// end of if block
-                    
-                    fCondition = UtilityMethod.toProperCase( fCondition );
-                	
+            		            		                	
                     ( (JLabel) getComponentByName( "lblDay"+ i +"Day" ) ).setText(
                 			new SimpleDateFormat( "E d" ).format( fDay ) );
     	
-    	            // Load current forecast condition weather image
-    	            if( fCondition.toLowerCase().contains( "(day)") )
-    	            {
-    	                fCondition = fCondition.replace( "(day)", "").trim();
-    	            }// end of if block
-    	            else if( fCondition.toLowerCase().contains( "(night)" ) )
-    	            {
-    	                fCondition = fCondition.replace( "(night)", "" ).trim();
-    	            }// end of if block
-    	
+    	            // Load current forecast condition weather image    	                	
     	            String fConditionIcon = null;
        	            
     	            if( UtilityMethod.weatherImages.get( fCondition.toLowerCase() ) == null )
@@ -2591,10 +2502,10 @@ public class WeatherLionWidget extends JFrame implements Runnable
             }// end of for each loop
             
             // if the code gets to here then all was loaded successfully
-            WeatherLionWidget.dataLoadedSuccessfully = true;
-            
+            WeatherLionWidget.dataLoadedSuccessfully = true;           
+                        
             wXML = new WeatherDataXMLService( WeatherLionMain.OPEN_WEATHER, new Date(), 
-	        		currentCity.toString(), currentCountry.toString(), currentCondition.toString(), 
+            		currentCity.toString(), currentCountry.toString(), currentCondition.toString(), 
 	        		currentTemp.toString().substring( 0, currentTemp.toString().indexOf( DEGREES ) ).trim(),
 	        		currentFeelsLikeTemp.toString(), currentHigh.toString(), currentLow.toString(),
 	        		currentWindSpeed.toString(), currentWindDirection.toString(), currentHumidity.toString(),
@@ -2666,7 +2577,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			} // end of try block
 	        catch ( ParseException e )
 	        {
-	        	UtilityMethod.logMessage( "severe" , e.getMessage(),
+	        	UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE , e.getMessage(),
 					TAG + "::loadOpenWeather [line: " +
 					e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
@@ -2768,62 +2679,14 @@ public class WeatherLionWidget extends JFrame implements Runnable
             	if ( !df.format( fxDate ).equals( df.format( lastDate ) ) )
                 {
             		lastDate = UtilityMethod.getDateTime(wxForecast.getDt() );
-            		String fCondition = wxForecast.getWeather().get( 0 ).getDescription();
+            		String fCondition =  UtilityMethod.toProperCase(
+                            validateCondition( wxForecast.getWeather().get( 0 ).getDescription() ) );
             		String fDay =  new SimpleDateFormat( "E d" ).format( fxDate );
             		
-            		if ( fCondition.contains( "until" ) )
-                    {
-                        fCondition = fCondition.substring( 0, fCondition.indexOf( "until" ) - 1 ).trim();
-                    }// end of if block
-
-                    if ( fCondition.contains( "starting" ) )
-                    {
-                        fCondition = fCondition.substring( 0, fCondition.indexOf( "starting" ) - 1 ).trim();
-                    }// end of if block
-
-                    if ( fCondition.contains( "overnight" ) )
-                    {
-                        fCondition = fCondition.substring( 0, fCondition.indexOf( "overnight" ) - 1 ).trim();
-                    }// end of if block
-                    
-                    if ( fCondition.contains( "throughout" ) )
-                    {
-                        fCondition = fCondition.substring( 0, fCondition.indexOf( "throughout" ) - 1 ).trim();
-                    }// end of if block
-                    
-                    if ( fCondition.contains( "in " ) )
-                    {
-                        fCondition = fCondition.substring( 0, fCondition.indexOf( "in " ) - 1 ).trim();
-                    }// end of if block
-                    
-                    if ( fCondition.contains( "is " ) )
-                    {
-                        fCondition = fCondition.substring( fCondition.indexOf( "is " ) + 3,
-                    		fCondition.length() ).trim();
-                    }// end of if block
-                    
-                    if( fCondition.toLowerCase().contains( "and" ) )
-        	        {
-        	            String[] conditions = fCondition.toLowerCase().split( "and" );
-        	                 	            
-        	            fCondition = conditions[ 0 ].trim();
-        	        }// end of if block
-                    
-                    fCondition = UtilityMethod.toProperCase( fCondition );
-                	
                     ( (JLabel) getComponentByName( "lblDay"+ i +"Day" ) ).setText(
                 			new SimpleDateFormat( "E d" ).format( fDay ) );
     	
-    	            // Load current forecast condition weather image
-    	            if( fCondition.toLowerCase().contains( "(day)") )
-    	            {
-    	                fCondition = fCondition.replace( "(day)", "").trim();
-    	            }// end of if block
-    	            else if( fCondition.toLowerCase().contains( "(night)" ) )
-    	            {
-    	                fCondition = fCondition.replace( "(night)", "" ).trim();
-    	            }// end of if block
-    	
+    	            // Load current forecast condition weather image    	            
     	            String fConditionIcon = null;
        	            
     	            if( UtilityMethod.weatherImages.get( fCondition.toLowerCase() ) == null )
@@ -2868,10 +2731,10 @@ public class WeatherLionWidget extends JFrame implements Runnable
             }// end of for each loop
             
             // if the code gets to here then all was loaded successfully
-            WeatherLionWidget.dataLoadedSuccessfully = true;
-            
+            WeatherLionWidget.dataLoadedSuccessfully = true;            
+                        
             wXML = new WeatherDataXMLService( WeatherLionMain.OPEN_WEATHER, new Date(), 
-	        		currentCity.toString(), currentCountry.toString(), currentCondition.toString(), 
+            		currentCity.toString(), currentCountry.toString(), currentCondition.toString(), 
 	        		currentTemp.toString().substring( 0, currentTemp.toString().indexOf( DEGREES ) ).trim(),
 	        		currentFeelsLikeTemp.toString(), currentHigh.toString(), currentLow.toString(),
 	        		currentWindSpeed.toString(), currentWindDirection.toString(), currentHumidity.toString(),
@@ -2946,12 +2809,12 @@ public class WeatherLionWidget extends JFrame implements Runnable
 		    	}// end of try block 
 		    	catch ( IOException io )
 		    	{
-					UtilityMethod.logMessage( "severe", io.getMessage(), 
+					UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, io.getMessage(), 
 						thisClass.getEnclosingClass().getSimpleName() + "::loadPreviousWeather" );
 		    	}// end of catch block 
 		    	catch ( JDOMException jdomex )
 		    	{
-					UtilityMethod.logMessage( "severe", jdomex.getMessage(), 
+					UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, jdomex.getMessage(), 
 						thisClass.getEnclosingClass().getSimpleName() + "::loadPreviousWeather" );
 		    	}// end of catch block
 				
@@ -2997,7 +2860,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			}// end of try block
 			catch ( ParseException e )
 			{
-				UtilityMethod.logMessage( "severe" , e.getMessage(),
+				UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE , e.getMessage(),
 						TAG + "::loadPreviousWeather [line: " + e.getStackTrace()[1].getLineNumber()+ "]" );
 			}// end of catch block
 			
@@ -3031,7 +2894,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			} // end of try block
 	        catch ( ParseException e )
 	        {
-				UtilityMethod.logMessage( "severe" , e.getMessage(),
+				UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE , e.getMessage(),
 					TAG + "::loadPreviousWeather [line: " + e.getStackTrace()[1].getLineNumber()+ "]" );
 	        }// end of catch block
 	        	        
@@ -3090,7 +2953,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				}// end of try block
 				catch ( ParseException e )
 				{
-					UtilityMethod.logMessage( "severe", "Couldn't parse the forcecast date!",
+					UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, "Couldn't parse the forcecast date!",
 						thisClass.getEnclosingClass().getSimpleName() + "::loadPreviousWeather"  );
 				}// end of catch block
 				
@@ -3224,7 +3087,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			} // end of try block
 	        catch ( ParseException e )
 	        {
-	        	UtilityMethod.logMessage( "severe" , e.getMessage(),
+	        	UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE , e.getMessage(),
 					TAG + "::loadWeatherBitWeather [line: " +
 					e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
@@ -3329,70 +3192,23 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				}// end of try block
 	        	catch ( ParseException e )
 	        	{
-	        		UtilityMethod.logMessage( "severe", "Unable to parse date string!", 
+	        		UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, "Unable to parse date string!", 
         				thisClass.getEnclosingClass().getSimpleName() + "::loadWeatherBitWeather" );
-	        		UtilityMethod.logMessage( "severe", e.getMessage(),
+	        		UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
         				thisClass.getEnclosingClass().getSimpleName() + "::loadWeatherBitWeather");
 				}// end of catch block          	
 	            
 	            if ( fxDate.after( new Date() ) )
                 {
-                    String fCondition = wxForecast.getWeather().getDescription();
+                    String fCondition =  UtilityMethod.toProperCase(
+                            validateCondition( wxForecast.getWeather().getDescription() ) );
         	            
                 	if ( fxDate.after( new Date() ) )
-                    {
-                		if ( fCondition.contains( "until" ) )
-                        {
-                            fCondition = fCondition.substring( 0, fCondition.indexOf( "until" ) - 1 ).trim();
-                        }// end of if block
-
-                        if ( fCondition.contains( "starting" ) )
-                        {
-                            fCondition = fCondition.substring( 0, fCondition.indexOf( "starting" ) - 1 ).trim();
-                        }// end of if block
-
-                        if ( fCondition.contains( "overnight" ) )
-                        {
-                            fCondition = fCondition.substring( 0, fCondition.indexOf( "overnight" ) - 1 ).trim();
-                        }// end of if block
-                        
-                        if ( fCondition.contains( "throughout" ) )
-                        {
-                            fCondition = fCondition.substring( 0, fCondition.indexOf( "throughout" ) - 1 ).trim();
-                        }// end of if block
-                        
-                        if ( fCondition.contains( "in " ) )
-                        {
-                            fCondition = fCondition.substring( 0, fCondition.indexOf( "in " ) - 1 ).trim();
-                        }// end of if block
-                        
-                        if ( fCondition.contains( "is " ) )
-                        {
-                            fCondition = fCondition.substring( fCondition.indexOf( "is " ) + 3, fCondition.length() ).trim();
-                        }// end of if block
-                        
-                        if( fCondition.toLowerCase().contains( "and" ) )
-            	        {
-            	            String[] conditions = fCondition.toLowerCase().split( "and" );
-            	                 	            
-            	            fCondition = conditions[ 0 ].trim();
-            	        }// end of if block
-                        
-                        fCondition = UtilityMethod.toProperCase( fCondition );
-                    	
+                    {                	                    	
                         ( (JLabel) getComponentByName( "lblDay"+ i +"Day" ) ).setText(
                     			new SimpleDateFormat( "E d" ).format( fxDate ) );
         	
-        	            // Load current forecast condition weather image
-        	            if(fCondition.toLowerCase().contains( "(day)" ) )
-        	            {
-        	                fCondition = fCondition.replace( "(day)", "").trim();
-        	            }// end of if block
-        	            else if(fCondition.toLowerCase().contains( "(night)" ) )
-        	            {
-        	                fCondition = fCondition.replace( "(night)", "" ).trim();
-        	            }// end of if block
-        	
+        	            // Load current forecast condition weather image    	           
         	            String fConditionIcon = null;
            	            
         	            if( UtilityMethod.weatherImages.get( fCondition.toLowerCase() ) == null )
@@ -3451,10 +3267,10 @@ public class WeatherLionWidget extends JFrame implements Runnable
             }// end of else block
             
             // if the code gets to here then all was loaded successfully
-            WeatherLionWidget.dataLoadedSuccessfully = true;
-            
+            WeatherLionWidget.dataLoadedSuccessfully = true;            
+                        
             wXML = new WeatherDataXMLService( WeatherLionMain.WEATHER_BIT, new Date(), 
-	        		currentCity.toString(), currentCountry.toString(), currentCondition.toString(), 
+            		currentCity.toString(), currentCountry.toString(), currentCondition.toString(), 
 	        		ct, currentFeelsLikeTemp.toString(), currentHigh.toString(),
 	        		currentLow.toString(), currentWindSpeed.toString(), currentWindDirection.toString(),
 	        		currentHumidity.toString(), sunriseTime.toString(), sunsetTime.toString(),
@@ -3556,7 +3372,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			} // end of try block
 	        catch ( ParseException e )
 	        {
-				UtilityMethod.logMessage( "severe" , e.getMessage(),
+				UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE , e.getMessage(),
 					TAG + "::loadWeatherUndergroundWeather [line: " +
 					e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
@@ -3753,8 +3569,8 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        }// end of for each loop
 	        
 	        // if the code gets to here then all was loaded successfully
-            WeatherLionWidget.dataLoadedSuccessfully = true;
-	        
+            WeatherLionWidget.dataLoadedSuccessfully = true;            
+           	        
 	        wXML = new WeatherDataXMLService( WeatherLionMain.WEATHER_UNDERGROUND, new Date(), 
 	        		currentCity.toString(), currentCountry.toString(), currentCondition.toString(), 
 	        		currentTemp.toString().substring( 0, currentTemp.toString().indexOf( DEGREES ) ).trim(),
@@ -3843,7 +3659,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			} // end of try block
 	        catch ( ParseException e )
 	        {
-				UtilityMethod.logMessage( "severe", e.getMessage(), 
+				UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(), 
 					TAG + "::loadYahooYdnWeather" );
 			}// end of catch block
 	        	        
@@ -3941,25 +3757,10 @@ public class WeatherLionWidget extends JFrame implements Runnable
             			new SimpleDateFormat( "E d" ).format( fDate ) );
 
 	            // Load current forecast condition weather image
-	            String fCondition =   UtilityMethod.yahooWeatherCodes[
-	                    fdf.get( i ).getCode() ];
-
-	            if( fCondition.toLowerCase().contains( "(day)" ) )
-	            {
-	                fCondition = fCondition.replace( "(day)", "" ).trim();
-	            }// end of if block
-	            else if( fCondition.toLowerCase().contains( "(night)" ) )
-	            {
-	                fCondition = fCondition.replace( "(night)", "" ).trim();
-	            }// end of if block
+	            String fCondition =  UtilityMethod.toProperCase(
+                        validateCondition( UtilityMethod.yahooWeatherCodes[
+	                    fdf.get( i ).getCode() ] ) );
 	            
-	            if( fCondition.toLowerCase().contains( "and" ) )
-    	        {
-    	            String[] conditions = fCondition.toLowerCase().split( "and" );
-    	                 	            
-    	            fCondition = conditions[ 0 ].trim();
-    	        }// end of if block
-
 	            String fConditionIcon = null;
    	            
 	            if( UtilityMethod.weatherImages.get( fCondition.toLowerCase() ) == null )
@@ -4002,7 +3803,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        }// end of for loop
 	        
 	        // if the code gets to here then all was loaded successfully
-            WeatherLionWidget.dataLoadedSuccessfully = true;
+            WeatherLionWidget.dataLoadedSuccessfully = true;           
 	       
 			wXML = new WeatherDataXMLService( WeatherLionMain.YAHOO_WEATHER, new Date(), 
 					currentCity.toString(), currentCountry.toString(), currentCondition.toString(), 
@@ -4095,7 +3896,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			} // end of try block
 	        catch ( ParseException e )
 	        {
-	        	UtilityMethod.logMessage( "severe" , e.getMessage(),
+	        	UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE , e.getMessage(),
 					TAG + "::loadYahooWeather [line: " +
 					e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
@@ -4252,7 +4053,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 				}// end of try block
 				catch (ParseException e)
 				{
-					UtilityMethod.logMessage( "severe" , e.getMessage(),
+					UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE , e.getMessage(),
 						TAG + "::loadYahooWeather [line: " +
 						e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 				}// end of catch block
@@ -4268,7 +4069,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        
 	        // if the code gets to here then all was loaded successfully
             WeatherLionWidget.dataLoadedSuccessfully = true;
-            
+                       
 	        wXML = new WeatherDataXMLService( WeatherLionMain.YAHOO_WEATHER, new Date(), 
 	        		currentCity.toString(), currentCountry.toString(), currentCondition.toString(), 
 	        		currentTemp.toString().substring( 0, currentTemp.toString().indexOf( DEGREES ) ).trim(),
@@ -4357,7 +4158,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			} // end of try block
 	        catch ( ParseException e )
 	        {
-	        	UtilityMethod.logMessage( "severe" , e.getMessage(),
+	        	UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE , e.getMessage(),
 					TAG + "::loadHereMapsWeather [line: " +
 					e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 			}// end of catch block
@@ -4462,24 +4263,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
                 			new SimpleDateFormat( "E d" ).format( forecastDate ) );
                 	
                 	// Load current forecast condition weather image
-                	String fCondition =   wxDailyForecast.getSymbolName();
-                	
-                	if( fCondition.toLowerCase().contains( "(day)" ) )
-                	{
-                		fCondition = fCondition.replace( "(day)", "" ).trim();
-                	}// end of if block
-                	else if( fCondition.toLowerCase().contains( "(night)" ) )
-                	{
-                		fCondition = fCondition.replace( "(night)", "" ).trim();
-                	}// end of if block
-                	
-                	 if( fCondition.toLowerCase().contains( "and" ) )
-         	        {
-         	            String[] conditions = fCondition.toLowerCase().split( "and" );
-         	                 	            
-         	            fCondition = conditions[ 0 ].trim();
-         	        }// end of if block
-                	 
+                	String fCondition =  UtilityMethod.toProperCase(
+                            validateCondition( wxDailyForecast.getSymbolName() ) );
+                	                	                	 
                 	String fConditionIcon = null;
         	            
      	            if( UtilityMethod.weatherImages.get( fCondition.toLowerCase() ) == null )
@@ -4531,7 +4317,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        
 	        // if the code gets to here then all was loaded successfully
             WeatherLionWidget.dataLoadedSuccessfully = true;
-            
+                        
 	        wXML = new WeatherDataXMLService( WeatherLionMain.YR_WEATHER, new Date(), 
 	        		currentCity.toString(), currentCountry.toString(), currentCondition.toString(), 
 	        		currentTemp.toString(),	currentFeelsLikeTemp.toString(), currentHigh.toString(),
@@ -5057,7 +4843,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 							}// end of try block
 				        	catch ( ParseException e )
 				        	{
-				        		UtilityMethod.logMessage( "severe" , e.getMessage(),
+				        		UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE , e.getMessage(),
 									TAG + "::updateTemps [line: " +
 									e.getStackTrace()[ 1 ].getLineNumber() + "]" );
 							}// end of catch block
@@ -5070,9 +4856,10 @@ public class WeatherLionWidget extends JFrame implements Runnable
 			                	currentLow.setLength( 0 );
 			                	currentLow.append( Math.round( wFdf.get( i ).getMinTemp() ) );
 			                	
-			                	lblDayHigh.setText( 
-			                			( Integer.parseInt( currentHigh.toString() ) > Integer.parseInt( currentTemp.toString().replace( "°F" , "" ) ) 
-			                					? currentHigh.toString() : Integer.parseInt( currentTemp.toString().replace( "°F" , "" ) ) + DEGREES ) );
+//			                	lblDayHigh.setText( 
+//			                			( Integer.parseInt( currentHigh.toString() ) > Integer.parseInt( currentTemp.toString().replace( "°F" , "" ) ) 
+//			                					? currentHigh.toString() : Integer.parseInt( currentTemp.toString().replace( "°F" , "" ) ) + DEGREES ) );
+			                	lblDayHigh.setText( currentHigh + DEGREES );
 			                    lblDayLow.setText( currentLow + DEGREES );
 			                    
 			                    highTemp = wFdf.get( i ).getMaxTemp() > Double.parseDouble( currentTemp.toString().replace( "°F" , "" ) ) 
@@ -5595,7 +5382,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 		        	}// end of try block
 		        	catch ( ParseException e )
 		        	{
-		        		UtilityMethod.logMessage( "severe", "Couldn't parse the forcecast date!",
+		        		UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, "Couldn't parse the forcecast date!",
 	        				thisClass.getEnclosingClass().getSimpleName() + "::updateTemps");
 		        	}// end of catch block
 		        	
@@ -5654,6 +5441,68 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	    			UtilityMethod.temperatureColor( Integer.parseInt(
 	    					currentTemp.toString().replaceAll( "\\D+","" ) ) ) );
 	    }// end of method updateTemps	    
+		 
+		/**
+	     * Returns a valid weather condition that is relevant to the application
+	     *
+	     * @param condition The weather condition to be validated
+	     * @return  A {@code String} value representing a valid weather condition
+	     */
+	    private String validateCondition( String condition )
+	    {
+	        if ( condition.contains( "until" ) )
+	        {
+	            condition = condition.substring( 0, condition.indexOf( "until" ) - 1 ).trim();
+	        }// end of if block
+
+	        if ( condition.contains( "starting" ) )
+	        {
+	            condition = condition.substring( 0, condition.indexOf( "starting" ) - 1 ).trim();
+	        }// end of if block
+
+	        if ( condition.contains( "overnight" ) )
+	        {
+	            condition = condition.substring( 0, condition.indexOf( "overnight" ) - 1 ).trim();
+	        }// end of if block
+
+	        if ( condition.contains( "night" ) )
+	        {
+	            condition = condition.replaceAll( "night", "" ).trim();
+	        }// end of if block
+
+	        if ( condition.contains( "possible" ) )
+	        {
+	            condition = condition.replaceAll( "possible", "" ).trim();
+	        }// end of if block
+
+	        if ( condition.contains( "throughout" ) )
+	        {
+	            condition = condition.substring( 0, condition.indexOf( "throughout" ) - 1 ).trim();
+	        }// end of if block
+
+	        if ( condition.contains( " in " ) )
+	        {
+	            condition = condition.substring( 0, condition.indexOf( " in " ) - 1 ).trim();
+	        }// end of if block
+
+	        if( condition.toLowerCase().contains( "and" ) )
+	        {
+	            String[] conditions = condition.toLowerCase().split( "and" );
+
+	            condition = conditions[ 0 ].trim();
+	        }// end of if block
+
+	        if( condition.toLowerCase().contains( "(day)") )
+	        {
+	            condition = condition.replace( "(day)", "").trim();
+	        }// end of if block
+	        else if( condition.toLowerCase().contains( "(night)" ) )
+	        {
+	            condition = condition.replace( "(night)", "" ).trim();
+	        }// end of if block
+
+	        return condition;
+	    }// end of method validateCondition
 	}// end of class WidgetUpdateService	
 	
 }// end of class WeatherLionWidget

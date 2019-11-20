@@ -143,6 +143,9 @@ public abstract class WeatherLionMain
 	public static boolean iconPacksLoaded;
 	public static boolean connectedToInternet = UtilityMethod.hasInternetConnection();
 	
+	public static File previousCitySearchFile = null;
+	public static File previousSearchesPath = new File( "res/storage/previous_searches/" );
+	
 	// The name of this class
 	private static final String TAG = "WeatherLionMain";
 	
@@ -154,19 +157,19 @@ public abstract class WeatherLionMain
 		// clean up any lock files that may have remained after a crash 
 		UtilityMethod.cleanLockFiles();
 		
-		UtilityMethod.logMessage( "info", "Initiating startup...", 
+		UtilityMethod.logMessage( UtilityMethod.LogLevel.INFO, "Initiating startup...", 
 				TAG + "::main" );
 		
 		// build the required storage files
 		if( buildRequiredDatabases() == 1 ) 
 		{
-			UtilityMethod.logMessage( "info", 
+			UtilityMethod.logMessage( UtilityMethod.LogLevel.INFO, 
 					"All required databases constructed successfully.", 
 					"WeatherLionMain::main" );
 		}// end of if block
 		else
 		{
-			UtilityMethod.logMessage( "severe", 
+			UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, 
 					"All required databases were not constructed successfully.", 
 					"WeatherLionMain::main" );
 		}// end of else block
@@ -284,7 +287,7 @@ public abstract class WeatherLionMain
 			}// end of if block
 			else 
 			{
-				UtilityMethod.logMessage( "info", 
+				UtilityMethod.logMessage( UtilityMethod.LogLevel.INFO, 
 					"Found " + iconPacks.size() + " icon " +
 						( iconPacks.size() > 1 ? "packs..." : "pack..."), 
 						TAG 
@@ -296,7 +299,7 @@ public abstract class WeatherLionMain
 				}// end of if block
 				else if( !iconPacks.contains( Preference.getSavedPreferences().getIconSet() ) ) 
 				{
-					UtilityMethod.logMessage( "warning", 
+					UtilityMethod.logMessage( UtilityMethod.LogLevel.WARNING, 
 						"The " + Preference.getSavedPreferences().getIconSet().toUpperCase() +
 						" icon pack could not be found so the default " + DEFAULT_ICON_SET.toUpperCase() +
 						" will be used!", TAG + "::healthCheck" );
@@ -316,7 +319,7 @@ public abstract class WeatherLionMain
 					}// end of if block
 					else
 					{
-						UtilityMethod.logMessage( "info", "Found " + imageCount + 
+						UtilityMethod.logMessage( UtilityMethod.LogLevel.INFO, "Found " + imageCount + 
 							( imageCount > 1 ? " images" : " image" ) + " in the " +
 							UtilityMethod.toProperCase( Preference.getSavedPreferences().getIconSet() )  +
 							" icon pack...", TAG + "::healthCheck" );
@@ -341,7 +344,7 @@ public abstract class WeatherLionMain
 						}// end of if block
 						else
 						{
-							UtilityMethod.logMessage( "info", 
+							UtilityMethod.logMessage( UtilityMethod.LogLevel.INFO, 
 								"Found " + imageCount + ( imageCount > 1 ? " images" : " image" )
 								+ " in the backgrounds directory...", TAG
 								+ "::healthCheck" );
@@ -363,7 +366,7 @@ public abstract class WeatherLionMain
 						}// end of if block
 						else 
 						{
-							UtilityMethod.logMessage( "info",
+							UtilityMethod.logMessage( UtilityMethod.LogLevel.INFO,
 								"Found " + imageCount + 
 								( imageCount > 1 ? " images" : " image" ) +
 								" in the icons directory...", 
@@ -402,7 +405,7 @@ public abstract class WeatherLionMain
 			}// end of try black 
 			catch ( IOException e )
 			{
-				UtilityMethod.logMessage( "severe", e.getMessage(),
+				UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 			        TAG + "::buildRequiredDatabases [line: " +
 			        UtilityMethod.getExceptionLineNumber( e )  + "]" );				
 			}// end of catch block
@@ -417,7 +420,7 @@ public abstract class WeatherLionMain
 			}// end of try black 
 			catch ( IOException e )
 			{
-				UtilityMethod.logMessage( "severe", e.getMessage(),
+				UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 			        TAG + "::buildRequiredDatabases [line: " +
 			        UtilityMethod.getExceptionLineNumber( e )  + "]" );				
 			}// end of catch block
@@ -431,7 +434,7 @@ public abstract class WeatherLionMain
 			}// end of try black 
 			catch ( IOException e )
 			{
-				UtilityMethod.logMessage( "severe", e.getMessage(),
+				UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 			        TAG + "::buildRequiredDatabases [line: " +
 			        UtilityMethod.getExceptionLineNumber( e )  + "]" );				
 			}// end of catch block
@@ -445,7 +448,7 @@ public abstract class WeatherLionMain
 			}// end of try black 
 			catch ( IOException e )
 			{
-				UtilityMethod.logMessage( "severe", e.getMessage(),
+				UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 			        TAG + "::buildRequiredDatabases [line: " +
 			        UtilityMethod.getExceptionLineNumber( e )  + "]" );				
 			}// end of catch block
@@ -453,7 +456,7 @@ public abstract class WeatherLionMain
 		
 		if ( mainStorageFile.exists() && cityStorageFile.exists() && wakStorageFile.exists())
         {
-            UtilityMethod.logMessage( "info", "The required storage files are present.",
+            UtilityMethod.logMessage( UtilityMethod.LogLevel.INFO, "The required storage files are present.",
                 TAG + "::buildRequiredDatabases" );
 
             // get a connection to the main DB
@@ -462,7 +465,7 @@ public abstract class WeatherLionMain
         }// end of if block
         else
         {
-            UtilityMethod.logMessage("severe", "All the required storage files are not present.",
+            UtilityMethod.logMessage(UtilityMethod.LogLevel.SEVERE, "All the required storage files are not present.",
             		 TAG + "::buildRequiredDatabases");
             return 0;
         }// end of else block	
@@ -513,7 +516,7 @@ public abstract class WeatherLionMain
 		}// end of try block
 		catch( SQLException e )
 		{
-			UtilityMethod.logMessage( "severe", "Could not attach database to main file!",
+			UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, "Could not attach database to main file!",
 				"WeatherLionMain::buildRequiredDatabase [line: "
 				+ e.getStackTrace()[1].getLineNumber() + "]" );
 			
@@ -536,9 +539,9 @@ public abstract class WeatherLionMain
 		}// end of if block
 		else 
 		{
-			UtilityMethod.logMessage( "info", "Necessary requirements met...", 
+			UtilityMethod.logMessage( UtilityMethod.LogLevel.INFO, "Necessary requirements met...", 
 					TAG + "::init" );
-			UtilityMethod.logMessage( "info","Launching Weather Widget...", 
+			UtilityMethod.logMessage( UtilityMethod.LogLevel.INFO,"Launching Weather Widget...", 
 					TAG + "::init" );				
 			
 			frmWeatherWidget = WeatherLionWidget.getInstance();

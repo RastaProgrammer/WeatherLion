@@ -33,7 +33,7 @@ public class NetworkHelper
 		}// end of try block
 		catch ( Exception e )
 		{
-			UtilityMethod.logMessage( "severe", e.getMessage(),
+			UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::hasNetworkAccess [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 			
@@ -47,7 +47,7 @@ public class NetworkHelper
 			}// end of try block
 			catch ( IOException e )
 			{
-				UtilityMethod.logMessage( "severe", e.getMessage(),
+				UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 			        TAG + "::hasNetworkAccess [line: " +
 			        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 			}// end of catch block

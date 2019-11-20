@@ -12,6 +12,7 @@ import java.awt.image.RGBImageFilter;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -39,7 +40,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.Icon;
@@ -1198,6 +1198,13 @@ public abstract class UtilityMethod
         weatherImages.put("not available", "na.png");
     }
 
+    public enum LogLevel
+    {
+        SEVERE,
+        INFO,
+        WARNING
+    }
+    
     public static Date lastUpdated;
     public static boolean refreshRequested;
     public static boolean weatherWidgetEnabled = true;   
@@ -2018,7 +2025,7 @@ public abstract class UtilityMethod
 		}// end of try block
 		catch( NullPointerException e )
 		{
-			logMessage( "severe", "Could not scale icon " + img + " " + e.getMessage(),
+			logMessage( LogLevel.SEVERE, "Could not scale icon " + img + " " + e.getMessage(),
  		        TAG + "::scaleImageIcon [line: " +
         	    getExceptionLineNumber( e ) + "]" );
 		}// end of catch block
@@ -2104,7 +2111,7 @@ public abstract class UtilityMethod
         }// end of try block
         catch ( UnsupportedEncodingException e )
         {
-        	logMessage( "severe", e.getMessage(),
+        	logMessage( LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::escaprUriString [line: " + getExceptionLineNumber( e ) + "]" );
         }// end of catch block
 
@@ -2181,7 +2188,7 @@ public abstract class UtilityMethod
 				        !containsNumber && cityName.equalsIgnoreCase( cCityName + ", " + cRegionCode ) )
 					{
 					    found = true;
-					    logMessage( "info",  cityName + " was found in the XML storage.",
+					    logMessage( LogLevel.INFO,  cityName + " was found in the XML storage.",
 					            TAG + "::isFoundInXMLStorage" );
 					}// end of if block
 	    		}// end of for loop    		 		
@@ -2189,12 +2196,12 @@ public abstract class UtilityMethod
 	    	}// end of try block 
 	    	catch ( IOException io )
 	    	{
-	    		 logMessage( "severe", io.getMessage(),
+	    		 logMessage( LogLevel.SEVERE, io.getMessage(),
 			        TAG + "::isFoundInXMLStorage [line: " + getExceptionLineNumber( io ) + "]" );
 	    	}// end of catch block 
 	    	catch ( JDOMException jdomex )
 	    	{
-	    		logMessage( "severe", jdomex.getMessage(),
+	    		logMessage( LogLevel.SEVERE, jdomex.getMessage(),
 			        TAG + "::isFoundInXMLStorage [line: " + 
 		        		getExceptionLineNumber( jdomex ) + "]" );
 	    	}// end of catch block
@@ -2231,7 +2238,7 @@ public abstract class UtilityMethod
 			}// end of try block
 	        catch ( IOException e )
 	        {
-	        	logMessage( "severe", e.getMessage(),
+	        	logMessage( LogLevel.SEVERE, e.getMessage(),
     		        TAG + "::isFoundInJSONStorage [line: " + getExceptionLineNumber( e ) + "]" );
 			}// end of catch block 
 	        
@@ -2252,7 +2259,7 @@ public abstract class UtilityMethod
                         !containsNumber && cityName.equalsIgnoreCase( cCityName + ", " + cRegionCode ) )
                     {
                         found = true;
-                        logMessage( "info",  cityName + " was found in the JSON storage.",
+                        logMessage( LogLevel.INFO,  cityName + " was found in the JSON storage.",
                                 TAG + "::isFoundInJSONStorage" );
                     }// end of if block
                 }// end of for each loop
@@ -2308,14 +2315,14 @@ public abstract class UtilityMethod
 			
 			if( found > 0 )
 			{
-				logMessage( "info",  cityName + cityName + " was found in the Database storage.",
+				logMessage( LogLevel.INFO,  cityName + cityName + " was found in the Database storage.",
 					TAG  + "::isFoundInJSONStorage" );
 				return true;
 			}// end of if block			
 		}// end of try block
 		catch( SQLException e ) 
 		{
-			 logMessage( "severe", e.getMessage(),
+			 logMessage( LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::isFoundInDatabase [line: " + getExceptionLineNumber( e ) + "]" );
 		}// end of catch block
 		
@@ -2482,47 +2489,73 @@ public abstract class UtilityMethod
      */    
     public static String retrieveGeoNamesGeoLocationUsingAddress( String wxLocation )
     {
-    	int maxRows = 10;
-    	
-    	// All spaces must be replaced with the + symbols for the HERE Maps web service
-        if( wxLocation.contains( " " ) )
-        {
-        	wxLocation = wxLocation.replace( " ", "+" );
-        }// end of if block
-        
-        // All commas must be replaced with the + symbols for the HERE Maps web service
-        if( wxLocation.contains( "," ) )
-        {
-        	wxLocation = wxLocation.replace( ",", "+" );
-        }// end of if block
-    	
-    	String strJSON = null;
-        String geoUrl =
-                "http://api.geonames.org/searchJSON?" +
-                "q=" + escapeUriString( wxLocation.toLowerCase() ) +
-                "&maxRows=" + maxRows +
-				"&username=" + WidgetUpdateService.geoNameAccount;
+    	 int maxRows = 10;
+         String strJSON = null;
+         String ps;
+         StringBuilder fileData = new StringBuilder();
+         
+         if ( wxLocation != null )
+         {
+        	 wxLocation = wxLocation.contains( "," ) ?
+                     wxLocation.substring( 0, wxLocation.indexOf( "," ) ).toLowerCase() :
+                     wxLocation;
+             ps = String.format( "%s%s%s", "gn_sd_", wxLocation.replaceAll( " ", "_" ), ".json" );
+             WeatherLionMain.previousCitySearchFile = new File(
+        		 WeatherLionMain.previousSearchesPath.getPath() + "/" +  ps );
+             
+             if( WeatherLionMain.previousCitySearchFile.exists() )
+             {
+                 try(
+                         FileReader fr = new FileReader( WeatherLionMain.previousCitySearchFile );	// declare and initialize the file reader object
+                         BufferedReader br = new BufferedReader( fr ) 	// declare and initialize the buffered reader object
+                 )
+                 {
+                     String line;
 
-        if ( hasInternetConnection() )
-        {
-            try
-            {
-                strJSON = HttpHelper.downloadUrl( geoUrl );
-            }// end of try block
-            catch ( IOException e )
-            {
-            	logMessage( "severe", e.getMessage(),
-    		        TAG + "::retrieveGeoNamesGeoLocationUsingAddress [line: " +
-    		        	getExceptionLineNumber( e ) + "]" );
-            }// end of catch block
+                     while( ( line = br.readLine() ) != null )
+                     {
+                         fileData.append( line );
+                     }// end of while loop
 
-        }// end of if block
-        else
-        {
-        	JOptionPane.showMessageDialog( null, "No Internet Connection.",
-    				WeatherLionMain.PROGRAM_NAME, JOptionPane.ERROR_MESSAGE );
+                     strJSON = fileData.toString();
+                 }// end of try block
+                 catch ( IOException e )
+                 {
+                     logMessage( LogLevel.SEVERE, e.getMessage(),
+                             TAG + "::retrieveGeoNamesGeoLocationUsingAddress [line: " +
+                                     getExceptionLineNumber( e )  + "]" );
+                 }// end of catch block
+             }// end of if block
+             else
+             {
+                 String geoUrl =
+                         "http://api.geonames.org/searchJSON?" +
+                                 "name_equals=" + wxLocation.toLowerCase() +
+                                 "&maxRows=" + maxRows +
+                                 "&username=" + WidgetUpdateService.geoNameAccount;
 
-        }// end of else block
+                 if ( hasInternetConnection() )
+                 {
+                     try
+                     {
+                         strJSON = HttpHelper.downloadUrl( geoUrl );
+                     }// end of try block
+                     catch ( IOException e )
+                     {
+                         logMessage( LogLevel.SEVERE, e.getMessage(),
+                                 TAG + "::retrieveGeoNamesGeoLocationUsingAddress [line: " +
+                                         getExceptionLineNumber(e) + "]" );
+                     }// end of catch block
+
+                 }// end of if block
+                 else
+                 {
+                	 JOptionPane.showMessageDialog( null, "No Internet Connection.",
+             				WeatherLionMain.PROGRAM_NAME, JOptionPane.ERROR_MESSAGE );
+                 }// end of else block
+             }// end of else block
+             
+         }// end of if block    	
 
         // Return the data from specified url
         return strJSON;
@@ -2550,7 +2583,7 @@ public abstract class UtilityMethod
             }// end of try block
             catch (IOException e)
             {
-            	logMessage( "severe", e.getMessage(),
+            	logMessage( LogLevel.SEVERE, e.getMessage(),
     		        TAG + "::retrieveGoogleGeoLocationUsingAddress [line: " +
     		        getExceptionLineNumber( e ) + "]" ); 
             }// end of catch block
@@ -2603,7 +2636,7 @@ public abstract class UtilityMethod
             }// end of try block
             catch ( IOException e )
             {
-            	logMessage( "severe", e.getMessage(),
+            	logMessage( LogLevel.SEVERE, e.getMessage(),
         		        TAG + "::retrieveHereGeoLocationUsingAddress [line: " +
         		        getExceptionLineNumber( e ) + "]" );
             }// end of catch block
@@ -2644,7 +2677,7 @@ public abstract class UtilityMethod
             }// end of try block
             catch ( IOException e )
             {
-            	 logMessage( "severe", e.getMessage(),
+            	 logMessage( LogLevel.SEVERE, e.getMessage(),
      		        TAG + "::retrieveYahooGeoLocationUsingAddress [line: " +
             	    getExceptionLineNumber( e ) + "]" );
             }// end of catch block
@@ -2686,7 +2719,7 @@ public abstract class UtilityMethod
             }// end of try block
             catch (IOException e)
             {
-            	logMessage( "severe", e.getMessage(),
+            	logMessage( LogLevel.SEVERE, e.getMessage(),
     		        TAG + "::RetrieveGeoNamesGeoLocationUsingCoordinates [line: " +
     		        getExceptionLineNumber( e ) + "]" );            	
             }// end of catch block
@@ -2727,7 +2760,7 @@ public abstract class UtilityMethod
             }// end of try block
             catch (IOException e)
             {
-            	logMessage( "severe", e.getMessage(),
+            	logMessage( LogLevel.SEVERE, e.getMessage(),
     		        TAG + "::retrieveGoogleGeoLocationUsingCoordinates [line: " +
     		        getExceptionLineNumber( e ) + "]" );            	
             }// end of catch block
@@ -2761,7 +2794,7 @@ public abstract class UtilityMethod
         }// end of try block
         catch ( IOException e )
         {
-        	logMessage( "severe", e.getMessage(),
+        	logMessage( LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::retrieveWeatherData [line: " +
 		        getExceptionLineNumber( e ) + "]" ); 
         }// end of catch block
@@ -2947,7 +2980,7 @@ public abstract class UtilityMethod
         int interval = WeatherLionMain.storedPreferences.getInterval();
 
         //milliseconds
-        long difference = new Date().getTime() - lastUpdated.getTime();
+        long difference = Math.abs( new Date().getTime() - lastUpdated.getTime() );
 
         long secondsInMilli = 1000;
         long minutesInMilli = secondsInMilli * 60;
@@ -3037,7 +3070,7 @@ public abstract class UtilityMethod
     	}// end of try block 
     	catch ( IOException io )
     	{
-    		logMessage( "severe", io.getMessage(),
+    		logMessage( LogLevel.SEVERE, io.getMessage(),
 		        TAG + "::cleanLockFiles [line: " + getExceptionLineNumber( io ) + "]" );
     		
     		// Use backup data from https://ipapi.co instead
@@ -3082,18 +3115,18 @@ public abstract class UtilityMethod
      		}// end of try block
     		catch( IOException e ) 
     		{
-    			logMessage( "severe", e.getMessage(),
+    			logMessage( LogLevel.SEVERE, e.getMessage(),
     				TAG + "::getSystemLocation [line: " + getExceptionLineNumber( e ) + "]" );
     		}// end of catch block
      		catch ( JSONException e )
      		{
-     			logMessage( "severe", e.getMessage(),
+     			logMessage( LogLevel.SEVERE, e.getMessage(),
     				TAG + "::getSystemLocation [line: " + getExceptionLineNumber( e ) + "]" );
      		}// end of catch block
     	}// end of catch block 
     	catch ( JDOMException jdomex )
     	{
-    		 logMessage( "severe", jdomex.getMessage(),
+    		 logMessage( LogLevel.SEVERE, jdomex.getMessage(),
 		        TAG + "::getSystemLocation [line: " + getExceptionLineNumber( jdomex ) + "]" );
     	}// end of catch block
     	
@@ -3180,7 +3213,7 @@ public abstract class UtilityMethod
 					}// end of try block
 					catch ( JSONException je )
 					{
-						 logMessage( "warning", je.getMessage(),
+						 logMessage( LogLevel.WARNING, je.getMessage(),
 					        TAG + "::getSystemIpAddress [line: " + getExceptionLineNumber( je ) + "]" );
 					}// end of catch block
 				
@@ -3206,7 +3239,7 @@ public abstract class UtilityMethod
      * @param message	Message to be logged
      * @param inMethod	The method in which the data required logging
      */
-    public static void logMessage( String level, String message, String inMethod )
+    public static void logMessage( LogLevel level, String message, String inMethod )
     {
     	// use the class name for the logger, this way you can refactor
     	Logger logger = Logger.getLogger( inMethod );
@@ -3220,21 +3253,19 @@ public abstract class UtilityMethod
 			logger.setLevel( Level.ALL );
 			
 			// log based on the specified log level
-			switch ( level.toLowerCase() )
+			switch ( level )
 			{
-				case "info":
+				case INFO:
 					logger.info( message );
 					break;
-				case "severe":
+				case SEVERE:
 					logger.severe( message );
 					break;
-				case "warning":
+				case WARNING:
 					logger.warning( message );
-					break;
-				case "finest":
-					logger.finest( message );
-					break;
+					break;				
 				default:
+					logger.finest( message );
 					break;
 			}// end of switch block
 		}// end of try block
@@ -3272,7 +3303,7 @@ public abstract class UtilityMethod
 		}// end of try block 
     	catch ( IOException e )
     	{
-    		logMessage( "severe", e.getMessage(),
+    		logMessage( LogLevel.SEVERE, e.getMessage(),
  		        TAG + "::saveToFile [line: " +
         	    getExceptionLineNumber( e ) + "]" );
 		}// end of catch block    	
@@ -3379,7 +3410,7 @@ public abstract class UtilityMethod
 		}// end of try block
 		catch ( JSONException e )
 		{
-			logMessage( "warning", e.getMessage(),
+			logMessage( LogLevel.WARNING, e.getMessage(),
 		        TAG + "::createCityData [line: " + getExceptionLineNumber( e ) + "]" );
 		}// end of catch block
     	
@@ -3453,7 +3484,7 @@ public abstract class UtilityMethod
 		}// end of try block
 		catch ( JSONException e )
 		{
-			  logMessage( "warning", e.getMessage(),
+			  logMessage( LogLevel.WARNING, e.getMessage(),
 				  TAG + "::createGeoNamesCityData [line: " + getExceptionLineNumber( e ) + "]" );
 		}// end of catch block
     	
@@ -3562,7 +3593,7 @@ public abstract class UtilityMethod
 		}// end of try block
 		catch ( JSONException e )
 		{
-			logMessage( "severe", e.getMessage(),
+			logMessage( LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::createHereCityData [line: " + getExceptionLineNumber( e ) + "]" );
 		}// end of catch block
     	
@@ -3598,7 +3629,7 @@ public abstract class UtilityMethod
 	        }// end of try block
 			catch ( SQLException e )
 			{
-				logMessage( "severe", e.getMessage(),
+				logMessage( LogLevel.SEVERE, e.getMessage(),
 				        TAG + "::checkIfTableExists [line: " + getExceptionLineNumber( e ) + "]" );
 				
 				// sometimes the execute update statement returns a result set so it will be handled here
@@ -3622,7 +3653,7 @@ public abstract class UtilityMethod
 					catch ( SQLException ee )
 					{
 						affected_rows = 0;
-						logMessage( "severe", ee.getMessage(),
+						logMessage( LogLevel.SEVERE, ee.getMessage(),
 						        TAG + "::checkIfTableExists [line: " + getExceptionLineNumber( ee ) + "]" );
 					}// end of catch block
 				}// end of 
@@ -3657,7 +3688,7 @@ public abstract class UtilityMethod
 			catch( SQLException e )
 			{
 				success = 0;
-				logMessage( "severe", e.getMessage(),
+				logMessage( LogLevel.SEVERE, e.getMessage(),
 				        TAG + "::createWSADatabase [line: " + getExceptionLineNumber( e ) + "]" );
 			}// end of catch block
 		}// end of if block
@@ -3691,7 +3722,7 @@ public abstract class UtilityMethod
 	 		catch( SQLException e )
 	 		{
 	 			success = 0;
-	 			logMessage( "severe", e.getMessage(),
+	 			logMessage( LogLevel.SEVERE, e.getMessage(),
 				        TAG + "::createWorldCitiesDatabase [line: " + getExceptionLineNumber( e ) + "]" );
 	 		}// end of catch block
 		}// end of if block
@@ -3739,7 +3770,7 @@ public abstract class UtilityMethod
         }// end of try block
 		catch ( SQLException e )
 		{
-			logMessage( "severe", e.getMessage(),
+			logMessage( LogLevel.SEVERE, e.getMessage(),
 			        TAG + "::addCityToDatabase [line: " + getExceptionLineNumber( e ) + "]" );
 			return 0;
 		}// end of catch block
@@ -3828,7 +3859,7 @@ public abstract class UtilityMethod
 	    }// end of try block
 		catch( SQLException e )
 		{
-			logMessage( "severe", e.getMessage(),
+			logMessage( LogLevel.SEVERE, e.getMessage(),
 			        TAG + "::getCityDataFromDatabase [line: " + getExceptionLineNumber( e ) + "]" );
 			return null;
 		}// end of catch block
@@ -3963,7 +3994,7 @@ public abstract class UtilityMethod
 		}// end of try block
 		catch( SQLException e )
 		{
-			logMessage( "severe", e.getMessage(),
+			logMessage( LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::getCurrentDatabaseFileName [line: " + getExceptionLineNumber( e ) + "]" );
 			return null;
 		}// end of catch block
@@ -3996,7 +4027,7 @@ public abstract class UtilityMethod
 	    }// end of try block 
 		catch ( IOException e )
 		{
-			logMessage( "warning", e.getMessage(),
+			logMessage( LogLevel.WARNING, e.getMessage(),
 		        TAG + "::cleanLockFiles [line: " + getExceptionLineNumber( e ) + "]" );
 		}// end of catch block
 		
@@ -4019,13 +4050,13 @@ public abstract class UtilityMethod
 	    }// end of try block 
 		catch ( IOException e )
 		{
-			logMessage( "warning", e.getMessage(),
+			logMessage( LogLevel.WARNING, e.getMessage(),
 		        TAG + "::cleanLockFiles [line: " + getExceptionLineNumber( e ) + "]" );
 		}// end of catch block
 		
 		if( badHTMLFileCount > 0 )
 		{
-			logMessage( "warning", 
+			logMessage( LogLevel.WARNING, 
 				"Removed " + badHTMLFileCount +
 				( badHTMLFileCount == 1 ?
 					" bad file " :
@@ -4035,7 +4066,7 @@ public abstract class UtilityMethod
 		
 		if( badTXTFileCount > 0 )
 		{
-			logMessage( "warning", 
+			logMessage( LogLevel.WARNING, 
 					"Removed " + badTXTFileCount +
 					( badTXTFileCount == 1 ?
 						" bad file " :
@@ -4057,7 +4088,7 @@ public abstract class UtilityMethod
     			WeatherLionMain.PROGRAM_NAME + " (" + asset + ")", JOptionPane.ERROR_MESSAGE  );
 		
 		// log message
-		logMessage( "severe", "Missing: " + asset, TAG + "::missingAssetPrompt" );
+		logMessage( LogLevel.SEVERE, "Missing: " + asset, TAG + "::missingAssetPrompt" );
 		
 		System.exit( 0 );	// terminate the program
 	}// end of method missingAssetPrompt
@@ -4109,7 +4140,7 @@ public abstract class UtilityMethod
 	    }// end of try block 
 	    catch ( IOException e )
 	    {
-	    	logMessage( "severe", e.getMessage(),
+	    	logMessage( LogLevel.SEVERE, e.getMessage(),
 			        TAG + "::size [line: " + getExceptionLineNumber( e ) + "]" );
 	    	
 	        throw new AssertionError( "walkFileTree will not throw IOException if the FileVisitor does not" );

@@ -64,7 +64,7 @@ public class ConnectionManager
 		}// end of try black
 		catch ( SQLException e )
 		{
-			 UtilityMethod.logMessage( "severe", e.getMessage(),
+			 UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::openConnection [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 			 
@@ -99,7 +99,7 @@ public class ConnectionManager
 		}// end of try block 
 		catch ( Exception e )
 		{
-			UtilityMethod.logMessage( "severe", e.getMessage(),
+			UtilityMethod.logMessage( UtilityMethod.LogLevel.SEVERE, e.getMessage(),
 		        TAG + "::close [line: " +
 		        UtilityMethod.getExceptionLineNumber( e )  + "]" );
 		}// end of catch block
