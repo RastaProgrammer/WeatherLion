@@ -1924,6 +1924,51 @@ public abstract class UtilityMethod
 		return files.length;
 	}// end of method getFileCount
     
+    /**
+     * Compute the distance between two strings.
+     */    
+    public static int getLevenshteinDistance( String firstString, String secondString )
+    {
+        int n = firstString.length();
+        int m = secondString.length();
+        int[][] distance = new int[ n + 1 ][ m + 1 ];
+
+        // Step 1
+        if( n == 0 )
+        {
+            return m;
+        }// end of if block
+
+        if( m == 0 )
+        {
+            return n;
+        }// end of if block
+
+        // Step 2
+        for( int i = 0; i <= n; distance[i][0] = i++ );
+
+        for( int j = 0; j <= m; distance[0][j] = j++ );
+
+        // Step 3
+        for( int i = 1; i <= n; i++ )
+        {
+            //Step 4
+            for (int j = 1; j <= m; j++ )
+            {
+                // Step 5
+                int cost = ( secondString.charAt( j - 1 ) == firstString.charAt( i - 1 ) ) ? 0 : 1;
+
+                // Step 6
+                distance[ i ][ j ] = Math.min(
+                    Math.min( distance[ i - 1 ][ j ] + 1, distance[ i ][ j - 1 ] + 1 ),
+                distance[ i - 1 ][ j - 1] + cost );
+            }// end of inner for loop
+        }// end of outer for loop
+
+        // Step 7
+        return distance[ n ][ m ];
+    }// end of method getLevenshteinDistance
+    
     /***
      * Locate any subdirectories found in a specific directory
      * 
@@ -2369,6 +2414,26 @@ public abstract class UtilityMethod
 	{
 		return ( OS.indexOf( "mac" ) >= 0);
  	}// end of method isMac
+	
+	public static String findClosestWordMatch( String[] phraseList, String searchPhrase )
+    {
+        StringBuilder closestMatch = new StringBuilder();
+        int closest = searchPhrase.length();
+
+        for( String phrase : phraseList )
+        {
+            int cost = UtilityMethod.getLevenshteinDistance( searchPhrase , phrase );
+
+            if( cost < closest )
+            {
+                closest = cost;
+                closestMatch.setLength( 0 );
+                closestMatch.append( phrase );
+            }// end of if block
+        }// end of for loop
+
+        return closestMatch.toString();
+    }// end of method findClosestWordMatch
 		
 	/**
      * Uses the Geo Names web service to determine if a city actually exists.
@@ -2997,6 +3062,75 @@ public abstract class UtilityMethod
             return false;
         }// end of else block
     }// end of method updatedRequired  
+    
+    /**
+     * Returns a valid weather condition that is relevant to the application
+     *
+     * @param condition The weather condition to be validated
+     * @return  A {@code String} value representing a valid weather condition
+     */
+    public static String validateCondition( String condition )
+    {
+        condition = condition.toLowerCase();
+
+        if ( condition.contains( "until" ) )
+        {
+            condition = condition.substring( 0, condition.indexOf( "until" ) - 1 ).trim();
+        }// end of if block
+
+        if ( condition.contains( "starting" ) )
+        {
+            condition = condition.substring( 0, condition.indexOf( "starting" ) - 1 ).trim();
+        }// end of if block
+
+        if ( condition.contains( "overnight" ) )
+        {
+            condition = condition.substring( 0, condition.indexOf( "overnight" ) - 1 ).trim();
+        }// end of if block
+
+        if ( condition.contains( "night" ) )
+        {
+            condition = condition.replaceAll( "night", "" ).trim();
+        }// end of if block
+
+        if ( condition.contains( "possible" ) )
+        {
+            condition = condition.replaceAll( "possible", "" ).trim();
+        }// end of if block
+
+        if ( condition.contains( "throughout" ) )
+        {
+            condition = condition.substring( 0, condition.indexOf( "throughout" ) - 1 ).trim();
+        }// end of if block
+
+        if ( condition.contains( " in " ) )
+        {
+            condition = condition.substring( 0, condition.indexOf( " in " ) - 1 ).trim();
+        }// end of if block
+
+        if( condition.toLowerCase().contains( "and" ) )
+        {
+            String[] conditions = condition.toLowerCase().split( "and" );
+
+            condition = conditions[ 0 ].trim();
+        }// end of if block
+
+        if( condition.toLowerCase().contains( "(day)") )
+        {
+            condition = condition.replace( "(day)", "").trim();
+        }// end of if block
+        else if( condition.toLowerCase().contains( "(night)" ) )
+        {
+            condition = condition.replace( "(night)", "" ).trim();
+        }// end of if block
+
+        // create a new method for locating the nearest match
+        condition = UtilityMethod.findClosestWordMatch(
+                        UtilityMethod.weatherImages.keySet().toArray( new String[0]),
+                            condition );
+
+        return toProperCase( condition );
+    }// end of method validateCondition
     
     /**
      * Returns the line number were the exception occurred in the code.

@@ -2047,7 +2047,8 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	    	currentCountry.append( CityData.currentCityData.getCountryName() );
 	    	
 	    	currentCondition.setLength( 0 ); // reset
-	    	currentCondition.append( UtilityMethod.toProperCase( darkSky.getCurrently().getSummary() ) );
+	        currentCondition.append( UtilityMethod.validateCondition(
+	                UtilityMethod.toProperCase( darkSky.getCurrently().getSummary() ) ) );
 	    	
 	    	currentWindDirection.setLength( 0 );
 	    	currentWindDirection.append( UtilityMethod.compassDirection( darkSky.getCurrently().getWindBearing() ) );
@@ -2193,8 +2194,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
             for ( DarkSkyWeatherDataItem.Daily.Data wxForecast : darkSky.getDaily().getData() )
             {
 				Date fxDate = UtilityMethod.getDateTime( wxForecast.getTime() );
-				String fCondition =  UtilityMethod.toProperCase(
-                        validateCondition( wxForecast.getSummary().toLowerCase() ) );
+				String fCondition = UtilityMethod.validateCondition( wxForecast.getSummary() );
 				               
                 ( (JLabel) getComponentByName( "lblDay"+ i +"Day" ) ).setText(
             			new SimpleDateFormat( "E d" ).format( fxDate ) );
@@ -2269,10 +2269,12 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	    	currentCountry.setLength( 0 );
 	    	currentCountry.append( CityData.currentCityData.getCountryName() );
 	    	
-	    	currentCondition.setLength( 0 );
-	    	currentCondition.append( obs.getIconName().contains( "_" ) ?
-	    			UtilityMethod.toProperCase( obs.getIconName().replaceAll( "_", " " ) ) :
-	    				UtilityMethod.toProperCase( obs.getIconName().replaceAll( "_", " " ) ) );
+	    	 currentCondition.setLength( 0 );
+	         currentCondition.append( obs.getIconName().contains( "_" ) ?
+                 UtilityMethod.toProperCase( UtilityMethod.validateCondition(
+                		 obs.getIconName().replaceAll( "_", " " ) ) ) :
+	                 UtilityMethod.toProperCase( UtilityMethod.validateCondition(
+	                		 obs.getIconName().replaceAll( "_", " " ) ) ) );
 	    			
 	    	currentWindDirection.setLength( 0 );
 	    	currentWindDirection.append( obs.getWindDescShort() );
@@ -2451,7 +2453,8 @@ public class WeatherLionWidget extends JFrame implements Runnable
     	    			UtilityMethod.toProperCase( wxForecast.getIconName().replaceAll( "_", " " ) ) :
     	    				UtilityMethod.toProperCase( wxForecast.getIconName().replaceAll( "_", " " ) );
     	    			
-	    			fCondition = UtilityMethod.toProperCase( validateCondition( fCondition ) );
+	    			fCondition = UtilityMethod.toProperCase( UtilityMethod.validateCondition(
+    					fCondition ) );
             		String fDay =  new SimpleDateFormat( "E d" ).format( fxDate );
             		            		                	
                     ( (JLabel) getComponentByName( "lblDay"+ i +"Day" ) ).setText(
@@ -2523,7 +2526,8 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	    	currentCountry.append( CityData.currentCityData.getCountryName() );
 	    	
 	    	currentCondition.setLength( 0 ); // reset
-	    	currentCondition.append( openWeatherWx.getWeather().get( 0 ).getDescription() );
+	        currentCondition.append( UtilityMethod.validateCondition(
+                openWeatherWx.getWeather().get( 0 ).getDescription() ) );
 	    	
 	    	currentWindDirection.setLength( 0 ); // reset
 	    	currentWindDirection.append( UtilityMethod.compassDirection( openWeatherWx.getWind().getDeg() ) );
@@ -2678,9 +2682,10 @@ public class WeatherLionWidget extends JFrame implements Runnable
             	
             	if ( !df.format( fxDate ).equals( df.format( lastDate ) ) )
                 {
-            		lastDate = UtilityMethod.getDateTime(wxForecast.getDt() );
+            		lastDate = UtilityMethod.getDateTime( wxForecast.getDt() );
             		String fCondition =  UtilityMethod.toProperCase(
-                            validateCondition( wxForecast.getWeather().get( 0 ).getDescription() ) );
+                        UtilityMethod.validateCondition( 
+                    		wxForecast.getWeather().get( 0 ).getDescription() ) );
             		String fDay =  new SimpleDateFormat( "E d" ).format( fxDate );
             		
                     ( (JLabel) getComponentByName( "lblDay"+ i +"Day" ) ).setText(
@@ -3022,8 +3027,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	    	currentCountry.append( CityData.currentCityData.getCountryName() );
 	    	
 	    	currentCondition.setLength( 0 ); // reset
-	    	currentCondition.append( UtilityMethod.toProperCase( 
-	    			weatherBitWx.getData().get( 0 ).getWeather().getDescription() ) );
+	        currentCondition.append( UtilityMethod.toProperCase(
+	            UtilityMethod.validateCondition(
+	                weatherBitWx.getData().get( 0 ).getWeather().getDescription() ) ) );
 	    	
 	    	currentWindDirection.setLength( 0 );
 	    	currentWindDirection.append( weatherBitWx.getData().get( 0 ).getWind_cdir() );
@@ -3200,8 +3206,8 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	            
 	            if ( fxDate.after( new Date() ) )
                 {
-                    String fCondition =  UtilityMethod.toProperCase(
-                            validateCondition( wxForecast.getWeather().getDescription() ) );
+	            	String fCondition = UtilityMethod.validateCondition( 
+                        wxForecast.getWeather().getDescription() );
         	            
                 	if ( fxDate.after( new Date() ) )
                     {                	                    	
@@ -3594,8 +3600,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        currentCountry.append( yahoo19.getLocation().getCountry() );
 
 	        currentCondition.setLength( 0 ); // reset
-	        currentCondition.append( 
-	                yahoo19.getCurrentObservation().getCondition().getText() );
+	        currentCondition.append(
+	            UtilityMethod.validateCondition(
+            		yahoo19.getCurrentObservation().getCondition().getText() ) );
 	        
 	        currentHumidity.setLength( 0 );
 	        currentHumidity.append( String.valueOf(
@@ -3757,8 +3764,8 @@ public class WeatherLionWidget extends JFrame implements Runnable
             			new SimpleDateFormat( "E d" ).format( fDate ) );
 
 	            // Load current forecast condition weather image
-	            String fCondition =  UtilityMethod.toProperCase(
-                        validateCondition( UtilityMethod.yahooWeatherCodes[
+				String fCondition = UtilityMethod.toProperCase(
+                    UtilityMethod.validateCondition( UtilityMethod.yahooWeatherCodes[
 	                    fdf.get( i ).getCode() ] ) );
 	            
 	            String fConditionIcon = null;
@@ -4092,7 +4099,9 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	        currentCountry.append( yr.getCountry() );
 
 	        currentCondition.setLength( 0 ); // reset
-	        currentCondition.append( UtilityMethod.toProperCase( yr.getForecast().get( 0 ).getSymbolName() ) );
+	        currentCondition.append( UtilityMethod.toProperCase(
+	            UtilityMethod.validateCondition( 
+            		yr.getForecast().get( 0 ).getSymbolName() ) ) );
 	        
 	        currentHumidity.setLength( 0 );
 	        currentHumidity.append( currentHumidity != null ? currentHumidity : String.valueOf( 0 ) ); // use the humidity reading from previous providers
@@ -4263,8 +4272,8 @@ public class WeatherLionWidget extends JFrame implements Runnable
                 			new SimpleDateFormat( "E d" ).format( forecastDate ) );
                 	
                 	// Load current forecast condition weather image
-                	String fCondition =  UtilityMethod.toProperCase(
-                            validateCondition( wxDailyForecast.getSymbolName() ) );
+                	String fCondition = UtilityMethod.toProperCase(
+                        UtilityMethod.validateCondition( wxDailyForecast.getSymbolName() ) );
                 	                	                	 
                 	String fConditionIcon = null;
         	            
@@ -5440,69 +5449,7 @@ public class WeatherLionWidget extends JFrame implements Runnable
 	    	lblCurrentTemperature.setForeground(
 	    			UtilityMethod.temperatureColor( Integer.parseInt(
 	    					currentTemp.toString().replaceAll( "\\D+","" ) ) ) );
-	    }// end of method updateTemps	    
-		 
-		/**
-	     * Returns a valid weather condition that is relevant to the application
-	     *
-	     * @param condition The weather condition to be validated
-	     * @return  A {@code String} value representing a valid weather condition
-	     */
-	    private String validateCondition( String condition )
-	    {
-	        if ( condition.contains( "until" ) )
-	        {
-	            condition = condition.substring( 0, condition.indexOf( "until" ) - 1 ).trim();
-	        }// end of if block
-
-	        if ( condition.contains( "starting" ) )
-	        {
-	            condition = condition.substring( 0, condition.indexOf( "starting" ) - 1 ).trim();
-	        }// end of if block
-
-	        if ( condition.contains( "overnight" ) )
-	        {
-	            condition = condition.substring( 0, condition.indexOf( "overnight" ) - 1 ).trim();
-	        }// end of if block
-
-	        if ( condition.contains( "night" ) )
-	        {
-	            condition = condition.replaceAll( "night", "" ).trim();
-	        }// end of if block
-
-	        if ( condition.contains( "possible" ) )
-	        {
-	            condition = condition.replaceAll( "possible", "" ).trim();
-	        }// end of if block
-
-	        if ( condition.contains( "throughout" ) )
-	        {
-	            condition = condition.substring( 0, condition.indexOf( "throughout" ) - 1 ).trim();
-	        }// end of if block
-
-	        if ( condition.contains( " in " ) )
-	        {
-	            condition = condition.substring( 0, condition.indexOf( " in " ) - 1 ).trim();
-	        }// end of if block
-
-	        if( condition.toLowerCase().contains( "and" ) )
-	        {
-	            String[] conditions = condition.toLowerCase().split( "and" );
-
-	            condition = conditions[ 0 ].trim();
-	        }// end of if block
-
-	        if( condition.toLowerCase().contains( "(day)") )
-	        {
-	            condition = condition.replace( "(day)", "").trim();
-	        }// end of if block
-	        else if( condition.toLowerCase().contains( "(night)" ) )
-	        {
-	            condition = condition.replace( "(night)", "" ).trim();
-	        }// end of if block
-
-	        return condition;
-	    }// end of method validateCondition
+	    }// end of method updateTemps		
 	}// end of class WidgetUpdateService	
 	
 }// end of class WeatherLionWidget
