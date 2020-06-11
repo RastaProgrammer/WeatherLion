@@ -152,8 +152,8 @@ public abstract class WeatherLionMain
 	public static void main( String[] args )
 	{
 		// use the operating system's look and feel
-		setLookAndFeel( SYSTEM ); 
-		
+		setLookAndFeel( SYSTEM );
+				
 		// clean up any lock files that may have remained after a crash 
 		UtilityMethod.cleanLockFiles();
 		

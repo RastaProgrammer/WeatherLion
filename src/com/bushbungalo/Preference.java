@@ -148,9 +148,9 @@ public class Preference
 		return m_widget_background;
 	}
 
-	public void setWidgetBackground( String m_widget_background ) 
+	public void setWidgetBackground( String widget_background ) 
 	{
-		this.m_widget_background = m_widget_background;
+		this.m_widget_background = widget_background;
 	}
 	
 	public String getIconSet() 
@@ -158,9 +158,9 @@ public class Preference
 		return m_icon_set;
 	}
 
-	public void setIconSet( String m_icon_set ) 
+	public void setIconSet( String icon_set ) 
 	{
-		this.m_icon_set = m_icon_set;
+		this.m_icon_set = icon_set;
 	}
 	
 	public static Preference getSavedPreferences()
@@ -225,7 +225,7 @@ public class Preference
 		
 		props.setProperty( "xy", "0,0" );
 		props.setProperty( "skin", Integer.toString( WeatherLionMain.METAL ) );
-		props.setProperty( "icons_set", "miui" );
+		
 		OutputStream outputStream;		
 		
 		try
@@ -351,8 +351,7 @@ public class Preference
 		
 		// get the property value and use it
 		String prop = props.getProperty( property );
-		
-		// if the configuration file exists then a skin value would already be set. If not, use the default skin Metal.
+				
 		if ( prop == null )
 		{
 			return "0";

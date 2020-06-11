@@ -410,8 +410,8 @@ public abstract class UtilityMethod
         worldCountries.put("KZ", "Kazakhstan");
         worldCountries.put("KE", "Kenya");
         worldCountries.put("KI", "Kiribati");
-        worldCountries.put("KP", "KoreaÂ (North)");
-        worldCountries.put("KR", "KoreaÂ (South)");
+        worldCountries.put("KP", "Korea (North)");
+        worldCountries.put("KR", "Korea (South)");
         worldCountries.put("KW", "Kuwait");
         worldCountries.put("KG", "Kyrgyzstan");
         worldCountries.put("LA", "Lao PDR");
@@ -2107,7 +2107,8 @@ public abstract class UtilityMethod
             }// end of else if block
             else if ( ( i < cycle ) && Character.isAlphabetic( sequence.charAt( i ) ) &&
                     ( Character.toString( sequence.charAt( i - 1 ) ).equals( sep[ 0 ] ) ||
-                            Character.toString( sequence.charAt( i - 1 ) ).equals( sep [ 1 ] ) ) )
+                        Character.toString( sequence.charAt( i - 1 ) ).equals( sep [ 1 ] ) ||
+                            Character.toString( sequence.charAt( i - 1 ) ).equals( sep [ 3 ] ) ) )
             {
                 sequence.replace( i, i + 1, Character.toString( sequence.charAt( i ) ).toUpperCase() );
             }// end of else if block
@@ -2415,6 +2416,13 @@ public abstract class UtilityMethod
 		return ( OS.indexOf( "mac" ) >= 0);
  	}// end of method isMac
 	
+	/**
+	 * Finds the closest word match to word.
+	 * 
+	 * @param phraseList	A array containing a list of strings for check against.
+	 * @param searchPhrase	A string to search the list for.
+	 * @return	The closest match to the query string.
+	 */
 	public static String findClosestWordMatch( String[] phraseList, String searchPhrase )
     {
         StringBuilder closestMatch = new StringBuilder();
@@ -3151,58 +3159,42 @@ public abstract class UtilityMethod
     public static CityData getSystemLocation() 
     {
     	// region Client Machine Information
+    	CityData cd = null; 
+    	String ipStackUrl = "http://api.ipstack.com/" + getSystemIpAddress() 
+		+ "?access_key=1bb227db8f2dca1b9a3917fb403e2e99"; 
     	
-    	SAXBuilder builder = new SAXBuilder();
-    	CityData cd = null;
-    	
-    	try 
-    	{
-    		// just in case the document contains unnecessary white spaces
-    		builder.setIgnoringElementContentWhitespace( true );
-    		
-    		String ipStackUrl = "http://api.ipstack.com/" + getSystemIpAddress() 
-    							+ "?access_key=1bb227db8f2dca1b9a3917fb403e2e99&output=xml&legacy=1"; // TO BE DEPRECATED
-//    		String ipStackUrl = "http://ip-api.com/xml";
-    		
-    		// download the document from the URL and build it
-    		Document document = builder.build( ipStackUrl );
-    		    		    		
-    		// get the root node of the XML document
-    		Element rootNode = document.getRootElement();
-    		
-    		// get the text from the root's children nodes
-    		// ipstack.com implementation
-			String ip = rootNode.getChildText( "ip" );
-    		String countryCode = rootNode.getChildText( "country_code" );
-    		String countryName = rootNode.getChildText( "country_name" );
-    		String regionName = rootNode.getChildText( "region_name" );
-    		String regionCode = rootNode.getChildText( "region_code" );
-    		String city = rootNode.getChildText( "city" );
-    		String zipCode = rootNode.getChildText( "zip_code" );
-    		String timeZone = rootNode.getChildText( "time_zone" );
-    		String latitude = rootNode.getChildText( "latitude" );
-    		String longitude = rootNode.getChildText( "longitude" );
-    		String metroCode = rootNode.getChildText( "metro_code" );
-    		
-    		// ip-api.com implementation
-//    		String ip = rootNode.getChildText( "query" );
-//    		String countryCode = rootNode.getChildText( "countryCode" );
-//    		String countryName = rootNode.getChildText( "country" );
-//    		String regionName = rootNode.getChildText( "regionName" );
-//    		String regionCode = rootNode.getChildText( "region" );
-//    		String city = rootNode.getChildText( "city" );
-//    		String zipCode = rootNode.getChildText( "zip" );
-//    		String timeZone = rootNode.getChildText( "timezone" );
-//    		String latitude = rootNode.getChildText( "lat" );
-//    		String longitude = rootNode.getChildText( "lon" );
-//    		String serviceProvider = rootNode.getChildText( "org" );
-    		
-    		// create a new CityData object
-    		cd = new CityData( city, countryName, countryCode, regionName,
-    				regionCode, Float.parseFloat( latitude ), Float.parseFloat( longitude ) ); 		
-    		
+    	String strJSON = null;
+		
+		try 
+ 		{
+            strJSON = HttpHelper.downloadUrl( ipStackUrl );
+			Object json = new JSONTokener( strJSON ).nextValue();
+     		
+ 			// Check if a JSON was returned from the web service
+ 			if ( json instanceof JSONObject )
+ 			{
+ 				// Get the full HTTP Data as JSONObject
+				JSONObject reader = new JSONObject( strJSON );
+				
+ 				// ipstack.com implementation
+ 	    		String city = reader.getString( "city" );
+ 	    		String regionName = reader.getString( "region_name" );
+ 	    		String regionCode = reader.getString( "region_code" );
+ 	    		String countryName = reader.getString( "country_name" );
+ 	    		String countryCode = reader.getString( "country_code" ); 	    		
+ 	    		String continent_code = reader.getString( "continent_code" );
+ 	    		Boolean inEu = reader.getBoolean( "is_eu" );
+ 	    		String zipCode = reader.getString( "zip" );
+ 	    		String latitude = reader.getString( "latitude" );
+ 	    		String longitude = reader.getString( "longitude" );  		
+ 	    		String countryCallingCode = reader.getString( "calling_code" ); 	    		
+ 	    		
+ 	    		// create a new CityData object
+ 	    		cd = new CityData( city, countryName, countryCode, regionName,
+ 	    				regionCode, Float.parseFloat( latitude ), Float.parseFloat( longitude ) );
+ 			}// end of if block    		
     	}// end of try block 
-    	catch ( IOException io )
+    	catch ( JSONException io )
     	{
     		logMessage( LogLevel.SEVERE, io.getMessage(),
 		        TAG + "::cleanLockFiles [line: " + getExceptionLineNumber( io ) + "]" );
@@ -3210,7 +3202,8 @@ public abstract class UtilityMethod
     		// Use backup data from https://ipapi.co instead
     		String ip = getSystemIpAddress();
     		String url = "https://ipapi.co/" + ip + "/json";
-    		String strJSON = null;
+    		
+    		strJSON = null;
     		
     		try 
      		{
@@ -3258,11 +3251,12 @@ public abstract class UtilityMethod
     				TAG + "::getSystemLocation [line: " + getExceptionLineNumber( e ) + "]" );
      		}// end of catch block
     	}// end of catch block 
-    	catch ( JDOMException jdomex )
-    	{
-    		 logMessage( LogLevel.SEVERE, jdomex.getMessage(),
-		        TAG + "::getSystemLocation [line: " + getExceptionLineNumber( jdomex ) + "]" );
-    	}// end of catch block
+		catch ( IOException e )
+		{
+			logMessage( LogLevel.SEVERE, e.getMessage(),
+			        TAG + "::getSystemLocation [line: " + getExceptionLineNumber( e ) + "]" );
+		}// end of catch block
+		
     	
     	return cd;
     }// end of method getSystemLocation
@@ -3275,95 +3269,117 @@ public abstract class UtilityMethod
     public static String getSystemIpAddress()
     {
     	String ip = null;
-    	
-    	// check if the underlying OS is Windows
-    	if( isWindows() )
+		
+    	if( hasInternetConnection() )
     	{
-    		Process uptimeProc = null;
-    		StringBuffer ipAddress = new StringBuffer();
-    		
-    		try 
+    		try
     		{
-    			uptimeProc = Runtime.getRuntime().exec("ipconfig");
-    			BufferedReader br = new BufferedReader(
-    					  				new InputStreamReader( uptimeProc.getInputStream() ) );
-    			String line = null;
-    			
-    			// If find that the temporary ip address on windows reveals a more precise location
-    			// when using the IP address to determine location
-    			while(( line = br.readLine() ) != null )
-    			{
-    				String tempAdd = "Temporary IPv6 Address. . . . . . :";
-    				
-    				if( line.contains( tempAdd ) ) 
-    				{
-    					ipAddress.append( line.substring( tempAdd.length() + 4 ) );
-    					break;
-    				}// end of if block
-    			}// end of while loop
-    			
-    			ip = ipAddress.toString().trim();
-    		}// end of try block
-    		catch ( IOException e )
+				 ip = HttpHelper.downloadUrl( "http://ifconfig.me/ip" );
+			}// end of try block 
+    		catch ( IOException e ) 
     		{
-    			// fallback in case the command encountered an error
-    			String[][] jsonUrls = { { "https://www.trackip.net/ip?json", "IP" }, 
-		                { "https://api.ipify.org?format=json", "ip" }
-                      };
-				String strJSON = null;
-				String[] urlUsed = null;
-				
-				if ( hasInternetConnection() )
-				{
-				    while( strJSON == null ) 
-				    {
-				    	for ( String[] url : jsonUrls ) 
-				    	{
-				    		try
-				            {
-				                strJSON = HttpHelper.downloadUrl( url[ 0 ] );
-				                urlUsed = url;
-				            }// end of try block
-				            catch ( IOException io )
-				            {
-				            	strJSON = null;
-				            }// end of catch block
-						}// end of for each loop
-				    }// end of while loop
-					
-				    try 
-					{
-						Object json = new JSONTokener( strJSON ).nextValue();
-						
-						// Check if a JSON was returned from the web service
-						if ( json instanceof JSONObject )
-						{
-							// Get the full HTTP Data as JSONObject
-							JSONObject reader = new JSONObject( strJSON );
-							
-							// Get the String returned from the object
-							ip = reader.getString( urlUsed[ 1 ] );
-						}// end of if block			
-					}// end of try block
-					catch ( JSONException je )
-					{
-						 logMessage( LogLevel.WARNING, je.getMessage(),
-					        TAG + "::getSystemIpAddress [line: " + getExceptionLineNumber( je ) + "]" );
-					}// end of catch block
-				
-				}// end of if block
-				else
-				{
-					JOptionPane.showMessageDialog( null, "No Internet Connection.",
-						WeatherLionMain.PROGRAM_NAME, JOptionPane.ERROR_MESSAGE );
-				
-				}// end of else block
-    		}// end of catch block
-    	}// end of if block
+    			logMessage( LogLevel.WARNING, e.getMessage(),
+				        TAG + "::getSystemIpAddress [line: " + getExceptionLineNumber( e ) + "]" );        			
+			}// end of catch block 
+
+            if( ip == null )
+    	    {
+                if( isWindows() )
+                {        			
+                    Process uptimeProc = null;
+                    String ipAddress = null;
+                    
+                    try 
+                    {
+                        uptimeProc = Runtime.getRuntime().exec("nslookup myip.opendns.com resolver1.opendns.com");
+                        BufferedReader br = new BufferedReader(
+                                                new InputStreamReader( uptimeProc.getInputStream() ) );
+                        String line = null;
+                        int i = 0; 
+                        
+                        // the line containing the public ip address
+                    	String pIpAddLine = "Address:  ";
+                        
+                        // If find that the temporary ip address on windows reveals a more precise location
+                        // when using the IP address to determine location
+                        while(( line = br.readLine() ) != null )
+                        {
+                            i++;
+                            
+                            // The public ip should appear after the 2nd line
+                            if( i > 2 )
+                            {                        
+                                if( line.contains( pIpAddLine ) ) 
+                                {
+                                    ipAddress = line.substring( pIpAddLine.length() );
+                                    break;
+                                }// end of if block
+                            }// end of if block        				
+                        }// end of while loop
+                        
+                        ip = ipAddress.trim();
+                    }// end of try block
+                    catch ( IOException e )
+                    {
+                        // fallback in case the command encountered an error
+                        String[][] jsonUrls = { { "https://www.trackip.net/ip?json", "IP" }, 
+                                { "https://api.ipify.org?format=json", "ip" }
+                            };
+                        String strJSON = null;
+                        String[] urlUsed = null;
+                        
+                        if ( hasInternetConnection() )
+                        {
+                            while( strJSON == null ) 
+                            {
+                                for ( String[] url : jsonUrls ) 
+                                {
+                                    try
+                                    {
+                                        strJSON = HttpHelper.downloadUrl( url[ 0 ] );
+                                        urlUsed = url;
+                                    }// end of try block
+                                    catch ( IOException io )
+                                    {
+                                        strJSON = null;
+                                    }// end of catch block
+                                }// end of for each loop
+                            }// end of while loop
+                            
+                            try 
+                            {
+                                Object json = new JSONTokener( strJSON ).nextValue();
+                                
+                                // Check if a JSON was returned from the web service
+                                if ( json instanceof JSONObject )
+                                {
+                                    // Get the full HTTP Data as JSONObject
+                                    JSONObject reader = new JSONObject( strJSON );
+                                    
+                                    // Get the String returned from the object
+                                    ip = reader.getString( urlUsed[ 1 ] );
+                                }// end of if block			
+                            }// end of try block
+                            catch ( JSONException je )
+                            {
+                                logMessage( LogLevel.WARNING, je.getMessage(),
+                                    TAG + "::getSystemIpAddress [line: " + getExceptionLineNumber( je ) + "]" );
+                            }// end of catch block
+                        
+                        }// end of if block
+                        else
+                        {
+                            JOptionPane.showMessageDialog( null, "No Internet Connection.",
+                                WeatherLionMain.PROGRAM_NAME, JOptionPane.ERROR_MESSAGE );
+                        
+                        }// end of else block
+                    }// end of catch block
+                }// end of if block if( ip == null )                      		
+    	    }// end of if block if( isWindows() )
+    	}// end of if block if( hasInternetConnection() )
     	
         // Return the data from specified url
         return ip;
-
     }// end of method getSystemIpAddress
     
     /***
