@@ -2426,21 +2426,53 @@ public abstract class UtilityMethod
 	public static String findClosestWordMatch( String[] phraseList, String searchPhrase )
     {
         StringBuilder closestMatch = new StringBuilder();
+        StringBuilder mostLikelyMatch = new StringBuilder();
         int closest = searchPhrase.length();
+        int highestProbability = 0; // this is the highest percentage of a possible match
 
         for( String phrase : phraseList )
         {
-            int cost = UtilityMethod.getLevenshteinDistance( searchPhrase , phrase );
+            int changesNeeded = getLevenshteinDistance( searchPhrase , phrase );
+            int wordProbability = percentageMatch( phrase, searchPhrase );
+            
+            // if 50% or greater match then its is a possible substitution
+    		if (wordProbability > highestProbability)
+    		{
+    			highestProbability = wordProbability;
+    			mostLikelyMatch.setLength( 0 );
+    			mostLikelyMatch.append( phrase );
+    		}// end of if block    		
 
-            if( cost < closest )
+            if( changesNeeded < closest )
             {
-                closest = cost;
+                closest = changesNeeded;
                 closestMatch.setLength( 0 );
                 closestMatch.append( phrase );
             }// end of if block
         }// end of for loop
+        
+        // if both algorithms came up with the same string
+    	// then just return any one
+    	if ( closestMatch.toString().equals( mostLikelyMatch.toString() ) )
+    	{
+    		return closestMatch.toString();
+    	}// end of if block
+    	else
+    	{
+    		// if both algorithms came up with different strings,
+    		// use the one with the highest percentage match
+    		int a = percentageMatch( closestMatch.toString(), searchPhrase );
+    		int b = percentageMatch( mostLikelyMatch.toString(), searchPhrase );
 
-        return closestMatch.toString();
+    		if (a > b)
+    		{
+    			return closestMatch.toString();
+    		}// end of if block    		
+    		else
+    		{
+    			return mostLikelyMatch.toString();
+    		}// end of else block
+    	}// end of else block        
     }// end of method findClosestWordMatch
 		
 	/**
@@ -3167,6 +3199,7 @@ public abstract class UtilityMethod
 		
 		try 
  		{
+			// get ip details from web service
             strJSON = HttpHelper.downloadUrl( ipStackUrl );
 			Object json = new JSONTokener( strJSON ).nextValue();
      		
@@ -3181,13 +3214,10 @@ public abstract class UtilityMethod
  	    		String regionName = reader.getString( "region_name" );
  	    		String regionCode = reader.getString( "region_code" );
  	    		String countryName = reader.getString( "country_name" );
- 	    		String countryCode = reader.getString( "country_code" ); 	    		
- 	    		String continent_code = reader.getString( "continent_code" );
- 	    		Boolean inEu = reader.getBoolean( "is_eu" );
+ 	    		String countryCode = reader.getString( "country_code" );	    			
  	    		String zipCode = reader.getString( "zip" );
  	    		String latitude = reader.getString( "latitude" );
- 	    		String longitude = reader.getString( "longitude" );  		
- 	    		String countryCallingCode = reader.getString( "calling_code" ); 	    		
+ 	    		String longitude = reader.getString( "longitude" );    		 	    		
  	    		
  	    		// create a new CityData object
  	    		cd = new CityData( city, countryName, countryCode, regionName,
@@ -3197,7 +3227,7 @@ public abstract class UtilityMethod
     	catch ( JSONException io )
     	{
     		logMessage( LogLevel.SEVERE, io.getMessage(),
-		        TAG + "::cleanLockFiles [line: " + getExceptionLineNumber( io ) + "]" );
+		        TAG + "::getSystemLocation [line: " + getExceptionLineNumber( io ) + "]" );
     		
     		// Use backup data from https://ipapi.co instead
     		String ip = getSystemIpAddress();
@@ -3221,19 +3251,10 @@ public abstract class UtilityMethod
      	    		String regionName = reader.getString( "region" );
      	    		String regionCode = reader.getString( "region_code" );
      	    		String countryCode = reader.getString( "country" );
-     	    		String countryName = reader.getString( "country_name" );
-     	    		String continent_code = reader.getString( "continent_code" );
-     	    		Boolean inEu = reader.getBoolean( "in_eu" );
+     	    		String countryName = reader.getString( "country_name" );    	    		
      	    		String zipCode = reader.getString( "postal" );
      	    		String latitude = reader.getString( "latitude" );
-     	    		String longitude = reader.getString( "longitude" );
-     	    		String timeZone = reader.getString( "timezone" );
-     	    		String utcOffset = reader.getString( "utc_offset" );
-     	    		String countryCallingCode = reader.getString( "country_calling_code" );
-     	    		String currency = reader.getString( "currency" );
-     	    		String languages = reader.getString( "languages" );
-     	    		String asn = reader.getString( "asn" );
-     	    		String serviceProvider = reader.getString( "org" );
+     	    		String longitude = reader.getString( "longitude" );    	    		
      	    		
      	    		// create a new CityData object
      	    		cd = new CityData( city, countryName, countryCode, regionName,
@@ -3255,8 +3276,7 @@ public abstract class UtilityMethod
 		{
 			logMessage( LogLevel.SEVERE, e.getMessage(),
 			        TAG + "::getSystemLocation [line: " + getExceptionLineNumber( e ) + "]" );
-		}// end of catch block
-		
+		}// end of catch block	
     	
     	return cd;
     }// end of method getSystemLocation
@@ -3326,57 +3346,52 @@ public abstract class UtilityMethod
                                 { "https://api.ipify.org?format=json", "ip" }
                             };
                         String strJSON = null;
-                        String[] urlUsed = null;
+                        String[] urlUsed = null;                        
                         
-                        if ( hasInternetConnection() )
+                        while( strJSON == null ) 
                         {
-                            while( strJSON == null ) 
+                            for ( String[] url : jsonUrls ) 
                             {
-                                for ( String[] url : jsonUrls ) 
+                                try
                                 {
-                                    try
-                                    {
-                                        strJSON = HttpHelper.downloadUrl( url[ 0 ] );
-                                        urlUsed = url;
-                                    }// end of try block
-                                    catch ( IOException io )
-                                    {
-                                        strJSON = null;
-                                    }// end of catch block
-                                }// end of for each loop
-                            }// end of while loop
+                                    strJSON = HttpHelper.downloadUrl( url[ 0 ] );
+                                    urlUsed = url;
+                                }// end of try block
+                                catch ( IOException io )
+                                {
+                                    strJSON = null;
+                                }// end of catch block
+                            }// end of for each loop
+                        }// end of while loop
+                        
+                        try 
+                        {
+                            Object json = new JSONTokener( strJSON ).nextValue();
                             
-                            try 
+                            // Check if a JSON was returned from the web service
+                            if ( json instanceof JSONObject )
                             {
-                                Object json = new JSONTokener( strJSON ).nextValue();
+                                // Get the full HTTP Data as JSONObject
+                                JSONObject reader = new JSONObject( strJSON );
                                 
-                                // Check if a JSON was returned from the web service
-                                if ( json instanceof JSONObject )
-                                {
-                                    // Get the full HTTP Data as JSONObject
-                                    JSONObject reader = new JSONObject( strJSON );
-                                    
-                                    // Get the String returned from the object
-                                    ip = reader.getString( urlUsed[ 1 ] );
-                                }// end of if block			
-                            }// end of try block
-                            catch ( JSONException je )
-                            {
-                                logMessage( LogLevel.WARNING, je.getMessage(),
-                                    TAG + "::getSystemIpAddress [line: " + getExceptionLineNumber( je ) + "]" );
-                            }// end of catch block
-                        
-                        }// end of if block
-                        else
+                                // Get the String returned from the object
+                                ip = reader.getString( urlUsed[ 1 ] );
+                            }// end of if block			
+                        }// end of try block
+                        catch ( JSONException je )
                         {
-                            JOptionPane.showMessageDialog( null, "No Internet Connection.",
-                                WeatherLionMain.PROGRAM_NAME, JOptionPane.ERROR_MESSAGE );
-                        
-                        }// end of else block
+                            logMessage( LogLevel.WARNING, je.getMessage(),
+                                TAG + "::getSystemIpAddress [line: " + getExceptionLineNumber( je ) + "]" );
+                        }// end of catch block                      
                     }// end of catch block
                 }// end of if block if( ip == null )                      		
     	    }// end of if block if( isWindows() )
     	}// end of if block if( hasInternetConnection() )
+    	else
+        {
+            JOptionPane.showMessageDialog( null, "No Internet Connection.",
+                WeatherLionMain.PROGRAM_NAME, JOptionPane.ERROR_MESSAGE );                        
+        }// end of else block
     	
         // Return the data from specified url
         return ip;
@@ -4116,6 +4131,41 @@ public abstract class UtilityMethod
         
         return cn;
 	}// end of method numberOfCharacterOccurrences
+	
+	/**
+	 * Determines what percentage match occurs when both strings are compared.
+	 * 
+	 * @param mainString	The {@code String} that should contain a similar {@code String}
+	 * @param searchString	The {@code String} that needs to be matched
+	 * @return	The numeric percentage of the comparison
+	 */
+	public static int percentageMatch( String mainString, String searchString )
+	{
+		String[] ms_words = mainString.split( " " );
+		String[] ss_words = searchString.split( " " );
+		int num_words_found = 0;
+		float match_percentage = 0;
+
+		for ( String w : ss_words )
+		{
+			if ( mainString.contains( w ) )
+            {
+                // the string contains this word
+                num_words_found++; // increment the number of words found
+            }// end of if block
+		}// end of for each loop
+ 
+		// what percentage of the main string is the search string
+		match_percentage = ((float) num_words_found / (float) ms_words.length) * 100.0f;
+
+		// the main string cannot be shorter than the search string for a 100% match
+		if (ms_words.length < ss_words.length)
+		{
+		    match_percentage = ((float) num_words_found / (float) ss_words.length) * 100.0f;
+		}// end of if block	
+
+		return (int) match_percentage;
+	}// end of function percentageMatch
 	
 	/**
 	 * Return the name of the SQLite database file currently in use.
