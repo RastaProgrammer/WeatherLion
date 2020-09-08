@@ -1,6 +1,9 @@
 # WeatherLion (Beta)
 <i>Java Desktop Weather Widget</i>
 
+![Screenshot](Screenshot.png)
+
+## Outline
 Weather Lion is a modern desktop widget designed to display current weather information based on a selected location or by way of the system's IP address location. The widget is designed to consume data from webservices such as:<br />
 Dark Sky Weather, Here Maps, Yahoo! Weather, Open Weather Map, Weather Bit, Weather Underground, and Geonames.<br />
 In order for the program to use any of these service providers, the user must aquire access keys from each services provider.
